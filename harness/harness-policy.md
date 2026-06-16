@@ -7,7 +7,7 @@ Este documento define los controles operativos que permiten cumplir la Constituc
 La Constitución establece las reglas superiores.
 El Harness Engineering establece cómo esas reglas se aplican, controlan, validan y auditan dentro de cada desarrollo.
 
-El objetivo de este Harness es asegurar que todo proyecto digital asistido por IA tenga límites claros, controles de seguridad, revisión humana, trazabilidad documental, gestión de riesgos y evidencia suficiente para su desarrollo, despliegue, consumo, monitoreo, soporte, redeploy, suspensión o retiro.
+El objetivo de este Harness es asegurar que todo proyecto digital asistido por IA tenga límites claros, controles de seguridad, revisión humana, trazabilidad documental, gestión de riesgos y evidencia suficiente para su desarrollo, pruebas, revisión técnica, despliegue, consumo, monitoreo, soporte, redeploy, suspensión o retiro.
 
 ---
 
@@ -23,7 +23,7 @@ Todo desarrollo debe cumplir tres condiciones mínimas:
 3. Expediente técnico actualizado.
 ```
 
-Si falta alguno de estos tres elementos, la solución no debe avanzar a desarrollo formal, pruebas, despliegue ni producción.
+Si falta alguno de estos tres elementos, la solución no debe avanzar a desarrollo formal, pruebas, revisión técnica, despliegue ni producción.
 
 ---
 
@@ -43,6 +43,8 @@ Para la empresa, Harness Engineering se materializa como:
 * Reglas de repositorio.
 * Reglas de documentación.
 * Reglas de desarrollo.
+* Reglas de pruebas.
+* Reglas de revisión técnica.
 * Reglas de despliegue.
 * Reglas de consumo.
 * Reglas de monitoreo.
@@ -66,7 +68,7 @@ Harness
 = Define cómo se controla, bloquea, valida y audita el cumplimiento.
 
 Spec / Expediente técnico
-= Define cómo se aplica en un proyecto específico.
+= Define cómo se aplica todo en un proyecto específico.
 ```
 
 Ejemplo:
@@ -120,13 +122,38 @@ Todo proyecto digital empresarial debe tener, como mínimo:
   risks/
   decisions/
   change-requests/
+
+/tests/
+  test-matrix.md
+  test-report-YYYY-MM-DD.md
+  defects/
 ```
 
-Si el proyecto no requiere código, deberá existir una estructura equivalente en el sistema documental aprobado.
+Si el proyecto no requiere código o pruebas técnicas, deberá existir una estructura equivalente en el sistema documental aprobado.
 
 ---
 
-## 6. Regla general sobre generación de código
+## 6. Agentes reconocidos
+
+La empresa reconoce siete tipos de agentes:
+
+```text
+1. Agente documental.
+2. Agente de especificación.
+3. Agente de revisión técnica.
+4. Agente de desarrollo.
+5. Agente de pruebas.
+6. Agente de soporte.
+7. Agente de consulta.
+```
+
+Ningún agente debe actuar fuera de su rol.
+
+La separación de roles evita que un mismo agente asuma responsabilidades incompatibles, como especificar, desarrollar, probar, revisar y aprobar al mismo tiempo.
+
+---
+
+## 7. Regla general sobre generación de código
 
 La generación o modificación de código no está prohibida de forma absoluta.
 
@@ -135,7 +162,7 @@ Solo está permitida cuando se cumplan simultáneamente estas condiciones:
 1. El proyecto se encuentra en estado **Aprobada para desarrollo**, **En desarrollo** o **En pruebas**.
 2. Existe expediente técnico mínimo actualizado.
 3. Existen tareas aprobadas en `003-tasks.md`.
-4. El agente tiene rol explícito de **Agente desarrollador**.
+4. El agente tiene rol explícito de **Agente de Desarrollo**.
 5. El trabajo se limita al alcance aprobado.
 6. No se usan secretos reales.
 7. No se usan datos reales no autorizados.
@@ -143,13 +170,23 @@ Solo está permitida cuando se cumplan simultáneamente estas condiciones:
 9. No se alteran permisos, accesos o integraciones críticas sin aprobación humana.
 10. Todo cambio queda documentado.
 
-Ningún agente diferente al **Agente desarrollador** puede generar o modificar código productivo.
+Ningún agente diferente al **Agente de Desarrollo** puede generar o modificar código productivo.
 
-Los agentes documental, de especificación, revisión técnica, pruebas, soporte y consulta pueden generar ejemplos conceptuales, pseudocódigo o recomendaciones técnicas, siempre que estén claramente marcados como referencia y no sean tratados como implementación aprobada.
+Los agentes documental, especificación, revisión técnica, pruebas, soporte y consulta pueden generar ejemplos conceptuales, pseudocódigo, matrices, recomendaciones o documentación técnica, siempre que estén claramente marcados como referencia y no sean tratados como implementación aprobada.
 
 ---
 
-## 7. Estados permitidos del proyecto
+## 8. Regla general sobre pruebas
+
+La creación, documentación o ejecución asistida de pruebas debe estar a cargo del **Agente de Pruebas** cuando se trate de validaciones formales.
+
+El Agente de Desarrollo puede crear pruebas básicas asociadas al cambio si la tarea lo exige, pero la validación formal de escenarios, matriz de pruebas, evidencia, defectos y cobertura de criterios de aceptación corresponde al **Agente de Pruebas**.
+
+El Agente de Revisión Técnica puede revisar si existe evidencia suficiente de pruebas, pero no debe asumir como responsabilidad principal diseñarlas o ejecutarlas.
+
+---
+
+## 9. Estados permitidos del proyecto
 
 Los agentes y desarrolladores solo pueden actuar según el estado del proyecto.
 
@@ -165,6 +202,8 @@ Pendiente de revisión humana
 Aprobada para desarrollo
 En desarrollo
 En pruebas
+Aprobada para revisión técnica
+En revisión técnica
 Aprobada para despliegue
 En producción
 En monitoreo
@@ -176,9 +215,9 @@ Riesgo crítico
 
 ---
 
-## 8. Reglas de estado
+## 10. Reglas de estado
 
-### 8.1 Solicitada
+### 10.1 Solicitada
 
 Permitido:
 
@@ -192,6 +231,7 @@ Permitido:
 No permitido:
 
 * Generar código.
+* Ejecutar pruebas formales.
 * Crear repositorio productivo.
 * Crear Power App productiva.
 * Crear conexiones reales.
@@ -207,7 +247,7 @@ En este estado todavía no existe aprobación para análisis técnico ni expedie
 
 ---
 
-### 8.2 En evaluación
+### 10.2 En evaluación
 
 Permitido:
 
@@ -222,6 +262,7 @@ Permitido:
 No permitido:
 
 * Generar código productivo.
+* Ejecutar pruebas formales.
 * Crear componentes productivos.
 * Conectarse a fuentes reales.
 * Crear permisos.
@@ -230,11 +271,11 @@ No permitido:
 
 Motivo:
 
-Este estado permite análisis, pero todavía no autoriza construcción ni acceso operativo.
+Este estado permite análisis, pero todavía no autoriza construcción, pruebas formales ni acceso operativo.
 
 ---
 
-### 8.3 Aprobada para análisis
+### 10.3 Aprobada para análisis
 
 Permitido:
 
@@ -252,6 +293,7 @@ No permitido:
 
 * Desarrollar funcionalidad productiva.
 * Generar código implementable como solución final.
+* Ejecutar pruebas formales sobre solución no aprobada.
 * Acceder a datos reales sin autorización.
 * Crear integraciones reales.
 * Crear Power Apps productivas.
@@ -262,11 +304,11 @@ No permitido:
 
 Motivo:
 
-En este estado la IA puede ayudar a estructurar el expediente técnico, pero todavía no debe construir la solución. El resultado esperado es documentación, análisis y preparación para revisión humana.
+En este estado la IA puede ayudar a estructurar el expediente técnico, pero todavía no debe construir ni probar formalmente la solución.
 
 ---
 
-### 8.4 En generación de expediente técnico
+### 10.4 En generación de expediente técnico
 
 Permitido:
 
@@ -285,6 +327,7 @@ No permitido:
 
 * Generar código productivo.
 * Implementar tareas.
+* Ejecutar pruebas formales.
 * Crear conexiones reales.
 * Crear permisos.
 * Ejecutar scripts.
@@ -293,11 +336,11 @@ No permitido:
 
 Motivo:
 
-El objetivo es construir el expediente técnico antes de iniciar el desarrollo.
+El objetivo es construir el expediente técnico antes de iniciar desarrollo, pruebas o revisión técnica.
 
 ---
 
-### 8.5 Expediente técnico generado
+### 10.5 Expediente técnico generado
 
 Permitido:
 
@@ -314,6 +357,7 @@ No permitido:
 
 * Iniciar desarrollo sin aprobación.
 * Generar código productivo.
+* Ejecutar pruebas formales de implementación.
 * Cambiar alcance sin registrar solicitud de cambio.
 * Crear integraciones.
 * Crear permisos.
@@ -326,7 +370,7 @@ El expediente ya existe, pero aún debe ser revisado y aprobado antes de permiti
 
 ---
 
-### 8.6 Pendiente de revisión humana
+### 10.6 Pendiente de revisión humana
 
 Permitido:
 
@@ -341,6 +385,7 @@ No permitido:
 
 * Generar código productivo.
 * Avanzar a desarrollo sin aprobación.
+* Ejecutar pruebas formales de implementación.
 * Desplegar.
 * Crear permisos.
 * Ejecutar integraciones.
@@ -348,18 +393,18 @@ No permitido:
 
 Motivo:
 
-Este estado existe para asegurar que el expediente no sea aceptado automáticamente por haber sido generado por IA.
+Este estado asegura que el expediente no sea aceptado automáticamente por haber sido generado por IA.
 
 ---
 
-### 8.7 Aprobada para desarrollo
+### 10.7 Aprobada para desarrollo
 
 Permitido:
 
 * Implementar tareas aprobadas.
 * Generar código.
 * Modificar archivos dentro del alcance.
-* Crear pruebas.
+* Crear pruebas básicas asociadas a la tarea.
 * Refactorizar código existente.
 * Actualizar documentación.
 * Prototipar en ambiente Dev.
@@ -378,19 +423,21 @@ No permitido:
 * Crear integraciones críticas sin aprobación.
 * Modificar datos reales sin autorización.
 * Ampliar alcance sin solicitud de cambio.
+* Marcar pruebas formales como completas sin evidencia.
 
 Condición especial:
 
-Solo el **Agente desarrollador** puede generar o modificar código en este estado. Los demás agentes mantienen sus funciones documentales, de revisión, consulta, soporte o especificación.
+Solo el **Agente de Desarrollo** puede generar o modificar código en este estado.
+El **Agente de Pruebas** puede preparar matriz de pruebas preliminar si existen criterios de aceptación.
 
 ---
 
-### 8.8 En desarrollo
+### 10.8 En desarrollo
 
 Permitido:
 
 * Continuar implementación de tareas aprobadas.
-* Crear pruebas.
+* Crear pruebas básicas.
 * Actualizar documentación.
 * Registrar decisiones.
 * Registrar riesgos.
@@ -410,22 +457,26 @@ No permitido:
 * Ejecutar cambios destructivos sin aprobación.
 * Cambiar integraciones críticas sin revisión.
 * Alterar datos reales sin autorización.
+* Inventar resultados de prueba.
 
 ---
 
-### 8.9 En pruebas
+### 10.9 En pruebas
 
 Permitido:
 
-* Ejecutar pruebas.
-* Corregir defectos.
+* Ejecutar pruebas en ambiente autorizado.
+* Diseñar matriz de pruebas.
 * Validar criterios de aceptación.
+* Validar permisos.
+* Validar datos ficticios o anonimizados.
+* Validar errores controlados.
+* Registrar evidencia.
+* Registrar defectos.
+* Corregir defectos mediante tareas aprobadas.
 * Revisar riesgos.
 * Preparar despliegue.
 * Actualizar documentación.
-* Generar evidencias de validación.
-* Revisar permisos.
-* Validar manejo de errores.
 * Validar monitoreo.
 * Validar rollback o reversión, si aplica.
 
@@ -439,10 +490,66 @@ No permitido:
 * Desactivar monitoreo o controles.
 * Modificar arquitectura sin revisión.
 * Aprobar producción automáticamente.
+* Declarar pruebas exitosas sin evidencia.
+
+Condición especial:
+
+El **Agente de Pruebas** lidera la validación formal.
+El **Agente de Desarrollo** corrige defectos aprobados.
+El **Agente de Revisión Técnica** revisa evidencia y cumplimiento.
 
 ---
 
-### 8.10 Aprobada para despliegue
+### 10.10 Aprobada para revisión técnica
+
+Permitido:
+
+* Preparar Pull Request o paquete de revisión.
+* Entregar evidencia de pruebas.
+* Entregar documentación actualizada.
+* Entregar matriz de riesgos.
+* Solicitar revisión técnica.
+* Consolidar hallazgos.
+
+No permitido:
+
+* Desplegar producción.
+* Cambiar alcance.
+* Ignorar defectos abiertos.
+* Omitir evidencia de pruebas.
+* Cerrar riesgos sin revisión.
+
+---
+
+### 10.11 En revisión técnica
+
+Permitido:
+
+* Revisar cumplimiento constitucional.
+* Revisar cumplimiento Harness.
+* Revisar arquitectura.
+* Revisar calidad de código.
+* Revisar documentación.
+* Revisar riesgos.
+* Revisar evidencia de pruebas.
+* Revisar secretos.
+* Revisar permisos.
+* Revisar impacto en datos.
+* Recomendar ajustes.
+* Bloquear por incumplimiento.
+
+No permitido:
+
+* Aprobar producción como decisión final.
+* Modificar código sin autorización.
+* Ejecutar pruebas como responsabilidad principal.
+* Cambiar permisos.
+* Desplegar.
+* Cerrar riesgos sin validación humana.
+
+---
+
+### 10.12 Aprobada para despliegue
 
 Permitido:
 
@@ -462,12 +569,13 @@ No permitido:
 * Usar secretos manuales no controlados.
 * Cambiar variables críticas sin revisión.
 * Saltarse pruebas.
+* Saltarse revisión técnica.
 * Saltarse validación funcional o técnica.
 * Cambiar alcance durante el despliegue.
 
 ---
 
-### 8.11 En producción
+### 10.13 En producción
 
 Permitido:
 
@@ -476,7 +584,7 @@ Permitido:
 * Registrar incidentes.
 * Crear solicitudes de cambio.
 * Ejecutar mantenimiento autorizado.
-* Revisar logs.
+* Revisar logs autorizados.
 * Documentar hallazgos.
 * Proponer mejoras.
 * Revisar accesos.
@@ -486,6 +594,7 @@ Permitido:
 No permitido:
 
 * Modificar directamente sin control.
+* Ejecutar pruebas destructivas.
 * Cambiar datos productivos sin aprobación.
 * Desactivar monitoreo.
 * Cambiar roles sin autorización.
@@ -496,14 +605,14 @@ No permitido:
 
 ---
 
-### 8.12 En monitoreo
+### 10.14 En monitoreo
 
 Permitido:
 
 * Revisar métricas de uso.
 * Revisar errores.
 * Revisar accesos.
-* Revisar logs.
+* Revisar logs autorizados.
 * Identificar mejoras.
 * Identificar soluciones sin uso.
 * Identificar riesgos.
@@ -521,7 +630,7 @@ No permitido:
 
 ---
 
-### 8.13 Suspendida
+### 10.15 Suspendida
 
 Permitido:
 
@@ -544,7 +653,7 @@ No permitido:
 
 ---
 
-### 8.14 Retirada
+### 10.16 Retirada
 
 Permitido:
 
@@ -567,7 +676,7 @@ No permitido:
 
 ---
 
-### 8.15 Reemplazada
+### 10.17 Reemplazada
 
 Permitido:
 
@@ -588,7 +697,7 @@ No permitido:
 
 ---
 
-### 8.16 Riesgo crítico
+### 10.18 Riesgo crítico
 
 Permitido:
 
@@ -603,6 +712,7 @@ Permitido:
 No permitido:
 
 * Continuar desarrollo como si no hubiera riesgo.
+* Ejecutar pruebas riesgosas.
 * Desplegar.
 * Ampliar alcance.
 * Manipular datos.
@@ -611,7 +721,7 @@ No permitido:
 
 ---
 
-## 9. Control de agentes de IA
+## 11. Control de agentes de IA
 
 Todo agente debe tener una ficha de rol antes de actuar.
 
@@ -631,20 +741,9 @@ human_review_required_when:
 risk_escalation_rules:
 ```
 
-### Tipos de agentes reconocidos
-
-La empresa reconoce estos agentes:
-* Agente documental.
-* Agente de especificación.
-* Agente de revisión técnica.
-* Agente de desarrollo.
-* Agente de pruebas.
-* Agente de soporte.
-* Agente de consulta.
-
 ---
 
-## 9.1 Agente documental
+## 12. Control del Agente Documental
 
 Función:
 
@@ -660,18 +759,17 @@ Puede:
 * Crear guías para usuarios.
 * Crear guías para desarrolladores.
 * Preparar documentación para revisión humana.
-* Identificar documentación desactualizada.
-* Proponer mejoras documentales.
 
 No puede:
 
 * Aprobar documentos como definitivos.
+* Generar código productivo.
+* Ejecutar pruebas formales.
 * Cambiar arquitectura sin revisión.
 * Generar permisos.
 * Modificar producción.
 * Ocultar riesgos.
 * Usar secretos.
-* Generar código productivo.
 
 Evidencia requerida:
 
@@ -684,7 +782,7 @@ Evidencia requerida:
 
 ---
 
-## 9.2 Agente de especificación
+## 13. Control del Agente de Especificación
 
 Función:
 
@@ -699,8 +797,6 @@ Puede:
 * Crear análisis de riesgos.
 * Formular preguntas de aclaración.
 * Comparar opciones tecnológicas.
-* Proponer arquitectura preliminar.
-* Proponer estructura documental.
 
 No puede:
 
@@ -708,9 +804,8 @@ No puede:
 * Aprobar arquitectura final.
 * Aprobar producción.
 * Crear código productivo antes de revisión.
+* Ejecutar pruebas formales de implementación.
 * Dar por cerrado un requisito sin validación humana.
-* Crear permisos.
-* Ejecutar integraciones.
 
 Condición de uso:
 
@@ -718,7 +813,47 @@ Solo puede trabajar sobre proyectos registrados o solicitudes formalmente recibi
 
 ---
 
-## 9.3 Agente desarrollador
+## 14. Control del Agente de Revisión Técnica
+
+Función:
+
+Validar coherencia técnica, documental, normativa y de seguridad de cambios realizados.
+
+Puede:
+
+* Revisar cumplimiento contra Constitución.
+* Revisar cumplimiento contra Harness.
+* Revisar cumplimiento contra Spec.
+* Revisar arquitectura.
+* Revisar código.
+* Revisar datos.
+* Revisar permisos.
+* Revisar secretos.
+* Revisar documentación.
+* Revisar evidencia de pruebas.
+* Revisar riesgos.
+* Recomendar intervención del Agente de Pruebas.
+
+No puede:
+
+* Aprobar producción.
+* Reemplazar revisión humana.
+* Desarrollar código productivo.
+* Ejecutar pruebas como responsabilidad principal.
+* Cambiar permisos.
+* Modificar datos reales.
+* Ejecutar despliegues.
+* Cerrar riesgos sin validación.
+
+Salida esperada:
+
+```text
+/ai/reviews/technical-review-YYYY-MM-DD.md
+```
+
+---
+
+## 15. Control del Agente de Desarrollo
 
 Función:
 
@@ -728,14 +863,11 @@ Puede:
 
 * Generar código.
 * Modificar archivos dentro del alcance aprobado.
-* Crear pruebas.
+* Crear pruebas básicas asociadas a la tarea.
 * Refactorizar.
 * Corregir errores asociados a una tarea.
 * Documentar cambios.
 * Sugerir mejoras técnicas.
-* Actualizar documentación técnica relacionada con el cambio.
-* Preparar cambios para revisión.
-* Proponer pruebas adicionales.
 
 No puede:
 
@@ -750,54 +882,68 @@ No puede:
 * Crear conexiones reales sin aprobación.
 * Aprobar su propio código.
 * Ampliar alcance sin solicitud de cambio.
-* Ignorar riesgos documentados.
 
 Regla obligatoria:
 
-El agente desarrollador solo puede trabajar contra tareas definidas y aprobadas en `003-tasks.md`.
+El Agente de Desarrollo solo puede trabajar contra tareas definidas y aprobadas en `003-tasks.md`.
 
 Si detecta que una tarea requiere información no documentada, debe detenerse y reportar el bloqueo.
 
 ---
 
-## 9.4 Agente revisor
+## 16. Control del Agente de Pruebas
 
 Función:
 
-Validar coherencia entre Constitución, Harness, Spec, código, configuración y documentación.
+Diseñar, proponer, documentar, ejecutar de forma asistida o validar casos de prueba.
 
 Puede:
 
-* Revisar cumplimiento.
-* Detectar secretos.
-* Revisar riesgos.
-* Detectar cambios fuera de alcance.
-* Comparar código contra tareas.
-* Revisar documentación faltante.
-* Revisar criterios de aceptación.
-* Identificar deuda técnica.
-* Identificar inconsistencias.
-* Identificar riesgos nuevos.
-* Proponer correcciones.
+* Diseñar matriz de pruebas.
+* Crear checklist de validación.
+* Proponer pruebas unitarias.
+* Proponer pruebas funcionales.
+* Proponer pruebas de integración.
+* Proponer pruebas de permisos.
+* Proponer pruebas de datos.
+* Proponer pruebas de errores.
+* Proponer pruebas de regresión.
+* Ejecutar pruebas asistidas en ambientes autorizados.
+* Documentar resultados.
+* Registrar evidencia.
+* Registrar defectos.
+* Recomendar correcciones.
+* Recomendar intervención del Agente de Desarrollo.
+* Recomendar revisión del Agente de Revisión Técnica.
 
 No puede:
 
 * Aprobar producción.
-* Reemplazar revisión humana.
-* Cambiar permisos.
-* Modificar código sin autorización.
-* Cerrar riesgos sin validación.
-* Cambiar estados del proyecto sin autorización.
+* Reemplazar validación humana.
+* Crear código productivo como función principal.
+* Crear permisos.
+* Asignar accesos.
+* Cambiar roles.
+* Usar secretos reales.
+* Ejecutar pruebas destructivas sin autorización.
+* Modificar datos reales sin autorización.
+* Ejecutar scripts sobre producción.
+* Desplegar cambios.
+* Modificar SAP o sistemas núcleo.
+* Inventar resultados de prueba.
 
 Salida esperada:
 
 ```text
-/ai/reviews/review-YYYY-MM-DD.md
+/tests/test-matrix.md
+/tests/test-report-YYYY-MM-DD.md
+/tests/defects/
+/ai/outputs/testing-output-YYYY-MM-DD.md
 ```
 
 ---
 
-## 9.5 Agente de soporte
+## 17. Control del Agente de Soporte
 
 Función:
 
@@ -807,7 +953,7 @@ Puede:
 
 * Consultar documentación aprobada.
 * Explicar errores frecuentes.
-* Sugerir pasos de diagnóstico.
+* Sugerir pasos de diagnóstico no destructivos.
 * Crear guías de usuario.
 * Crear artículos de conocimiento.
 * Escalar incidentes.
@@ -828,7 +974,7 @@ No puede:
 
 ---
 
-## 9.6 Agente de consulta
+## 18. Control del Agente de Consulta
 
 Función:
 
@@ -850,6 +996,7 @@ Puede:
 No puede:
 
 * Crear código.
+* Ejecutar pruebas.
 * Modificar documentación sin autorización.
 * Aprobar decisiones.
 * Cambiar estados del proyecto.
@@ -859,7 +1006,7 @@ No puede:
 
 ---
 
-## 10. Paquete de contexto gobernado para agentes
+## 19. Paquete de contexto gobernado para agentes
 
 Todo agente debe recibir un paquete de contexto controlado.
 
@@ -875,6 +1022,8 @@ Todo agente debe recibir un paquete de contexto controlado.
 7. Decisiones registradas.
 8. Estado del proyecto.
 9. Restricciones de acceso.
+10. Criterios de aceptación, si aplica.
+11. Evidencia de pruebas, si aplica.
 ```
 
 ### Orden de lectura obligatorio
@@ -888,19 +1037,21 @@ El agente debe usar este orden:
 4. Spec.
 5. Plan.
 6. Tasks.
-7. Risks.
-8. Human review.
-9. Deployment notes.
-10. Monitoring notes.
-11. Decisions.
-12. Change log.
+7. Acceptance criteria.
+8. Risks.
+9. Human review.
+10. Deployment notes.
+11. Monitoring notes.
+12. Decisions.
+13. Change log.
+14. Tests, si aplica.
 ```
 
 Si falta un documento crítico, el agente debe reportarlo y limitar su acción.
 
 ---
 
-## 11. Control de secretos
+## 20. Control de secretos
 
 ### Regla
 
@@ -916,6 +1067,8 @@ Ningún secreto debe aparecer en:
 * Capturas.
 * Archivos `.env` versionados.
 * Archivos de ejemplo con valores reales.
+* Evidencia de pruebas.
+* Reportes de defectos.
 
 ### Se consideran secretos
 
@@ -949,11 +1102,11 @@ Si se detecta un secreto:
 
 ### Criterio de bloqueo
 
-Un proyecto no puede avanzar a merge, prueba, despliegue o producción si contiene secretos reales expuestos.
+Un proyecto no puede avanzar a merge, prueba, revisión técnica, despliegue o producción si contiene secretos reales expuestos.
 
 ---
 
-## 12. Control de datos
+## 21. Control de datos
 
 ### Regla
 
@@ -994,7 +1147,7 @@ test_data_strategy:
 
 ---
 
-## 13. Control de bases de datos
+## 22. Control de bases de datos
 
 La IA puede proponer:
 
@@ -1041,7 +1194,7 @@ aprobador:
 
 ---
 
-## 14. Control de Power Platform
+## 23. Control de Power Platform
 
 La IA puede apoyar soluciones Power Platform en ambientes controlados.
 
@@ -1096,10 +1249,12 @@ Antes de producción, se debe validar:
 * Soporte.
 * Documentación.
 * Criterios de aceptación.
+* Evidencia de pruebas.
+* Revisión técnica.
 
 ---
 
-## 15. Control de SAP y sistemas núcleo
+## 24. Control de SAP y sistemas núcleo
 
 Toda integración con SAP, sistemas financieros, nómina, clientes, operación central o sistemas núcleo requiere revisión IT.
 
@@ -1122,6 +1277,8 @@ Toda propuesta debe contemplar:
 * Aprobación humana.
 * Monitoreo.
 * Plan de reversión.
+* Evidencia de pruebas controladas.
+* Revisión técnica.
 
 ### Bloqueo automático
 
@@ -1138,7 +1295,7 @@ El agente debe detenerse si una solicitud implica:
 
 ---
 
-## 16. Control de documentación
+## 25. Control de documentación
 
 Todo proyecto debe tener documentación viva.
 
@@ -1172,10 +1329,11 @@ Debe bloquearse o devolverse un cambio si:
 * No se documentó impacto.
 * No se registró decisión relevante.
 * No se registró revisión humana cuando aplica.
+* No existe evidencia de pruebas para cambios que lo requieren.
 
 ---
 
-## 17. Control de desarrollo
+## 26. Control de desarrollo
 
 ### Regla
 
@@ -1187,12 +1345,13 @@ Flujo:
 Task aprobada
 → Implementación
 → Pruebas
+→ Revisión técnica
 → Documentación
-→ Revisión
+→ Revisión humana
 → Merge
 ```
 
-### El agente desarrollador debe detenerse si:
+### El Agente de Desarrollo debe detenerse si:
 
 * La tarea no existe.
 * La tarea no está aprobada.
@@ -1209,7 +1368,102 @@ Task aprobada
 
 ---
 
-## 18. Control de repositorio
+## 27. Control de pruebas
+
+### Regla
+
+Las pruebas deben validar que la solución cumple criterios de aceptación, riesgos conocidos y comportamiento esperado.
+
+El Agente de Pruebas debe generar o actualizar:
+
+```text
+/tests/test-matrix.md
+/tests/test-report-YYYY-MM-DD.md
+/tests/defects/
+```
+
+### Las pruebas deben cubrir, cuando aplique:
+
+* Escenarios exitosos.
+* Escenarios de error.
+* Permisos.
+* Datos.
+* API.
+* Frontend.
+* Backend.
+* Integraciones.
+* Power Platform.
+* Power BI.
+* Bases de datos.
+* Monitoreo.
+* Soporte.
+* Regresión.
+
+### El Agente de Pruebas debe detenerse si:
+
+* No existe criterio de aceptación.
+* No existe ambiente autorizado.
+* No existe dato de prueba permitido.
+* Se requiere secreto real.
+* Se requiere dato real no autorizado.
+* Se requiere modificar producción.
+* Se requiere ejecutar acción destructiva.
+* Se requiere modificar SAP sin autorización.
+* La prueba puede afectar disponibilidad sin plan.
+
+---
+
+## 28. Control de revisión técnica
+
+### Regla
+
+Todo cambio relevante debe pasar por revisión técnica antes de merge, despliegue o producción.
+
+El Agente de Revisión Técnica debe validar:
+
+* Constitución.
+* Harness.
+* Spec.
+* Tareas.
+* Criterios de aceptación.
+* Riesgos.
+* Arquitectura.
+* Código.
+* Datos.
+* Permisos.
+* Secretos.
+* Documentación.
+* Evidencia de pruebas.
+* Impacto en despliegue.
+* Impacto en monitoreo.
+
+### Resultado permitido
+
+La revisión técnica puede terminar en:
+
+```text
+Aprobable con revisión humana
+Requiere ajustes menores
+Requiere ajustes mayores
+Requiere intervención del Agente de Pruebas
+Bloqueado por riesgo
+Bloqueado por falta de información
+Bloqueado por incumplimiento constitucional
+Bloqueado por incumplimiento Harness
+Bloqueado por posible exposición de secretos
+Bloqueado por impacto en datos
+Bloqueado por impacto en permisos
+Bloqueado por impacto en producción
+Bloqueado por integración crítica
+Bloqueado por falta de documentación
+Bloqueado por falta de evidencia de pruebas
+```
+
+El Agente de Revisión Técnica no debe usar “aprobado” como resultado final.
+
+---
+
+## 29. Control de repositorio
 
 Todo proyecto con código debe usar repositorio corporativo.
 
@@ -1238,12 +1492,14 @@ pruebas realizadas:
 documentación actualizada:
 impacto en datos:
 impacto en seguridad:
+impacto en permisos:
+requiere revisión técnica:
 requiere aprobación:
 ```
 
 ---
 
-## 19. Control de despliegue
+## 30. Control de despliegue
 
 ### Regla
 
@@ -1254,8 +1510,9 @@ La IA no puede aprobar despliegue ni producción.
 ```text
 GitHub
 → Pull Request
-→ Revisión
+→ Revisión de código
 → Pruebas
+→ Revisión técnica
 → Build
 → Deploy Dev
 → Validación técnica
@@ -1269,6 +1526,8 @@ GitHub
 
 * Checklist preproducción.
 * Pruebas ejecutadas.
+* Informe de pruebas.
+* Revisión técnica.
 * Riesgos revisados.
 * Documentación actualizada.
 * Secretos controlados.
@@ -1287,7 +1546,7 @@ No se debe desplegar producción si falta cualquiera de los controles anteriores
 
 ---
 
-## 20. Control de consumo
+## 31. Control de consumo
 
 Toda solución debe definir cómo será consumida.
 
@@ -1323,7 +1582,7 @@ No se debe liberar una solución a usuarios sin definir roles, accesos, soporte 
 
 ---
 
-## 21. Control de monitoreo y auditoría
+## 32. Control de monitoreo y auditoría
 
 Toda solución en producción debe tener monitoreo proporcional a su criticidad.
 
@@ -1357,7 +1616,7 @@ No se debe pasar a producción una solución crítica sin monitoreo definido.
 
 ---
 
-## 22. Control de cambios funcionales
+## 33. Control de cambios funcionales
 
 Ningún cambio funcional debe ir directo a código.
 
@@ -1370,10 +1629,12 @@ Solicitud de cambio
 → Actualización de spec
 → Actualización de plan, si aplica
 → Actualización de tasks
+→ Actualización de acceptance criteria
 → Actualización de risks
 → Revisión humana
 → Desarrollo
 → Pruebas
+→ Revisión técnica
 → Changelog
 ```
 
@@ -1389,6 +1650,7 @@ impacto funcional:
 impacto técnico:
 impacto en datos:
 impacto en seguridad:
+impacto en permisos:
 impacto en despliegue:
 riesgos:
 decisión:
@@ -1398,7 +1660,7 @@ estado:
 
 ---
 
-## 23. Control de revisión normativa
+## 34. Control de revisión normativa
 
 La IA debe revisar si Constitución, Harness y Spec son coherentes con el proyecto.
 
@@ -1441,11 +1703,11 @@ Toda mejora debe hacer el modelo más práctico sin sacrificar:
 
 ---
 
-## 24. Control de soporte
+## 35. Control de soporte
 
 El soporte debe operar desde documentación aprobada.
 
-El agente de soporte puede ayudar a:
+El Agente de Soporte puede ayudar a:
 
 * Diagnosticar errores.
 * Guiar usuarios.
@@ -1480,7 +1742,7 @@ estado:
 
 ---
 
-## 25. Control de ciclo de vida
+## 36. Control de ciclo de vida
 
 Toda solución debe poder apagarse, suspenderse, redeplegarse o retirarse.
 
@@ -1510,7 +1772,7 @@ No deben existir soluciones activas sin dueño, sin documentación, sin monitore
 
 ---
 
-## 26. Evidencia mínima por fase
+## 37. Evidencia mínima por fase
 
 ### Antes de desarrollo
 
@@ -1531,8 +1793,28 @@ No deben existir soluciones activas sin dueño, sin documentación, sin monitore
 * Salidas IA importantes.
 * Cambios documentados.
 * Riesgos actualizados.
-* Pruebas.
+* Pruebas básicas, si aplica.
 * Changelog.
+
+### Durante pruebas
+
+* Matriz de pruebas.
+* Informe de pruebas.
+* Evidencia segura.
+* Defectos registrados.
+* Criterios de aceptación cubiertos.
+* Riesgos no cubiertos identificados.
+
+### Durante revisión técnica
+
+* Informe de revisión técnica.
+* Hallazgos.
+* Revisión de secretos.
+* Revisión de datos.
+* Revisión de permisos.
+* Revisión de documentación.
+* Revisión de evidencia de pruebas.
+* Bloqueos o recomendaciones.
 
 ### Antes de despliegue
 
@@ -1568,7 +1850,7 @@ No deben existir soluciones activas sin dueño, sin documentación, sin monitore
 
 ---
 
-## 27. Criterios de bloqueo general
+## 38. Criterios de bloqueo general
 
 Un proyecto debe detenerse si:
 
@@ -1582,6 +1864,9 @@ Un proyecto debe detenerse si:
 * Cambia producción sin aprobación.
 * No tiene documentación mínima.
 * No tiene riesgos registrados.
+* No tiene criterios de aceptación.
+* No tiene pruebas para cambios críticos.
+* No tiene revisión técnica para cambios relevantes.
 * No tiene plan de rollback para cambios críticos.
 * No tiene monitoreo para producción.
 * El agente trabaja fuera de su rol.
@@ -1589,15 +1874,17 @@ Un proyecto debe detenerse si:
 * Hay contradicción con la Constitución.
 * El estado del proyecto no permite la acción solicitada.
 * Se intenta generar código sin tarea aprobada.
-* Un agente distinto al Agente desarrollador intenta modificar código productivo.
+* Un agente distinto al Agente de Desarrollo intenta modificar código productivo.
+* Se intentan ejecutar pruebas destructivas sin autorización.
+* Se intenta aprobar producción desde IA.
 
 ---
 
-## 28. Cierre
+## 39. Cierre
 
 Este Harness no busca frenar el desarrollo. Busca que la empresa pueda desarrollar más soluciones digitales sin perder control, seguridad, trazabilidad, continuidad ni capacidad de auditoría.
 
-El Harness convierte la Constitución en controles reales y convierte el desarrollo asistido por IA en un proceso gobernado, documentado y mantenible.
+El Harness convierte la Constitución en controles reales y convierte el desarrollo asistido por IA en un proceso gobernado, documentado, probado, revisado y mantenible.
 
 Toda solución debe poder responder:
 
@@ -1613,6 +1900,8 @@ Qué agente intervino.
 Qué decisiones se tomaron.
 Qué versión está activa.
 Cómo se desarrolla.
+Cómo se prueba.
+Cómo se revisa técnicamente.
 Cómo se despliega.
 Cómo se consume.
 Cómo se monitorea.
