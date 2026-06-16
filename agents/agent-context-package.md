@@ -97,8 +97,9 @@ Estos documentos son obligatorios para todos los agentes.
 ```text
 agents/agent-documental.md
 agents/agent-specification.md
-agents/agent-developer.md
-agents/agent-reviewer.md
+agents/agent-technical-review.md
+agents/agent-development.md
+agents/agent-testing.md
 agents/agent-support.md
 agents/agent-consultation.md
 ```
@@ -220,16 +221,15 @@ risk_escalation_rules:
 
 ## 7. Tipos de agentes reconocidos
 
-La empresa reconoce seis tipos de agentes:
+La empresa reconoce siete tipos de agentes:
 
-```text
 1. Agente documental.
 2. Agente de especificación.
-3. Agente desarrollador.
-4. Agente revisor.
-5. Agente de soporte.
-6. Agente de consulta.
-```
+3. Agente de revisión técnica.
+4. Agente de desarrollo.
+5. Agente de pruebas.
+6. Agente de soporte.
+7. Agente de consulta.
 
 Ningún agente debe actuar fuera de su rol.
 

@@ -145,7 +145,7 @@ Solo está permitida cuando se cumplan simultáneamente estas condiciones:
 
 Ningún agente diferente al **Agente desarrollador** puede generar o modificar código productivo.
 
-Los agentes documental, de especificación, revisor, soporte y consulta pueden generar ejemplos conceptuales, pseudocódigo o recomendaciones técnicas, siempre que estén claramente marcados como referencia y no sean tratados como implementación aprobada.
+Los agentes documental, de especificación, revisión técnica, pruebas, soporte y consulta pueden generar ejemplos conceptuales, pseudocódigo o recomendaciones técnicas, siempre que estén claramente marcados como referencia y no sean tratados como implementación aprobada.
 
 ---
 
@@ -634,11 +634,11 @@ risk_escalation_rules:
 ### Tipos de agentes reconocidos
 
 La empresa reconoce estos agentes:
-
 * Agente documental.
 * Agente de especificación.
-* Agente desarrollador.
-* Agente revisor.
+* Agente de revisión técnica.
+* Agente de desarrollo.
+* Agente de pruebas.
 * Agente de soporte.
 * Agente de consulta.
 
