@@ -46,9 +46,6 @@ Descripción breve: [COMPLETAR: qué hace el proyecto, stack principal]
 DOCUMENTOS DE CONTEXTO
 =======================
 
-- llms.txt del proyecto:
-  [COMPLETAR: adjunta el contenido o indica la ruta]
-
 - AGENTS.md del proyecto:
   [COMPLETAR: adjunta el contenido o indica la ruta]
 
@@ -141,9 +138,9 @@ El agente pedirá confirmación antes de modificar cada archivo.
 Tipo de salida que generará: [COMPLETAR: código / documentación / propuesta / combinación]
 El usuario debe revisar y aprobar antes de aceptar cambios en el repositorio.
 
-PUNTO 13 — llms.txt y AGENTS.md del proyecto
-[COMPLETAR: Existen / Se crearán antes de iniciar / No aplica]
-Si no existen, el agente los creará como primera acción antes de la tarea.
+PUNTO 13 — AGENTS.md del proyecto
+[COMPLETAR: Existe / Se creará antes de iniciar / No aplica]
+Si no existe, el agente lo creará como primera acción antes de la tarea.
 
 ---
 
@@ -173,21 +170,19 @@ ai/outputs/activation-checklist-TASK-XXX-YYYY-MM-DD.md
 
 ---
 
-## Variante rápida — proyecto ya configurado con llms.txt y AGENTS.md
+## Variante rápida — proyecto ya configurado con AGENTS.md
 
-Si el proyecto ya tiene `llms.txt` y `AGENTS.md` completos y actualizados, usa esta versión reducida:
+Si el proyecto ya tiene `AGENTS.md` completo y actualizado, usa esta versión reducida:
 
 ```
 Lee y aplica:
 https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/main/agent-development.md
 
-[ADJUNTA AQUÍ EL CONTENIDO DE llms.txt DEL PROYECTO]
-
 [ADJUNTA AQUÍ EL CONTENIDO DE AGENTS.md DEL PROYECTO]
 
 [ADJUNTA AQUÍ specs/003-tasks.md]
 
-Ejecuta TASK-[XXX] aplicando el checklist de activación (harness-policy.md sección 45).
+Ejecuta TASK-[XXX] aplicando el checklist de activación (harness-policy.md sección 44).
 Confirma cada punto antes de generar código.
 ```
 

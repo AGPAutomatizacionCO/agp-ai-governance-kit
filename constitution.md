@@ -1016,19 +1016,7 @@ La IA no puede aprobar ni ejecutar despliegues productivos.
 
 ---
 
-## 40. llms.txt como requerimiento de todo proyecto
-
-Todo proyecto digital asistido por IA debe incluir un archivo `llms.txt` en la raíz del repositorio.
-
-Este archivo define las restricciones y el contexto de uso de modelos de IA para el proyecto específico.
-
-Su ausencia es un bloqueo documental equivalente a la falta de `README.md` en proyectos técnicos.
-
-La IA debe crear este archivo cuando inicie trabajo en un proyecto que no lo tenga, antes de generar o modificar código.
-
----
-
-## 41. AGENTS.md por proyecto como requerimiento
+## 40. AGENTS.md por proyecto como requerimiento
 
 Todo proyecto con código debe incluir un archivo `AGENTS.md` en la raíz del repositorio.
 

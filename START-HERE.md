@@ -52,7 +52,6 @@ Si el usuario entrega uno o más de los siguientes elementos junto con este arch
 - Descripción del estado actual del proyecto
 - Link o archivos de un repositorio
 - `AGENTS.md` del proyecto
-- `llms.txt` del proyecto
 
 → **Activa el Agente de Revisión Técnica** por defecto.
 
@@ -164,10 +163,9 @@ Restricciones adicionales: [si las hay]
 
 Fuentes de contexto recomendadas (en orden de prioridad):
 
-1. `llms.txt` del proyecto — restricciones específicas del proyecto para modelos de IA
-2. `AGENTS.md` del proyecto — arquitectura y contexto del proyecto para modelos
-3. `README.md` del proyecto
-4. `specs/001-spec.md` y `specs/002-plan.md`
+1. `AGENTS.md` del proyecto — arquitectura, contexto y restricciones específicas del proyecto
+2. `README.md` del proyecto
+3. `specs/001-spec.md` y `specs/002-plan.md`
 
 Referencia completa del Agent Context Package:
 `https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/main/agent-context-package.md`

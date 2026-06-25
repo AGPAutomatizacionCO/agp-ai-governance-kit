@@ -2055,54 +2055,7 @@ El Agente de Desarrollo debe detenerse si se solicita configurar un pipeline de 
 
 ---
 
-## 43. Control de llms.txt
-
-### Regla
-
-Todo proyecto nuevo asistido por IA debe incluir un archivo `llms.txt` en la raíz del repositorio antes de iniciar desarrollo formal.
-
-### Propósito
-
-`llms.txt` define las restricciones y el contexto de uso de modelos de IA para el proyecto específico. Permite que los agentes entiendan qué pueden y qué no pueden hacer en ese proyecto.
-
-### Contenido mínimo
-
-```text
-# llms.txt — [Nombre del Proyecto]
-
-## Proyecto
-[Nombre y descripción breve]
-
-## Restricciones para modelos de IA
-- No usar secretos reales.
-- No modificar producción directamente.
-- No cambiar autenticación sin aprobación IT.
-- Respetar el expediente técnico en /specs/.
-- Consultar AGENTS.md antes de actuar.
-
-## Documentos de contexto obligatorios
-- README.md
-- AGENTS.md
-- /specs/001-spec.md
-- /specs/002-plan.md
-
-## Contacto técnico
-[Responsable técnico del proyecto]
-```
-
-### Cuándo crearlo
-
-Como parte del expediente técnico mínimo del proyecto, antes de iniciar desarrollo formal.
-
-### Bloqueo documental
-
-Un proyecto no puede avanzar a desarrollo formal si involucra agentes de IA y no tiene `llms.txt`.
-
-El Agente de Desarrollo debe crear este archivo si no existe, antes de iniciar cualquier tarea.
-
----
-
-## 44. Control de AGENTS.md por proyecto
+## 43. Control de AGENTS.md por proyecto
 
 ### Regla
 
@@ -2143,7 +2096,7 @@ El `AGENTS.md` del proyecto describe:
 
 ### Cuándo crearlo
 
-Al inicio del proyecto, junto con el expediente técnico y el `llms.txt`.
+Al inicio del proyecto, junto con el expediente técnico.
 
 ### Actualización obligatoria
 
@@ -2199,7 +2152,7 @@ Si algún punto no tiene respuesta clara, el agente debe detenerse hasta resolve
 
 12. ¿El usuario comprende que el agente pedirá confirmación antes de modificar archivos? ¿Qué tipo de salida va a generar el agente?
 
-13. ¿Existen llms.txt y AGENTS.md en la raíz del proyecto? Si no, el agente debe crearlos antes de iniciar.
+13. ¿Existe AGENTS.md en la raíz del proyecto? Si no existe, el agente debe crearlo antes de iniciar.
 ```
 
 ### Formato de presentación al usuario
@@ -2221,7 +2174,7 @@ Antes de iniciar, verifico 13 puntos:
 10. ✅/❓ Riesgos documentados: [estado]
 11. ✅/❓ Plan de reversión: [estado]
 12. ✅/❓ Tipo de salida: [descripción]
-13. ✅/❓ llms.txt y AGENTS.md: [Existen/Se crearán]
+13. ✅/❓ AGENTS.md: [Existe/Se creará]
 
 ¿Confirmamos los puntos ❓ antes de iniciar?
 ```

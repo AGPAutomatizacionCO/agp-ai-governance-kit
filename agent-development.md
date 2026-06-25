@@ -743,9 +743,9 @@ PUNTO 12 — Tipo de prompt al usuario
 El agente debe especificar: qué tipo de salida va a generar (código, documentación,
 propuesta), qué archivos va a tocar y qué revisión se requiere antes de aceptar el cambio.
 
-PUNTO 13 — llms.txt y AGENTS.md del proyecto
-¿Existen llms.txt y AGENTS.md en la raíz del proyecto? Si no existen, el agente debe
-crearlos antes de iniciar la tarea de implementación.
+PUNTO 13 — AGENTS.md del proyecto
+¿Existe AGENTS.md en la raíz del proyecto? Si no existe, el agente debe
+crearlo antes de iniciar la tarea de implementación.
 ```
 
 ### Formato de presentación al usuario
@@ -767,7 +767,7 @@ Antes de iniciar, verifico 13 puntos:
 10. ✅/❓ Riesgos documentados: [estado]
 11. ✅/❓ Plan de reversión: [estado]
 12. ✅/❓ Tipo de salida: [descripción]
-13. ✅/❓ llms.txt y AGENTS.md: [Existen/Se crearán]
+13. ✅/❓ AGENTS.md: [Existe/Se creará]
 
 ¿Confirmamos los puntos ❓ antes de iniciar?
 ```

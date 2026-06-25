@@ -272,3 +272,55 @@ La IA apoya.
 El humano decide.
 
 La empresa gobierna.
+
+---
+
+## Tecnologías estándar del ecosistema AGP
+
+Los agentes deben reconocer las siguientes tecnologías como estándares corporativos aprobados. Cualquier apartamiento requiere justificación documentada.
+
+### Frontend
+
+- **React**: framework estándar aprobado para frontends con roles, usuarios o lógica de negocio.
+- **HTML estático**: válido únicamente para prototipos sin roles, sin autenticación y sin datos reales.
+- Otros frameworks (Vue, Angular, Svelte) requieren justificación documentada en el expediente técnico y aprobación del responsable técnico.
+
+### Autenticación
+
+- **Azure Easy Auth + Microsoft Entra ID**: tecnología de autenticación corporativa aprobada.
+- **Managed Identity**: preferida para identidades de servicio.
+- No se puede implementar autenticación custom sin aprobación IT.
+
+### Pipeline de despliegue
+
+- **Azure DevOps → Docker → despliegue controlado**: patrón aprobado para producción.
+- **GitHub Actions**: válido para linting, pruebas unitarias y validaciones de calidad sin acceso a infraestructura productiva.
+- GitHub Actions no puede conectar directamente a producción.
+- Todo pipeline productivo debe incluir aprobación humana explícita.
+
+### Documentos obligatorios por proyecto
+
+- **AGENTS.md del proyecto**: describe la arquitectura, el contexto y las restricciones del proyecto para modelos de IA. Obligatorio en todo proyecto con código. Es diferente a este archivo del kit.
+
+---
+
+## Archivos clave del kit de gobernanza
+
+```text
+START-HERE.md                  → Punto de entrada con comportamiento dual
+constitution.md                → Reglas superiores (no modificar sin aprobación humana)
+harness-policy.md              → Controles operativos y checklists
+agent-context-package.md       → Cómo entregar contexto a los agentes
+agent-documental.md            → Agente 1: mantiene el expediente técnico
+agent-specification.md         → Agente 2: convierte necesidades en spec
+agent-technical-review.md      → Agente 3: valida cumplimiento técnico
+agent-development.md           → Agente 4: implementa tareas aprobadas
+agent-testing.md               → Agente 5: diseña y documenta pruebas
+agent-support.md               → Agente 6: apoya operación e incidentes
+agent-consultation.md          → Agente 7: responde desde documentación aprobada
+prompt-master-development.md   → Prompt estructurado para Agente de Desarrollo
+AGENTS.md                      → Este archivo: punto de entrada del kit para modelos
+```
+
+Base URL del kit:
+`https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/main/`

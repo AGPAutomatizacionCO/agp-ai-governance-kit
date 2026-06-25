@@ -111,6 +111,7 @@ El agente debe conocer su ficha de rol antes de actuar.
 ### 4.3 Contexto del proyecto
 
 ```text
+AGENTS.md del proyecto           ← obligatorio si existe
 project-card.md
 README.md
 /specs/001-spec.md
@@ -123,6 +124,8 @@ README.md
 /specs/008-monitoring-notes.md
 /specs/009-change-log.md
 ```
+
+`AGENTS.md` del proyecto debe leerse primero cuando existe, ya que define la arquitectura, restricciones específicas y el contexto del proyecto que tienen precedencia sobre instrucciones genéricas del kit.
 
 ---
 
@@ -1045,3 +1048,41 @@ Las pruebas generan evidencia.
 La revisión técnica valida cumplimiento.
 El Harness limita a los agentes y al desarrollo.
 La Constitución limita a todos.
+
+---
+
+## 27. AGENTS.md del proyecto como fuente de contexto obligatoria
+
+### Regla
+
+Cuando existe en el proyecto, `AGENTS.md` es la primera fuente de contexto que el agente debe leer, antes que cualquier otro documento del expediente técnico.
+
+### AGENTS.md del proyecto
+
+Define la arquitectura del proyecto, los agentes disponibles, el contexto técnico y las fuentes de verdad del proyecto. Puede contener restricciones específicas más estrictas que el Harness general.
+
+El agente no debe asumir nada sobre la arquitectura del proyecto sin haber leído este archivo primero.
+
+Si `AGENTS.md` indica una restricción que el Harness no menciona, el agente debe aplicar la restricción más estricta.
+
+Ubicación esperada: raíz del repositorio del proyecto.
+
+### Orden de lectura obligatorio cuando existe
+
+```text
+1. AGENTS.md del proyecto
+2. constitution/constitution.md
+3. harness/harness-policy.md
+4. Rol del agente
+5. project-card.md
+6. Estado del proyecto
+7. Spec, plan, tasks, risks, etc.
+```
+
+### Si no existe
+
+Si el proyecto no tiene `AGENTS.md`, el agente debe:
+
+1. Reportarlo al usuario.
+2. Si es Agente de Desarrollo, crearlo antes de iniciar la tarea (harness-policy.md sección 43, punto 13 del checklist).
+3. Si es otro agente, recomendar su creación antes de continuar.
