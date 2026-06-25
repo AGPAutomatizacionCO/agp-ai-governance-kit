@@ -1908,3 +1908,337 @@ Cómo se monitorea.
 Cómo se apaga.
 Cómo se retira.
 ```
+
+---
+
+## 40. Control de frontend
+
+### Estándar aprobado
+
+React es la tecnología de frontend estándar aprobada para todo desarrollo digital empresarial que involucre:
+
+* Roles de usuario.
+* Autenticación.
+* Lógica de negocio.
+* Datos dinámicos.
+* Interacción con backend o APIs.
+
+### HTML estático
+
+HTML estático sin framework es válido únicamente para:
+
+* Prototipos internos de validación sin roles.
+* Demos de diseño sin autenticación.
+* Páginas informativas sin datos reales.
+
+No se puede usar HTML estático en proyectos con:
+
+* Usuarios autenticados.
+* Roles diferenciados.
+* Datos reales.
+* Integración con APIs productivas.
+
+### Otros frameworks
+
+El uso de Vue, Angular, Svelte u otros frameworks es válido si:
+
+* Se documenta la justificación técnica en `001-spec.md`.
+* Existe aprobación del responsable técnico.
+* Se registra la decisión en `ai/decisions/` con la razón del apartamiento del estándar.
+
+### Bloqueo
+
+El Agente de Desarrollo debe detenerse si se propone un frontend sin framework para un proyecto con roles o autenticación, y reportar la incompatibilidad antes de continuar.
+
+---
+
+## 41. Control de autenticación
+
+### Estándar aprobado
+
+La tecnología de autenticación corporativa aprobada es:
+
+```text
+Azure Easy Auth + Microsoft Entra ID
+```
+
+### Casos de uso aprobados
+
+* Aplicaciones web desplegadas en Azure App Service.
+* APIs protegidas con tokens Entra ID.
+* Acceso con cuentas corporativas del dominio aprobado.
+* Integración con Microsoft 365.
+
+### Identidades de servicio
+
+Para servicios automatizados y pipelines, se debe usar:
+
+* Managed Identity (preferida).
+* Service Principal con secreto en Azure Key Vault.
+
+### Alcances mínimos
+
+Toda aplicación debe definir los alcances de permiso requeridos siguiendo el principio de mínimo privilegio:
+
+```text
+identity:
+roles:
+scopes:
+service_principal:
+managed_identity:
+```
+
+### Prohibido
+
+* Implementar sistemas de autenticación custom sin aprobación IT.
+* Usar autenticación básica (usuario/contraseña embebida en código).
+* Compartir cuentas de servicio entre proyectos.
+* Almacenar tokens sin política de expiración controlada.
+
+### Bloqueo
+
+El Agente de Desarrollo debe detenerse si se solicita implementar autenticación fuera del estándar aprobado sin justificación documentada y aprobación IT.
+
+---
+
+## 42. Control de pipeline
+
+### Patrón aprobado
+
+El patrón de despliegue controlado corporativo es:
+
+```text
+GitHub
+→ Pull Request
+→ Revisión de código
+→ Azure DevOps
+→ Build en Docker
+→ Deploy Dev
+→ Validación técnica
+→ Deploy Test
+→ Validación funcional
+→ Aprobación humana
+→ Deploy Prod
+```
+
+### Regla
+
+Azure DevOps es la plataforma de CI/CD corporativa aprobada para despliegues productivos.
+
+### GitHub Actions
+
+GitHub Actions puede usarse para:
+
+* Linting y validaciones estáticas de código.
+* Pruebas unitarias automáticas sin acceso a infraestructura productiva.
+* Verificaciones de calidad pre-PR.
+
+GitHub Actions **no puede**:
+
+* Conectarse directamente a producción.
+* Desplegarse a ambientes productivos sin aprobación humana.
+* Manejar secretos productivos directamente.
+
+### Docker
+
+Todo despliegue formal debe ser reproducible vía contenedor Docker.
+
+El `Dockerfile` debe estar documentado y versionado en el repositorio.
+
+### Aprobación humana en pipeline
+
+Todo pipeline de producción debe incluir un paso de aprobación manual explícito antes del despliegue productivo.
+
+### Bloqueo
+
+El Agente de Desarrollo debe detenerse si se solicita configurar un pipeline de producción que no pase por Azure DevOps o que no incluya aprobación humana.
+
+---
+
+## 43. Control de llms.txt
+
+### Regla
+
+Todo proyecto nuevo asistido por IA debe incluir un archivo `llms.txt` en la raíz del repositorio antes de iniciar desarrollo formal.
+
+### Propósito
+
+`llms.txt` define las restricciones y el contexto de uso de modelos de IA para el proyecto específico. Permite que los agentes entiendan qué pueden y qué no pueden hacer en ese proyecto.
+
+### Contenido mínimo
+
+```text
+# llms.txt — [Nombre del Proyecto]
+
+## Proyecto
+[Nombre y descripción breve]
+
+## Restricciones para modelos de IA
+- No usar secretos reales.
+- No modificar producción directamente.
+- No cambiar autenticación sin aprobación IT.
+- Respetar el expediente técnico en /specs/.
+- Consultar AGENTS.md antes de actuar.
+
+## Documentos de contexto obligatorios
+- README.md
+- AGENTS.md
+- /specs/001-spec.md
+- /specs/002-plan.md
+
+## Contacto técnico
+[Responsable técnico del proyecto]
+```
+
+### Cuándo crearlo
+
+Como parte del expediente técnico mínimo del proyecto, antes de iniciar desarrollo formal.
+
+### Bloqueo documental
+
+Un proyecto no puede avanzar a desarrollo formal si involucra agentes de IA y no tiene `llms.txt`.
+
+El Agente de Desarrollo debe crear este archivo si no existe, antes de iniciar cualquier tarea.
+
+---
+
+## 44. Control de AGENTS.md por proyecto
+
+### Regla
+
+Todo proyecto con código debe incluir un archivo `AGENTS.md` en la raíz del repositorio.
+
+Este archivo es específico del proyecto y es diferente al `AGENTS.md` del kit de gobernanza corporativa.
+
+### Propósito
+
+El `AGENTS.md` del proyecto describe:
+
+* Arquitectura técnica del proyecto.
+* Agentes de IA disponibles para ese proyecto.
+* Contexto que los modelos deben cargar antes de actuar.
+* Restricciones específicas del proyecto más allá del Harness general.
+* Fuentes de contexto obligatorias del proyecto.
+
+### Contenido mínimo
+
+```text
+# AGENTS.md — [Nombre del Proyecto]
+
+## Arquitectura
+[Descripción breve: stack, capas, servicios principales]
+
+## Agentes disponibles para este proyecto
+[Lista de agentes aplicables con sus archivos raw del kit]
+
+## Contexto obligatorio antes de actuar
+[Lista de documentos que el agente debe leer primero]
+
+## Restricciones específicas del proyecto
+[Reglas adicionales al Harness para este proyecto]
+
+## Archivos clave
+[Rutas importantes: entry points, config, base de datos, etc.]
+```
+
+### Cuándo crearlo
+
+Al inicio del proyecto, junto con el expediente técnico y el `llms.txt`.
+
+### Actualización obligatoria
+
+El `AGENTS.md` del proyecto debe actualizarse cuando:
+
+* Cambia la arquitectura aprobada.
+* Se agregan o quitan componentes principales.
+* Cambian los agentes que pueden intervenir.
+* Se detectan nuevas restricciones operativas.
+
+### Bloqueo documental
+
+Un proyecto sin `AGENTS.md` indica que los agentes no tienen contexto estructurado para operar en él.
+
+El Agente de Desarrollo debe crear este archivo si no existe, antes de iniciar cualquier tarea.
+
+---
+
+## 45. Checklist de activación del Agente de Desarrollo
+
+### Regla
+
+Antes de que el Agente de Desarrollo inicie cualquier tarea de implementación, debe verificar y confirmar los siguientes 13 puntos con el usuario.
+
+No debe generar ni modificar código hasta haber completado el checklist.
+
+Si algún punto no tiene respuesta clara, el agente debe detenerse hasta resolverlo.
+
+### Los 13 puntos obligatorios
+
+```text
+1.  ¿Se informó al usuario el costo aproximado y las opciones disponibles antes de iniciar?
+
+2.  ¿Están definidas las librerías, dependencias y versiones permitidas para esta tarea?
+
+3.  ¿Están definidos los modelos de IA y lenguajes de programación compatibles con el proyecto?
+
+4.  ¿Cuál es la tarea exacta que se va a ejecutar? (task_id en specs/003-tasks.md)
+
+5.  ¿Cuáles son los archivos que se pueden tocar? (files_allowed en la tarea)
+
+6.  ¿Cuáles son los criterios de aceptación que aplican a esta tarea?
+
+7.  ¿Cuáles son las pruebas mínimas requeridas al terminar?
+
+8.  ¿Hay datos reales involucrados? Si sí, ¿están autorizados con data_source_authorized, data_owner y approval?
+
+9.  ¿Hay credenciales o secretos que la tarea requiere referenciar? (Si sí, deben estar en Key Vault o variable controlada)
+
+10. ¿Cuáles son los riesgos registrados en specs/005-risks.md para esta tarea?
+
+11. ¿Existe un plan de reversión si el cambio falla?
+
+12. ¿El usuario comprende que el agente pedirá confirmación antes de modificar archivos? ¿Qué tipo de salida va a generar el agente?
+
+13. ¿Existen llms.txt y AGENTS.md en la raíz del proyecto? Si no, el agente debe crearlos antes de iniciar.
+```
+
+### Formato de presentación al usuario
+
+```text
+[AGP · Agente de Desarrollo — Checklist de activación]
+
+Antes de iniciar, verifico 13 puntos:
+
+1.  ✅/❓ Aviso de costos: [estado]
+2.  ✅/❓ Librerías: [estado]
+3.  ✅/❓ Stack aprobado: [estado]
+4.  ✅/❓ Tarea: [task_id o ❓]
+5.  ✅/❓ Archivos permitidos: [listado o ❓]
+6.  ✅/❓ Criterios de aceptación: [estado]
+7.  ✅/❓ Pruebas mínimas: [estado]
+8.  ✅/❓ Datos reales: [Sí/No/Pendiente]
+9.  ✅/❓ Credenciales: [Sí controlada/No/Pendiente]
+10. ✅/❓ Riesgos documentados: [estado]
+11. ✅/❓ Plan de reversión: [estado]
+12. ✅/❓ Tipo de salida: [descripción]
+13. ✅/❓ llms.txt y AGENTS.md: [Existen/Se crearán]
+
+¿Confirmamos los puntos ❓ antes de iniciar?
+```
+
+### Bloqueo ante omisión
+
+Si el usuario solicita omitir el checklist, el agente debe responder:
+
+```text
+El checklist de activación es obligatorio según el Harness Engineering Policy sección 45.
+No puedo omitirlo. Puedo completarlo rápidamente si me das la información faltante.
+```
+
+### Salida del checklist
+
+El checklist completado debe registrarse en:
+
+```text
+ai/outputs/activation-checklist-TASK-XXX-YYYY-MM-DD.md
+```
