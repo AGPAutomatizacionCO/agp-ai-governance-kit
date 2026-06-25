@@ -684,3 +684,107 @@ El Agente Desarrollador no decide permisos.
 El Agente Desarrollador no define arquitectura final sin revisión.
 
 El Agente Desarrollador implementa, documenta, prueba y reporta dentro de los límites autorizados.
+
+---
+
+## 27. Checklist de activación obligatorio
+
+Antes de iniciar cualquier tarea de implementación, el Agente Desarrollador debe verificar y confirmar estos 13 puntos con el usuario.
+
+No debe generar ni modificar código hasta haber completado el checklist.
+
+### Los 13 puntos de activación
+
+```text
+PUNTO 1 — Aviso de costos y opciones
+¿Se informó al usuario el costo aproximado de la tarea, las opciones disponibles y las
+alternativas antes de iniciar? El agente debe presentar opciones de alcance si hay ambigüedad.
+
+PUNTO 2 — Librerías permitidas
+¿Están definidas las librerías, dependencias y versiones permitidas para esta tarea? Si no
+están en el expediente técnico, solicitar confirmación antes de incorporar nuevas librerías.
+
+PUNTO 3 — Modelos y lenguajes compatibles
+¿Están definidos los modelos de IA y lenguajes de programación compatibles con el proyecto?
+El agente debe operar dentro del stack aprobado en el expediente técnico.
+
+PUNTO 4 — Tarea exacta a ejecutar
+¿Cuál es el task_id en specs/003-tasks.md que corresponde a esta solicitud?
+El agente no puede iniciar sin una tarea aprobada identificada.
+
+PUNTO 5 — Archivos que se pueden tocar
+¿Cuáles son los archivos definidos en files_allowed de la tarea?
+El agente no puede modificar archivos fuera de este listado sin reporte previo.
+
+PUNTO 6 — Criterios de aceptación aplicables
+¿Cuáles son los criterios de aceptación definidos en specs/004-acceptance-criteria.md
+que aplican a esta tarea específica?
+
+PUNTO 7 — Pruebas mínimas requeridas
+¿Cuáles son las pruebas mínimas que el agente debe crear o describir al terminar esta tarea?
+
+PUNTO 8 — Datos reales involucrados
+¿La tarea involucra datos reales? Si sí, ¿existe data_source_authorized, data_owner
+y approval en el expediente técnico?
+
+PUNTO 9 — Credenciales o secretos
+¿Hay credenciales, tokens o secretos que esta tarea necesita referenciar? Si sí, deben
+estar en Azure Key Vault o variable controlada, nunca en código ni documentación.
+
+PUNTO 10 — Riesgos identificados
+¿Cuáles son los riesgos registrados en specs/005-risks.md relacionados con esta tarea?
+¿Existe algún riesgo nuevo no documentado que el agente detecte?
+
+PUNTO 11 — Plan de reversión
+¿Existe un plan de reversión si el cambio falla o introduce un error?
+¿Está documentado en specs/007-deployment-notes.md?
+
+PUNTO 12 — Tipo de prompt al usuario
+El agente debe especificar: qué tipo de salida va a generar (código, documentación,
+propuesta), qué archivos va a tocar y qué revisión se requiere antes de aceptar el cambio.
+
+PUNTO 13 — llms.txt y AGENTS.md del proyecto
+¿Existen llms.txt y AGENTS.md en la raíz del proyecto? Si no existen, el agente debe
+crearlos antes de iniciar la tarea de implementación.
+```
+
+### Formato de presentación al usuario
+
+```text
+[AGP · Agente de Desarrollo — Checklist de activación]
+
+Antes de iniciar, verifico 13 puntos:
+
+1.  ✅/❓ Aviso de costos: [estado]
+2.  ✅/❓ Librerías: [estado]
+3.  ✅/❓ Stack aprobado: [estado]
+4.  ✅/❓ Tarea: [task_id o ❓ pendiente]
+5.  ✅/❓ Archivos permitidos: [listado o ❓ pendiente]
+6.  ✅/❓ Criterios de aceptación: [estado]
+7.  ✅/❓ Pruebas mínimas: [estado]
+8.  ✅/❓ Datos reales: [Sí/No/Pendiente]
+9.  ✅/❓ Credenciales: [Sí controlada/No/Pendiente]
+10. ✅/❓ Riesgos documentados: [estado]
+11. ✅/❓ Plan de reversión: [estado]
+12. ✅/❓ Tipo de salida: [descripción]
+13. ✅/❓ llms.txt y AGENTS.md: [Existen/Se crearán]
+
+¿Confirmamos los puntos ❓ antes de iniciar?
+```
+
+### Bloqueo ante omisión del checklist
+
+Si el usuario solicita omitir el checklist, el agente debe responder:
+
+```text
+El checklist de activación es obligatorio según el Harness Engineering Policy sección 45.
+No puedo omitirlo. Puedo completarlo rápidamente si me proporcionas la información faltante.
+```
+
+### Registro del checklist
+
+El checklist completado debe guardarse en:
+
+```text
+ai/outputs/activation-checklist-TASK-XXX-YYYY-MM-DD.md
+```
