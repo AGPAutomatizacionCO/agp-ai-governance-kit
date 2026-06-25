@@ -965,3 +965,77 @@ Toda solución generada, modificada, documentada, probada, revisada o recomendad
 La responsabilidad final sigue siendo humana.
 
 Toda solución empresarial debe desarrollarse bajo control, con evidencia, con trazabilidad, con seguridad y con capacidad de ser entendida, auditada, probada, revisada, mantenida, modificada, suspendida, redeplegada o retirada cuando sea necesario.
+
+---
+
+## 37. Framework de frontend estándar
+
+React es el framework de frontend estándar para todo desarrollo digital que involucre roles, autenticación, datos dinámicos o lógica de negocio.
+
+HTML estático sin framework solo es válido para prototipos internos sin autenticación, sin roles y sin datos reales.
+
+El uso de frameworks alternativos requiere:
+
+* Justificación documentada en el expediente técnico.
+* Aprobación del responsable técnico.
+* Registro de la decisión en la carpeta `ai/decisions/`.
+
+La IA no debe recomendar HTML estático para proyectos que involucren usuarios autenticados, roles diferenciados o datos reales.
+
+---
+
+## 38. Tecnología de autenticación estándar
+
+La tecnología de autenticación corporativa aprobada es **Azure Easy Auth + Microsoft Entra ID**.
+
+Toda solución digital que requiera autenticación de usuarios debe usar este estándar, salvo que exista aprobación explícita de IT para una alternativa documentada.
+
+Para identidades de servicio se prefiere **Managed Identity** sobre Service Principal con secreto.
+
+La IA no puede proponer sistemas de autenticación custom sin registrar la justificación y solicitar aprobación IT.
+
+---
+
+## 39. Pipeline estándar de despliegue
+
+El patrón de despliegue corporativo aprobado es:
+
+```text
+GitHub → Pull Request → Azure DevOps → Docker → Dev → Test → Aprobación humana → Prod
+```
+
+GitHub Actions puede usarse para validaciones de código (linting, pruebas unitarias), pero no para despliegues productivos directos.
+
+Todo despliegue productivo debe:
+
+* Pasar por Azure DevOps.
+* Ser reproducible vía Docker.
+* Incluir aprobación humana explícita antes de producción.
+
+La IA no puede aprobar ni ejecutar despliegues productivos.
+
+---
+
+## 40. llms.txt como requerimiento de todo proyecto
+
+Todo proyecto digital asistido por IA debe incluir un archivo `llms.txt` en la raíz del repositorio.
+
+Este archivo define las restricciones y el contexto de uso de modelos de IA para el proyecto específico.
+
+Su ausencia es un bloqueo documental equivalente a la falta de `README.md` en proyectos técnicos.
+
+La IA debe crear este archivo cuando inicie trabajo en un proyecto que no lo tenga, antes de generar o modificar código.
+
+---
+
+## 41. AGENTS.md por proyecto como requerimiento
+
+Todo proyecto con código debe incluir un archivo `AGENTS.md` en la raíz del repositorio.
+
+Este archivo es específico del proyecto y diferente al `AGENTS.md` del kit de gobernanza corporativa.
+
+Describe la arquitectura del proyecto, los agentes disponibles, el contexto que los modelos deben cargar y las restricciones específicas del proyecto.
+
+Su ausencia indica que el proyecto no ha definido cómo los agentes deben interactuar con él.
+
+La IA debe crear este archivo cuando inicie trabajo en un proyecto que no lo tenga, antes de generar o modificar código.
