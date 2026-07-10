@@ -2494,3 +2494,110 @@ No puede avanzar a producción sin revisión de código por responsable técnico
 No puede declarar pruebas completas sin confirmación escrita del usuario funcional.
 El agente no puede aprobar su propio código como listo para producción.
 ```
+
+---
+
+## 47. Evaluación de madurez para despliegue
+
+### Problema real
+
+El kit define 7 agentes especializados, pero no todos validan si un desarrollo
+está maduro para avanzar a despliegue. Presentar los 7 como validadores de
+igual peso comunica gobernanza incorrecta: sugiere que Desarrollo,
+Especificación o Consulta "aprueban" madurez productiva, cuando su función
+real es construir, definir o explicar — no gatear.
+
+### Principio
+
+```text
+No todos los agentes son gates. Solo los que producen evidencia objetiva
+de que un cambio puede avanzar a revisión humana lo son.
+```
+
+### 47.1 Gates obligatorios
+
+```text
+1. Agente Documental        → valida expediente, responsables, riesgos, trazabilidad.
+2. Agente de Pruebas        → valida evidencia objetiva: matriz, cobertura, defectos.
+3. Agente de Revisión Técnica → gate central: cumplimiento, seguridad, bloqueantes,
+                                 consume los resultados de los dos gates anteriores.
+4. Revisión Humana / TI     → aprobación final real. Nunca automatizada por IA.
+```
+
+Pipeline obligatorio: `Documental → Pruebas → Revisión Técnica → Revisión Humana/TI`.
+
+### 47.2 Agentes de fase previa y condicionales — no son gates
+
+```text
+Especificación → fase previa. Si falta alcance, criterios o tareas, la
+                 evaluación debe devolver "requiere especificación", no
+                 bloquear el gate de madurez.
+Desarrollo     → fase previa de implementación. Solo actúa sobre tareas
+                 aprobadas; no valida madurez productiva.
+Consulta       → apoyo informativo. Explica documentación, estado o
+                 riesgos; no evalúa madurez.
+Soporte        → condicional. Solo es gate si la solución va a usuarios
+                 reales, producción, monitoreo o mesa de ayuda.
+```
+
+Estos agentes deben mostrarse en cualquier vista de evaluación como sección
+secundaria ("agentes de fase previa" o "evaluaciones condicionales"), nunca
+junto a los 3 gates obligatorios.
+
+### 47.3 Metodología de evaluación por agente
+
+Cada gate obligatorio (y Especificación, como apoyo de fase previa) tiene un
+prompt de evaluación dedicado que retorna únicamente un JSON estructurado —
+sin texto libre — con:
+
+```text
+score_existencia:        completitud de los documentos/evidencia del rol.
+dimensión(es) de fondo:  específica de cada agente (coherencia de decisión
+                          tecnológica, cobertura de criterios de aceptación,
+                          bloqueantes automáticos, etc.), siempre con
+                          estados tipo semáforo, nunca una nota subjetiva.
+bloqueantes_confirmados: lista explícita de qué impide avanzar.
+puede_avanzar:           booleano derivado de reglas objetivas, no de
+                          promedio.
+requiere_revision_humana: casi siempre true — ningún agente aprueba
+                          producción.
+```
+
+Prompts de evaluación disponibles:
+
+```text
+prompt-agente-documental-evaluacion.md          → gate obligatorio
+prompt-agente-pruebas-evaluacion.md              → gate obligatorio
+prompt-agente-revision-tecnica-evaluacion.md     → gate obligatorio, consume
+                                                    los dos anteriores
+prompt-agente-especificacion-evaluacion.md       → apoyo de fase previa
+```
+
+### 47.4 Regla de consolidación — por gates, no por promedio
+
+Un App Service u otra vista de consolidación NUNCA debe promediar los
+scores de los 3 gates para obtener un estado general. Debe aplicar la regla
+más estricta:
+
+```text
+Si Revisión Técnica = bloqueado          → estado general = bloqueado.
+Si Pruebas = sin evidencia válida        → no puede avanzar.
+Si Documental = expediente incompleto
+   crítico (bloqueante confirmado)       → no puede avanzar.
+Si los 3 pasan sin bloqueantes           → listo para revisión humana,
+                                            nunca "listo para producción".
+```
+
+### 47.5 Semáforo de estado general
+
+```text
+Verde   🟢  Documental, Pruebas y Revisión Técnica ≥ 75, sin bloqueantes.
+Amarillo 🟡 Puede avanzar con observaciones menores.
+Naranja 🟠  Requiere ajustes antes de revisión humana.
+Rojo    🔴  Bloqueante confirmado en cualquiera de los 3 gates.
+Gris    ⚪  Información insuficiente o JSON inválido para evaluar.
+```
+
+Ningún estado general —ni siquiera Verde— habilita despliegue automático.
+El resultado máximo que un agente de IA puede producir es "listo para
+revisión humana".

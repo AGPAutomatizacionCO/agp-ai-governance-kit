@@ -320,6 +320,12 @@ agent-support.md               → Agente 6: apoya operación e incidentes
 agent-consultation.md          → Agente 7: responde desde documentación aprobada
 prompt-master-development.md   → Prompt estructurado para Agente de Desarrollo
 AGENTS.md                      → Este archivo: punto de entrada del kit para modelos
+
+Prompts de evaluación de madurez para despliegue (harness-policy.md sección 47):
+prompt-agente-documental-evaluacion.md        → gate obligatorio
+prompt-agente-pruebas-evaluacion.md           → gate obligatorio
+prompt-agente-revision-tecnica-evaluacion.md  → gate obligatorio (consume los dos anteriores)
+prompt-agente-especificacion-evaluacion.md    → apoyo de fase previa, no es gate
 ```
 
 Base URL del kit:
