@@ -2195,3 +2195,302 @@ El checklist completado debe registrarse en:
 ```text
 ai/outputs/activation-checklist-TASK-XXX-YYYY-MM-DD.md
 ```
+
+---
+
+## 46. Estrategia de pruebas por perfil de desarrollador
+
+### Problema real
+
+No todos los desarrolladores de AGP Group tienen acceso a herramientas de desarrollo instaladas localmente. Las restricciones de TI corporativas limitan la instalación de Node.js, Docker, Python u otras herramientas en equipos de usuarios no técnicos.
+
+Esta realidad no elimina la obligación de probar. Define cómo se prueba según el perfil real de quien desarrolla.
+
+### Principio
+
+```text
+La ausencia de herramientas locales no exime de la obligación de probar.
+Define quién prueba y con qué ambiente, antes de iniciar desarrollo.
+```
+
+---
+
+### Perfil A — Desarrollador con herramientas completas
+
+**Descripción:**
+Desarrollador técnico con Node.js, Python, Docker, Git y acceso a terminal instalados localmente. Puede ejecutar, depurar y probar en su máquina antes de subir cambios.
+
+**Estrategia de pruebas:**
+
+```text
+Pruebas unitarias:         Localmente antes del commit.
+Pruebas funcionales:       Localmente en ambiente Dev.
+Pruebas de integración:    Ambiente Dev con datos ficticios.
+Pruebas de permisos:       Ambiente Dev con usuarios de prueba.
+Validación final:          Azure Static Web Apps preview o App Service Dev.
+```
+
+**Herramientas:**
+
+```text
+Node.js / Python local
+Docker Desktop (si está autorizado)
+VS Code con Live Server
+Git CLI
+Azure CLI
+```
+
+**Evidencia requerida:**
+
+```text
+Resultado de prueba en terminal o consola.
+Captura sin datos sensibles.
+test-report-YYYY-MM-DD.md actualizado.
+```
+
+---
+
+### Perfil B — Desarrollador sin herramientas locales, con acceso Azure
+
+**Descripción:**
+Usuario técnico o semi-técnico sin herramientas instaladas en su equipo, pero con acceso a la suscripción Azure de AGP Group. Este es el perfil más común para automatizadores y analistas técnicos.
+
+**Ambiente de desarrollo aprobado:**
+
+```text
+Azure Cloud Shell
+```
+
+Azure Cloud Shell es una terminal basada en browser, incluida en la suscripción Azure de AGP Group, que no requiere instalación. Tiene disponibles:
+
+```text
+Node.js
+Python
+Git
+Azure CLI
+Bash / PowerShell
+```
+
+**Estrategia de pruebas:**
+
+```text
+Pruebas de código:         Azure Cloud Shell (Node, Python, Bash).
+Pruebas de vistas estáticas: Azure Static Web Apps preview automático por PR.
+Pruebas de Easy Auth:      Ambiente Dev en Azure App Service (no se puede probar localmente).
+Pruebas funcionales:       Browser contra URL de preview o ambiente Dev.
+```
+
+**Acceso a Azure Cloud Shell:**
+
+```text
+portal.azure.com → ícono de terminal en la barra superior
+```
+
+No requiere permisos adicionales si el usuario tiene acceso a la suscripción.
+
+**Evidencia requerida:**
+
+```text
+Resultado de comando en Cloud Shell (captura sin datos sensibles).
+URL del ambiente Dev o preview validada.
+test-report-YYYY-MM-DD.md actualizado.
+```
+
+---
+
+### Perfil C — Usuario funcional sin herramientas
+
+**Descripción:**
+Usuario de negocio o funcional que participa en el desarrollo con apoyo del agente de IA, pero no tiene herramientas técnicas ni acceso a terminal. El agente genera el código y el usuario gestiona el repositorio vía interfaz web de GitHub.
+
+**Estrategia de pruebas:**
+
+```text
+El agente genera el código.
+El usuario sube el archivo al repositorio vía GitHub web.
+Azure Static Web Apps crea un preview automático por PR (si está configurado).
+El usuario hace prueba funcional en browser contra la URL del preview.
+El Tech Lead o responsable técnico valida el código generado.
+```
+
+**Regla:**
+
+```text
+Si el proyecto usa Perfil C, debe estar declarado en specs/002-plan.md
+con la estrategia de validación y quién ejecuta la revisión técnica.
+```
+
+**Validación mínima obligatoria:**
+
+```text
+1. Usuario funcional confirma que la solución hace lo que debe hacer (prueba funcional).
+2. Tech Lead o responsable técnico revisa el código antes de merge (revisión de código).
+3. Agente de Revisión Técnica valida cumplimiento de Constitución y Harness.
+```
+
+**Evidencia requerida:**
+
+```text
+Confirmación escrita del usuario funcional.
+Revisión de código documentada por responsable técnico.
+URL del ambiente de prueba validado.
+test-report-YYYY-MM-DD.md actualizado.
+```
+
+---
+
+### Caso especial — Easy Auth no se puede probar localmente
+
+Easy Auth (Azure App Service Authentication) es gestionado por la infraestructura de Azure. No funciona en `localhost` ni en `file://`.
+
+**Flujo obligatorio para proyectos con Easy Auth:**
+
+```text
+1. Desarrollar en local o Cloud Shell (sin Easy Auth activo).
+2. Subir a rama de desarrollo en GitHub.
+3. Azure crea preview automático (Static Web Apps) o desplegar a App Service Dev.
+4. Probar Easy Auth en el ambiente Dev de Azure (browser).
+5. Validar autenticación, token y roles en el ambiente real.
+6. Documentar evidencia de prueba con URL del ambiente Dev.
+7. No avanzar a producción sin evidencia de Easy Auth validado en Azure.
+```
+
+**Bloqueo:**
+
+```text
+Un proyecto con Easy Auth no puede declararse probado si la validación
+de autenticación se hizo únicamente en local.
+La evidencia de prueba debe incluir validación en ambiente Azure.
+```
+
+---
+
+### 46.1 Arquitectura estática con SharePoint y Easy Auth
+
+Esta arquitectura es un patrón aprobado y estandarizado para soluciones de consulta interna de AGP Group.
+
+**Descripción del patrón:**
+
+```text
+Vista estática (HTML/JS o React)
+→ Desplegada en Azure Static Web Apps o Azure App Service
+→ Protegida por Easy Auth (Microsoft Entra ID)
+→ Accede a SharePoint via Microsoft Graph API
+→ Token gestionado por Easy Auth o MSAL Browser
+→ Sin backend propio
+→ Sin base de datos propia
+```
+
+**Cuándo aplica este patrón:**
+
+```text
+Soluciones de solo consulta (lectura, no escritura).
+Datos almacenados en SharePoint o Excel en SharePoint.
+Usuarios internos de AGP Group (cuentas corporativas).
+Sin roles diferenciados — acceso único por autenticación corporativa.
+Sin transacciones ni modificación de datos.
+```
+
+**Criterios de aceptación mínimos para este patrón:**
+
+```text
+auth_mechanism:         Easy Auth con Microsoft Entra ID
+data_source:            SharePoint (Graph API)
+permissions_minimum:    Sites.Selected + Files.Read (no Sites.Read.All)
+token_handling:         /.auth/me o MSAL Browser (no hardcoded)
+secrets:                Ninguno en código
+data_sensitivity:       Clasificada y documentada
+access_control:         Restricción por grupo de SharePoint o Entra ID
+monitoring:             Logs de Azure App Service o Static Web Apps
+support_channel:        Definido y documentado
+```
+
+**Permisos Graph API — regla de mínimo privilegio:**
+
+| Permiso | Estado | Motivo |
+|---------|--------|--------|
+| `Sites.Selected` | ✅ Aprobado | Solo el sitio necesario |
+| `Files.Read` | ✅ Aprobado | Solo archivos del usuario |
+| `Sites.Read.All` | ⚠️ Requiere justificación | Acceso global al tenant |
+| `Files.Read.All` | ⚠️ Requiere justificación | Acceso global al tenant |
+
+Si se usan `Sites.Read.All` o `Files.Read.All`, debe documentarse en `specs/005-risks.md` el motivo y el responsable IT que aprobó el permiso ampliado.
+
+**MSAL Browser vs Easy Auth directo:**
+
+```text
+Easy Auth directo (/.auth/me):
+- Más simple.
+- Válido para autenticación básica sin roles.
+- No requiere librería adicional.
+- Recomendado para vistas de solo consulta sin diferenciación de roles.
+
+MSAL Browser (@azure/msal-browser):
+- Más control sobre el token.
+- Válido cuando se necesita renovación explícita o manejo de scopes.
+- Recomendado cuando hay múltiples recursos o scopes Graph distintos.
+- Ambas opciones son válidas y aprobadas para este patrón.
+```
+
+**Pruebas mínimas para este patrón:**
+
+```text
+1. Usuario corporativo puede autenticarse (Easy Auth funciona).
+2. Usuario no corporativo no puede acceder.
+3. Los datos del SharePoint se cargan correctamente.
+4. El token no está expuesto en código ni en logs.
+5. Si se usan permisos amplios: validar que solo se accede al recurso necesario.
+6. La vista funciona en el navegador corporativo definido.
+```
+
+**Bloqueo específico:**
+
+```text
+No se puede desplegar a producción si:
+- Los permisos son más amplios que los necesarios sin justificación documentada.
+- El token está hardcodeado o en código fuente.
+- No se validó autenticación en ambiente Azure (no local).
+- No está documentado quién tiene acceso y por qué.
+- No existe canal de soporte definido.
+```
+
+---
+
+### 46.2 Declaración de perfil en el expediente técnico
+
+Todo proyecto debe declarar su perfil de desarrollador en `specs/002-plan.md`:
+
+```text
+developer_profile:         A / B / C
+test_environment:          local / Azure Cloud Shell / Azure preview / App Service Dev
+easy_auth_validation:      local (no válido) / Azure Dev (válido) / Azure Prod
+tech_lead_review:          [nombre del responsable de revisión de código]
+test_evidence_location:    /tests/test-report-YYYY-MM-DD.md
+```
+
+Si el proyecto cambia de perfil durante el desarrollo, debe registrarse como solicitud de cambio en `ai/change-requests/`.
+
+---
+
+### 46.3 Bloqueos por perfil
+
+**Perfil A:**
+
+```text
+No puede avanzar a merge sin pruebas locales documentadas.
+```
+
+**Perfil B:**
+
+```text
+No puede declarar Easy Auth probado sin evidencia de Azure Dev.
+No puede avanzar sin resultado de Cloud Shell o URL de preview documentada.
+```
+
+**Perfil C:**
+
+```text
+No puede avanzar a producción sin revisión de código por responsable técnico humano.
+No puede declarar pruebas completas sin confirmación escrita del usuario funcional.
+El agente no puede aprobar su propio código como listo para producción.
+```
