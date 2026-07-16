@@ -394,21 +394,22 @@ escalated_to:
 status:
 resolution:
 closing_validation:
+general_lesson:
 ```
 
-Ubicación recomendada:
+`general_lesson` es obligatorio cuando el incidente tenga causa raíz
+técnica reutilizable (no solo un dato mal cargado o un error de usuario).
+Debe redactarse pensando en **otro proyecto de AGP, no en este**: qué
+verificar o qué no asumir para no repetir el mismo incidente en un
+desarrollo distinto. Si el incidente no deja una lección generalizable,
+usar `general_lesson: N/A — específico de este proyecto` en vez de dejarlo
+vacío.
 
-```text
-support/incidents/
-```
-
-o:
+Ubicación estándar (obligatoria, no depende del mecanismo de cada empresa):
 
 ```text
 ai/outputs/support-incident-YYYY-MM-DD.md
 ```
-
-según el mecanismo definido por la empresa.
 
 ---
 
