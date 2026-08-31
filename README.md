@@ -410,6 +410,12 @@ El flujo recomendado para una nueva solución digital empresarial es:
 15. Mantener documentación viva.
 ```
 
+Nota: el **Agente de Despliegue** (`prompt-agente-despliegue-evaluacion.md`)
+no es parte de esta secuencia — es independiente y puede activarse en
+cualquier punto del ciclo de vida para extraer datos de configuración
+técnica (puerto, imagen Docker, resource group, etc.) desde el repositorio
+real. No evalúa, no aprueba y no bloquea el flujo anterior.
+
 ---
 
 ## 17. Expediente técnico mínimo por proyecto
