@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/main/schemas/data-access-manifest.schema.json",
+  "title": "Mapeo de acceso a datos de un desarrollo",
+  "description": "Estructura jerárquica (servidor → base de datos → esquema → tabla → columna) que declara qué datos toca un desarrollo y con qué operación. La genera el Agente de Despliegue leyendo el código real del repositorio (ver prompt-agente-despliegue-evaluacion.md, campo MapeoAccesoBD) — nunca se completa a mano ni se infiere por convención, mismo principio rector que el resto del agente (ver agent-despliegue.md sección 2). Pensado para que Panel Gobernanza (apartado Fuentes de datos) y el backend de Gobernanza AI puedan configurar control de acceso por tabla/columna sin pedirle al desarrollador la lista de tablas por separado.",
+  "type": "object",
+  "required": ["desarrollo", "fuentes_datos"],
+  "properties": {
+    "desarrollo": {
+      "type": "string",
+      "description": "Nombre del proyecto, igual al registrado en Panel Gobernanza."
+    },
+    "fuentes_datos": {
+      "type": "array",
+      "description": "Una entrada por servidor/base de datos distinto que el repositorio toca. Vacío si RequiereAccesoBD es false.",
+      "items": { "$ref": "#/$defs/fuenteDatos" }
+    }
+  },
+  "$defs": {
+    "fuenteDatos": {
+      "type": "object",
+      "required": ["database_id", "server", "database", "esquemas"],
+      "properties": {
+        "database_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9_-]+$",
+          "description": "Identificador corto y estable de la fuente (ej. \"rrhh\", \"colsap\") — el mismo que usarían las herramientas de gobernanza para referenciarla, no un nombre libre."
+        },
+        "server": { "type": "string", "description": "Host del servidor (ej. agpcolombia.database.windows.net). null si no hay evidencia textual del host real." },
+        "database": { "type": "string" },
+        "motor": {
+          "type": "string",
+          "description": "Motor + driver detectado, en una frase (ej. \"Azure SQL (mssql+pyodbc)\", \"PostgreSQL vía SQLAlchemy 2.0\")."
+        },
+        "esquemas": { "type": "array", "items": { "$ref": "#/$defs/esquema" } }
+      }
+    },
+    "esquema": {
+      "type": "object",
+      "required": ["schema", "tablas"],
+      "properties": {
+        "schema": { "type": "string" },
+        "tablas": { "type": "array", "items": { "$ref": "#/$defs/tabla" } }
+      }
+    },
+    "tabla": {
+      "type": "object",
+      "required": ["table", "origen", "sensibilidad", "operaciones_permitidas", "columnas"],
+      "properties": {
+        "table": { "type": "string" },
+        "origen": {
+          "type": "string",
+          "enum": ["propia_del_desarrollo", "preexistente"],
+          "description": "\"propia_del_desarrollo\" si este mismo repositorio la crea (migración/script de creación propio) — es una tabla exclusiva de este desarrollo. \"preexistente\" si ya existía y el desarrollo solo la consulta/alimenta como fuente externa. operaciones_permitidas ya sugiere cuál es (solo INSERT sin SELECT previo suele ser nueva), pero este campo debe quedar explícito, no inferido por quien lea el JSON."
+        },
+        "descripcion": {
+          "type": "string",
+          "description": "Qué guarda la tabla, en una frase — inferida de nombres de columnas y del modelo/ORM, nunca de filas de datos reales (el agente no consulta datos, solo estructura de código)."
+        },
+        "sensibilidad": {
+          "type": "string",
+          "enum": ["ninguna", "baja", "media", "alta"],
+          "description": "El nivel más alto entre las columnas de la tabla — ver criterios en columna.categoria."
+        },
+        "operaciones_permitidas": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["SELECT", "INSERT", "UPDATE", "DELETE"] },
+          "description": "Lo que el código del repositorio REALMENTE ejecuta contra esta tabla (visto en queries/ORM) — un hecho observado, no un permiso deseado ni una recomendación."
+        },
+        "columnas": { "type": "array", "items": { "$ref": "#/$defs/columna" } }
+      }
+    },
+    "columna": {
+      "type": "object",
+      "required": ["name", "sensible"],
+      "properties": {
+        "name": { "type": "string" },
+        "sensible": { "type": "boolean" },
+        "categoria": {
+          "type": ["string", "null"],
+          "description": "Solo si sensible=true. Ej.: PII, PII-nacional, credenciales, financiero, salud, biometrico, derivado-IA. null si sensible=false."
+        }
+      }
+    }
+  }
+}

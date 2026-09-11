@@ -304,9 +304,21 @@ Solo haz preguntas sobre lo que falta. No repitas lo que ya tienes.
   { "id": "AI02", "pregunta": "¿Existe ai/decisions/ con decisiones técnicas registradas?", "peso": 5, "bloqueante": false },
   { "id": "AI03", "pregunta": "¿Existe ai/risks/ con riesgos identificados por IA?", "peso": 5, "bloqueante": false },
   { "id": "AI04", "pregunta": "¿Existe ai/reviews/ con al menos una revisión técnica?", "peso": 5, "bloqueante": false },
-  { "id": "AI05", "pregunta": "¿La carpeta ai/ no contiene secretos ni datos sensibles reales?", "peso": 10, "bloqueante": true }
+  { "id": "AI05", "pregunta": "¿La carpeta ai/ no contiene secretos ni datos sensibles reales?", "peso": 10, "bloqueante": true },
+  { "id": "AI06", "pregunta": "¿Existe ai/outputs/data-access-manifest.json válido según schemas/data-access-manifest.schema.json (o RequiereAccesoBD=false si el desarrollo no toca base de datos)?", "peso": 10, "bloqueante": false }
 ]
 ```
+
+`AI06` no bloquea porque un desarrollo puede legítimamente no requerir acceso
+a base de datos — en ese caso el criterio se marca `cumple` si en
+`project-card.md`/`AGENTS.md`/`specs/` no hay evidencia de uso de ORM/driver
+de base de datos (coherente con `RequiereAccesoBD=false` en Datos técnicos).
+Si el desarrollo sí toca base de datos y el archivo falta o no es un JSON
+válido contra el schema, el estado es `falta`. Cuando el archivo exista, cita
+su contenido (o un resumen fiel de fuentes/tablas que declara) en el campo
+`evidencia` de este criterio — es la forma en que esta evaluación deja
+constancia de qué acceso a datos declaró el desarrollo en el momento de
+evaluarse.
 
 ### Carpeta tests/ — proyectos con código ejecutable
 

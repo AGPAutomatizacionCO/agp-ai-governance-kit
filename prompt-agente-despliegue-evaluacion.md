@@ -1,6 +1,6 @@
 # Prompt — Agente de Despliegue · Extracción de datos técnicos
 # AGP AI Governance Kit · AGP Group · TI / Automatización
-# Versión: 1.0
+# Versión: 1.1
 
 ---
 
@@ -101,6 +101,17 @@ WebAppName, ResourceGroup, VarianteTemplate, VariablesEntorno,
 RequiereAccesoBD, DetalleAccesoBD
 ```
 
+Además, si `RequiereAccesoBD` es `true` y el repositorio tiene modelos ORM,
+migraciones o scripts SQL de creación de tablas, construye `MapeoAccesoBD`
+(fuera de `campos`, ver PASO 3): la estructura servidor → base de datos →
+esquema → tabla → columna que define
+`schemas/data-access-manifest.schema.json`. No tiene forma
+`{valor, evidencia, confianza}` como los 15 anteriores — es un objeto
+jerárquico completo, o `null` si no hay evidencia suficiente para
+construirlo. Nunca ejecutes consultas contra la base real ni leas filas de
+datos: todo sale de leer modelos/migraciones/SQL de definición, igual que el
+resto de este agente.
+
 Reglas rápidas por campo:
 
 ```
@@ -132,6 +143,21 @@ RequiereAccesoBD  → true si hay dependencia de ORM/driver de base de datos
 DetalleAccesoBD   → una frase describiendo qué motor/driver se detectó (ej.
                      "PostgreSQL vía SQLAlchemy 2.0 + Alembic para
                      migraciones").
+MapeoAccesoBD     → por cada tabla que encuentres en el ORM/migraciones/SQL:
+                     qué operaciones ejecuta el código sobre ella
+                     (SELECT/INSERT/UPDATE/DELETE, visto en las queries
+                     reales, no supuesto); "origen": "propia_del_desarrollo"
+                     si este repo la crea (su propia migración/script de
+                     creación) o "preexistente" si ya existía y el repo solo
+                     la consulta/alimenta; y, por columna, si su NOMBRE
+                     sugiere un dato sensible (PII, documento de identidad,
+                     credenciales, salud, financiero, biométrico, derivado de
+                     IA) — nunca abras la base para confirmarlo con datos
+                     reales. sensibilidad de la tabla = la más alta entre sus
+                     columnas. Ver schemas/data-access-manifest.schema.json.
+                     Guarda el resultado completo en
+                     ai/outputs/data-access-manifest.json (ruta fija, se
+                     sobreescribe cada vez — no lleva fecha en el nombre).
 StackTecnologico  → resume el stack real visto en el código/README (ej.
                      "FastAPI + PostgreSQL + React 18, sin TypeScript").
 RutaHealthCheck   → busca una ruta /health o equivalente en el código de
@@ -170,6 +196,9 @@ Sin texto antes ni después. Solo el JSON.
     "DetalleAccesoBD":   { "valor": null, "evidencia": null, "confianza": null }
   },
 
+  "_comment_MapeoAccesoBD": "Fuera de 'campos' a propósito: es un objeto jerárquico completo, no {valor,evidencia,confianza}. null si RequiereAccesoBD es false o no hay evidencia suficiente. Forma exacta en schemas/data-access-manifest.schema.json — ejemplo llenado en templates/data-access-manifest.example.json.",
+  "MapeoAccesoBD": null,
+
   "campos_sin_evidencia": [],
   "campos_confianza_baja": [],
   "resumen": "Descripción breve de qué se encontró y qué quedó pendiente."
@@ -200,5 +229,5 @@ Extracción completa — 15/15 campos con evidencia directa.
 
 ---
 
-*AGP AI Governance Kit · Agente de Despliegue · Extracción v1.0*
+*AGP AI Governance Kit · Agente de Despliegue · Extracción v1.1*
 *github.com/AGPAutomatizacionCO/agp-ai-governance-kit*

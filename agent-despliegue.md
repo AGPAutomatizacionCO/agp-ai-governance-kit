@@ -100,7 +100,21 @@ El Agente de Despliegue puede:
   conexión en `.env.example`, etc.), citando la evidencia.
 * Describir en una frase el tipo de acceso a datos detectado
   (`DetalleAccesoBD`) cuando haya evidencia suficiente para resumirlo.
-* Marcar como `null` cualquier campo sin evidencia.
+* Cuando `RequiereAccesoBD` sea `true` y el repositorio tenga modelos ORM,
+  migraciones o scripts SQL de creación de tablas, construir además
+  `MapeoAccesoBD`: la estructura servidor → base de datos → esquema → tabla →
+  columna definida en `schemas/data-access-manifest.schema.json`, leyendo esos
+  mismos archivos (nunca ejecutando consultas contra la base real ni leyendo
+  filas de datos). Por tabla: qué operaciones (`SELECT`/`INSERT`/`UPDATE`/
+  `DELETE`) aparecen realmente en el código sobre ella, si es
+  `"propia_del_desarrollo"` (este mismo repo la crea, vía su propia migración
+  o script de creación) o `"preexistente"` (ya existía; el repo solo la
+  consulta/alimenta como fuente externa), y por columna, si su nombre sugiere
+  un dato sensible (PII, documento de identidad, credenciales, salud, datos
+  financieros, biométrico, o derivado de una IA) — un juicio por nombre, no
+  una lectura de contenido real.
+* Marcar como `null` cualquier campo sin evidencia (`MapeoAccesoBD` queda
+  `null`, no una lista vacía, si no se pudo construir).
 
 ---
 
@@ -149,10 +163,21 @@ VarianteTemplate        str    — fullstack / python / node
 VariablesEntorno        str    — nombres de variables (una por línea), sin valores
 RequiereAccesoBD        bool   — true si detecta dependencia de base de datos
 DetalleAccesoBD         str    — resumen corto del acceso a datos detectado
+MapeoAccesoBD           obj    — servidor → base → esquema → tabla → columna,
+                                 con sensibilidad y operaciones detectadas
+                                 (ver schemas/data-access-manifest.schema.json;
+                                 null si RequiereAccesoBD es false o no hay
+                                 evidencia suficiente para construirlo)
 ```
 
 `CDRequiereAprobacion` queda deliberadamente fuera de esta lista — ver
 sección 6.
+
+`MapeoAccesoBD` es un objeto estructurado, no una frase: es la versión
+machine-readable de `DetalleAccesoBD`, pensada para que Panel Gobernanza y
+Gobernanza AI configuren control de acceso por tabla/columna sin depender de
+que alguien transcriba manualmente la lista de tablas. `DetalleAccesoBD` se
+sigue reportando igual (resumen humano); `MapeoAccesoBD` no lo reemplaza.
 
 ---
 
@@ -234,6 +259,23 @@ kit:
 ```text
 ai/outputs/despliegue-output-YYYY-MM-DD.md
 ```
+
+`MapeoAccesoBD`, en cambio, **no** sigue esa convención con fecha: se guarda
+siempre en la misma ruta fija, para que la herramienta de gobernanza (y el
+Agente Documental, ver `prompt-agente-documental-evaluacion.md` criterio
+`AI06`) lo encuentre sin depender de que alguien le diga dónde quedó ni de
+adivinar un nombre con fecha:
+
+```text
+ai/outputs/data-access-manifest.json
+```
+
+Se sobreescribe completo en cada corrida del Agente de Despliegue — no se
+versiona por fecha, la versión vigente es siempre la última. Debe existir
+(aunque sea con `MapeoAccesoBD: null` si `RequiereAccesoBD` es `false`) desde
+que el desarrollo completa por primera vez sus "Datos técnicos" en Panel
+Gobernanza, para que ya esté disponible cuando se pida la primera evaluación
+automática.
 
 ---
 

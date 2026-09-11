@@ -1,0 +1,44 @@
+{
+  "$comment": "Ejemplo ilustrativo con datos ficticios — no corresponde a ningún desarrollo real de AGP. Ver schemas/data-access-manifest.schema.json para la definición formal, y prompt-agente-despliegue-evaluacion.md para cómo se genera este archivo (campo MapeoAccesoBD).",
+  "desarrollo": "ejemplo-gestor-clientes",
+  "fuentes_datos": [
+    {
+      "database_id": "clientes",
+      "server": "ejemplo-sql.database.windows.net",
+      "database": "APP_Clientes",
+      "motor": "Azure SQL (mssql+pyodbc)",
+      "esquemas": [
+        {
+          "schema": "dbo",
+          "tablas": [
+            {
+              "table": "clientes",
+              "origen": "propia_del_desarrollo",
+              "descripcion": "Datos de contacto de clientes externos",
+              "sensibilidad": "alta",
+              "operaciones_permitidas": ["SELECT", "INSERT", "UPDATE"],
+              "columnas": [
+                { "name": "id", "sensible": false },
+                { "name": "nombre_completo", "sensible": true, "categoria": "PII" },
+                { "name": "correo", "sensible": true, "categoria": "PII" },
+                { "name": "documento_identidad", "sensible": true, "categoria": "PII-nacional" },
+                { "name": "creado_en", "sensible": false }
+              ]
+            },
+            {
+              "table": "categorias_producto",
+              "origen": "preexistente",
+              "descripcion": "Catálogo interno, sin relación con personas",
+              "sensibilidad": "ninguna",
+              "operaciones_permitidas": ["SELECT"],
+              "columnas": [
+                { "name": "id", "sensible": false },
+                { "name": "nombre", "sensible": false }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
