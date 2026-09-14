@@ -26,8 +26,8 @@
           "pattern": "^[a-z0-9_-]+$",
           "description": "Identificador corto y estable de la fuente (ej. \"rrhh\", \"colsap\") — el mismo que usarían las herramientas de gobernanza para referenciarla, no un nombre libre."
         },
-        "server": { "type": "string", "description": "Host del servidor (ej. agpcolombia.database.windows.net). null si no hay evidencia textual del host real." },
-        "database": { "type": "string" },
+        "server": { "type": ["string", "null"], "description": "Host del servidor (ej. agpcolombia.database.windows.net). null si no hay evidencia textual del host real." },
+        "database": { "type": ["string", "null"], "description": "null si no hay evidencia textual del nombre real de la base (mismo criterio que server)." },
         "motor": {
           "type": "string",
           "description": "Motor + driver detectado, en una frase (ej. \"Azure SQL (mssql+pyodbc)\", \"PostgreSQL vía SQLAlchemy 2.0\")."
