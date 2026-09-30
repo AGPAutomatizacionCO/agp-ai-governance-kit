@@ -29,6 +29,7 @@ class ProjectValidationWorkflowTests(unittest.TestCase):
         self.assertIn("^[0-9a-f]{40}$", self.source)
         self.assertIn("ref: ${{ inputs.kit_sha }}", self.source)
         self.assertIn('git -C kit rev-parse HEAD', self.source)
+        self.assertIn('data["kit"].get("ref") != os.environ["KIT_SHA"]', self.source)
 
     def test_project_validation_and_secret_scan_are_mandatory(self) -> None:
         self.assertIn("python -m agpctl validate --repo", self.source)

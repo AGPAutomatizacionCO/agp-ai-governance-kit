@@ -50,6 +50,27 @@ jobs:
           python-version: '3.13'
       - name: Instalar dependencias del validador
         run: python -m pip install -r kit/requirements-release.txt
+      - name: Comprobar que el manifiesto usa el mismo kit
+        shell: bash
+        env:
+          KIT_SHA: ${{ inputs.kit_sha }}
+          PYTHONPATH: ${{ github.workspace }}/kit
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          import yaml
+
+          from scripts.validate_governance_ref import UniqueKeyLoader
+
+          manifest = Path("project/.agp/governance.yaml")
+          data = yaml.load(manifest.read_text(encoding="utf-8"), Loader=UniqueKeyLoader)
+          if not isinstance(data, dict) or not isinstance(data.get("kit"), dict):
+              raise SystemExit("Manifiesto de gobernanza incompleto")
+          if data["kit"].get("ref") != os.environ["KIT_SHA"]:
+              raise SystemExit("kit_sha no coincide con .agp/governance.yaml:kit.ref")
+          PY
       - name: Validar manifiestos, perfil, Docker e IaC
         env:
           PYTHONPATH: ${{ github.workspace }}/kit
