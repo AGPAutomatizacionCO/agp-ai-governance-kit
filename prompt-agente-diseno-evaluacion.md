@@ -123,6 +123,9 @@ Reglas de evaluación que no se negocian:
 - **Un emoji en la interfaz es `falta`, no `parcial`.** Da igual si es uno solo y decorativo.
 - **Accesibilidad se verifica en el código, no en la intención.** Un botón icon-only sin
   `aria-label` incumple aunque el proyecto diga que le importa la accesibilidad.
+- **Los cuatro slots del header no son una lista de sugerencias.** Idioma, tema y usuario tienen
+  que estar en todos los productos internos, en el mismo lugar. Si falta alguno y no está
+  registrado como excepción en la segunda parte del documento, el criterio es `falta`.
 - Si el proyecto se aparta de la plantilla Y lo registró como hallazgo con su razón en la
   segunda parte del documento, eso NO se penaliza: la plantilla admite excepciones
   documentadas. Lo que se penaliza es apartarse en silencio.
@@ -286,7 +289,7 @@ la suma de los pesos que sí aplican.
 
 | id | peso | bloqueante | criterio |
 |---|---|---|---|
-| D30 | 5 | no | El header trae los slots esperados (título o breadcrumb, idioma, tema, usuario) y no incluye buscador global, campana ni menú desplegable de usuario, salvo que el proyecto lo haya registrado como excepción. |
+| D30 | 5 | **sí** | El header trae los CUATRO slots obligatorios —título o breadcrumb, selector de idioma ES/PT, toggle de tema y badge de usuario con avatar, nombre y rol— y no incluye buscador global, campana ni menú desplegable de usuario, salvo que el proyecto lo haya registrado como excepción. Que falte uno de los cuatro sin estar registrado es incumplimiento: son lo que hace que todos los productos internos se usen igual. |
 | D31 | 5 | no | El sidebar respeta anchos (220/56, o 260 con buscador), el colapso por hover con botón de fijar, y los fondos de activo y hover indicados. |
 | D32 | 4 | no | Layout flex a `100vh` con sidebar fijo y columna derecha con scroll propio; `--radius: 12px`; una escala de espaciado definida en vez de valores sueltos. |
 
