@@ -26,6 +26,27 @@ class DetectionTests(unittest.TestCase):
         self.assertFalse(result["requiresConfirmation"])
         self.assertTrue(result["readOnly"])
 
+    def test_python_application_py_en_raiz(self):
+        self._write("requirements.txt", "Flask==3.1.3\n")
+        self._write("application.py", "")
+        result = detect_project(self.repo)
+        self.assertEqual("python-api", result["recommendedProfile"])
+        self.assertEqual(".", result["candidates"][0]["location"])
+        self.assertIn("application.py", result["candidates"][0]["signals"])
+
+    def test_python_application_py_y_frontend_requieren_confirmacion(self):
+        self._write("backend/requirements.txt", "Flask==3.1.3\n")
+        self._write("backend/application.py", "")
+        self._write("frontend/package.json", json.dumps({
+            "scripts": {"build": "vite build"}, "dependencies": {"react": "19.0.0"},
+        }))
+        self._write("frontend/index.html", "")
+        self._write("frontend/src/main.jsx", "")
+        result = detect_project(self.repo)
+        self.assertTrue(result["requiresConfirmation"])
+        self.assertIsNone(result["recommendedProfile"])
+        self.assertEqual({"python-api", "react-static"}, {item["profile"] for item in result["candidates"]})
+
     def test_node_api_unico(self):
         self._write("backend/package.json", json.dumps({"scripts": {"start": "node index.mjs"}}))
         self._write("backend/server.mjs", "")

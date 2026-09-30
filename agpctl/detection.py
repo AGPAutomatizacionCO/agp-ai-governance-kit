@@ -46,7 +46,11 @@ def detect_project(repo: Path) -> dict:
             None,
         )
         python_entry = next(
-            (name for name in ("app.py", "main.py", "wsgi.py", "asgi.py") if _is_file(repo, _path(folder, name))),
+            (
+                name
+                for name in ("app.py", "application.py", "main.py", "wsgi.py", "asgi.py")
+                if _is_file(repo, _path(folder, name))
+            ),
             None,
         )
         if python_manifest and python_entry:
