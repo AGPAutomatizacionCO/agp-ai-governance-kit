@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:agp:governance:deployment-manifest:2",
+  "title": "Manifiesto de despliegue generado por la Mesa de Requerimientos",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["agente", "version", "idProyecto", "generadoEn", "campos", "azure"],
+  "properties": {
+    "agente": { "const": "despliegue" },
+    "version": { "const": 2 },
+    "idProyecto": { "type": ["string", "integer"] },
+    "generadoEn": { "type": "string", "minLength": 1 },
+    "campos": {
+      "type": "object",
+      "required": ["RepoGithub"],
+      "properties": {
+        "RepoGithub": {
+          "allOf": [
+            { "$ref": "#/$defs/evidenceField" },
+            { "properties": { "valor": { "type": "string", "pattern": "^https://github\\.com/[^/]+/[^/]+/?$" } } }
+          ]
+        }
+      },
+      "additionalProperties": { "$ref": "#/$defs/evidenceField" }
+    },
+    "azure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recursos"],
+      "properties": {
+        "recursos": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/azureResource" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "evidenceField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["valor", "evidencia", "confianza"],
+      "properties": {
+        "valor": {},
+        "evidencia": { "type": "string", "minLength": 1 },
+        "confianza": { "enum": ["alta", "media", "baja"] }
+      }
+    },
+    "azureResource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["TipoRecurso", "RolRecurso", "WebAppName", "ResourceGroup", "VarianteTemplate"],
+      "properties": {
+        "TipoRecurso": {
+          "enum": ["App Service (sidecars)", "App Service (contenedor único)", "Static Web App", "Function App", "Otro"]
+        },
+        "RolRecurso": { "enum": ["Único", "Backend", "Frontend", "Worker", "Otro"] },
+        "WebAppName": { "type": "string", "minLength": 1 },
+        "ResourceGroup": { "type": "string", "minLength": 1 },
+        "VarianteTemplate": { "type": "string", "minLength": 1 },
+        "Puerto": { "oneOf": [{ "type": "integer", "minimum": 1, "maximum": 65535 }, { "type": "string", "pattern": "^[0-9]{1,5}$" }] },
+        "RutaHealthCheck": { "type": "string", "pattern": "^/" },
+        "UrlDespliegue": { "type": "string" },
+        "DockerImagen": { "type": "string" },
+        "DockerfilePath": { "type": "string" },
+        "AppLocation": { "type": "string" },
+        "OutputLocation": { "type": "string" },
+        "AppBuildCommand": { "type": "string" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "TipoRecurso": { "enum": ["App Service (sidecars)", "App Service (contenedor único)"] } } },
+          "then": { "required": ["Puerto", "RutaHealthCheck"] }
+        }
+      ]
+    }
+  }
+}

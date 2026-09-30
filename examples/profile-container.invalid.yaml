@@ -1,0 +1,12 @@
+apiVersion: profile.agp/v1
+id: python-api
+kind: container
+build:
+  context: backend
+  dockerfile: backend/Dockerfile
+  dependencyManifest: backend/requirements.txt
+runtime:
+  port: 8000
+  healthPath: health
+deploy:
+  target: static-web-app

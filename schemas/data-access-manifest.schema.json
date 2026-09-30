@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/main/schemas/data-access-manifest.schema.json",
+  "$id": "urn:agp:governance:data-access-manifest:1",
   "title": "Mapeo de acceso a datos de un desarrollo",
   "description": "Estructura jerárquica (servidor → base de datos → esquema → tabla → columna) que declara qué datos toca un desarrollo y con qué operación. La genera el Agente de Despliegue leyendo el código real del repositorio (ver prompt-agente-despliegue-evaluacion.md, campo MapeoAccesoBD) — nunca se completa a mano ni se infiere por convención, mismo principio rector que el resto del agente (ver agent-despliegue.md sección 2). Pensado para que Panel Gobernanza (apartado Fuentes de datos) y el backend de Gobernanza AI puedan configurar control de acceso por tabla/columna sin pedirle al desarrollador la lista de tablas por separado.",
   "type": "object",

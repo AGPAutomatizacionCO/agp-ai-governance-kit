@@ -1,0 +1,7 @@
+# SHA ficticio: este ejemplo prueba el esquema, no corresponde a un tag real.
+apiVersion: governance.agp/v1
+kit:
+  source: AGPAutomatizacionCO/agp-ai-governance-kit
+  version: v4.0.0-rc.1
+  ref: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+profile: python-api

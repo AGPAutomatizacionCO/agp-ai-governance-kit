@@ -1,0 +1,18 @@
+{
+  "kitVersion": "vX.Y.Z-rc.N",
+  "kitCommit": "<sha completo de 40 caracteres>",
+  "status": "candidate",
+  "schemaVersions": {
+    "dataAccessManifest": "1",
+    "governanceManifest": "1",
+    "deploymentManifest": "2",
+    "profileContract": "1"
+  },
+  "agpctl": {
+    "minInclusive": "pending",
+    "maxExclusive": "pending"
+  },
+  "profiles": {
+    "python-api": "pending"
+  }
+}

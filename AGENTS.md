@@ -17,6 +17,7 @@ Este repositorio contiene el marco de trabajo para análisis, evaluación y revi
 * Revisión técnica.
 * Testing.
 * Documentación.
+* Despliegue.
 * Gobierno y trazabilidad.
 
 El propósito de esta prueba es validar desarrollos realizados por usuarios o equipos internos, revisando su estructura, documentación, seguridad, trazabilidad, mantenibilidad y alineación con el marco de gobernanza definido.
@@ -25,9 +26,9 @@ El propósito de esta prueba es validar desarrollos realizados por usuarios o eq
 
 ## Documento principal obligatorio
 
-Todo agente, asistente de código o sistema automatizado que utilice este repositorio debe iniciar leyendo y aplicando el siguiente documento principal:
+Todo agente, asistente de código o sistema automatizado que utilice este repositorio debe iniciar leyendo y aplicando el siguiente documento principal desde la misma revisión inmutable de este archivo:
 
-https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/main/PROMPT_ANALISIS_REPOSITORIO_AGENTES.md
+https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/<GOVERNANCE_KIT_REF>/PROMPT_ANALISIS_REPOSITORIO_AGENTES.md
 
 Este documento define:
 
@@ -48,25 +49,28 @@ Este documento define:
 Antes de emitir cualquier análisis, el agente debe cargar y aplicar los siguientes documentos:
 
 1. Constitución
-   https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/main/constitution/constitution.md
+   https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/<GOVERNANCE_KIT_REF>/constitution.md
 
 2. Harness Policy
-   https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/main/harness/harness-policy.md
+   https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/<GOVERNANCE_KIT_REF>/harness-policy.md
 
 3. Agente de Especificación
-   https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/main/agents/agent-specification.md
+   https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/<GOVERNANCE_KIT_REF>/agent-specification.md
 
 4. Agente Desarrollador
-   https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/main/agents/agent-development.md
+   https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/<GOVERNANCE_KIT_REF>/agent-development.md
 
 5. Agente Revisor Técnico
-   https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/main/agents/agent-technical-review.md
+   https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/<GOVERNANCE_KIT_REF>/agent-technical-review.md
 
 6. Agente de Testing
-   https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/main/agents/agent-testing.md
+   https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/<GOVERNANCE_KIT_REF>/agent-testing.md
 
 7. Agente Documental
-   https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/main/agents/agent-documental.md
+   https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/<GOVERNANCE_KIT_REF>/agent-documental.md
+
+8. Agente de Despliegue
+   https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/<GOVERNANCE_KIT_REF>/agent-despliegue.md
 
 ---
 
@@ -168,13 +172,13 @@ AGENTS.md
 PROMPT_ANALISIS_REPOSITORIO_AGENTES.md
 = protocolo operativo, flujo de conversación y formato de salida.
 
-constitution/constitution.md
+constitution.md
 = principios, límites y reglas rectoras.
 
-harness/harness-policy.md
+harness-policy.md
 = controles de operación, trazabilidad y uso seguro.
 
-agents/*.md
+agent-*.md
 = definición especializada de cada agente.
 ```
 
@@ -316,6 +320,7 @@ agent-specification.md         → Agente 2: convierte necesidades en spec
 agent-technical-review.md      → Agente 3: valida cumplimiento técnico
 agent-development.md           → Agente 4: implementa tareas aprobadas
 agent-testing.md               → Agente 5: diseña y documenta pruebas
+agent-despliegue.md             → Agente de Despliegue: valida preparación y promoción
 agent-support.md               → Agente 6: apoya operación e incidentes
 agent-consultation.md          → Agente 7: responde desde documentación aprobada
 prompt-master-development.md   → Prompt estructurado para Agente de Desarrollo
@@ -326,7 +331,17 @@ prompt-agente-documental-evaluacion.md        → gate obligatorio
 prompt-agente-pruebas-evaluacion.md           → gate obligatorio
 prompt-agente-revision-tecnica-evaluacion.md  → gate obligatorio (consume los dos anteriores)
 prompt-agente-especificacion-evaluacion.md    → apoyo de fase previa, no es gate
+prompt-agente-despliegue-evaluacion.md         → valida preparación y evidencia de despliegue
 ```
 
-Base URL del kit:
-`https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/main/`
+## Versionamiento y consumo inmutable
+
+- `main` se utiliza únicamente para descubrir la versión más reciente y preparar cambios del kit.
+- Toda automatización, evaluación formal o pipeline debe declarar `GOVERNANCE_KIT_REF` con el SHA completo del commit aprobado. La versión SemVer se muestra adicionalmente para lectura humana.
+- Si el proyecto tiene `.agp/governance.yaml`, tomar de allí el SHA aprobado; si falta o no puede comprobarse, la validación formal queda pendiente. En un análisis preliminar, pedir al responsable un SHA explícito.
+- Los proyectos no deben descargar reglas desde `main` durante una validación o un despliegue.
+- La referencia utilizada debe registrarse como evidencia del análisis y del despliegue.
+- Un tag publicado no se mueve ni se reutiliza. Una corrección requiere una nueva versión.
+
+Base URL inmutable del kit:
+`https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/<GOVERNANCE_KIT_REF>/`
