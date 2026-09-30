@@ -35,7 +35,16 @@ jobs:
         shell: bash
         run: |
           test_dir=$(mktemp -d)
-          printf 'GITHUB_TOKEN=ghp_%s\n' '0123456789abcdefghijklmnopqrstuvwxyz' > "$test_dir/fixture.txt"
+          python - "$test_dir/fixture.txt" <<'PY'
+          import secrets
+          import string
+          import sys
+          from pathlib import Path
+
+          alphabet = string.ascii_letters + string.digits
+          synthetic = "ghp_" + "".join(secrets.choice(alphabet) for _ in range(36))
+          Path(sys.argv[1]).write_text("GITHUB_TOKEN=" + synthetic + "\n", encoding="utf-8")
+          PY
           set +e
           "$RUNNER_TEMP/gitleaks-bin/gitleaks" dir --redact --no-banner --log-level error "$test_dir"
           result=$?
