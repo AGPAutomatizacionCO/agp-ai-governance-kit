@@ -1,0 +1,8 @@
+apiVersion: profile.agp/v1
+id: react-static
+kind: static
+build:
+  sourceDir: frontend
+  outputDir: frontend/dist
+deploy:
+  target: static-web-app

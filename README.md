@@ -1,5 +1,19 @@
 # AGP AI Governance Kit
 
+> **Implementación CI/CD en prueba local — no lista para deploy.** Los
+> validadores, esquemas y workflow de release añadidos en esta fase aún no
+> tienen PR aprobado, release publicado ni check obligatorio en GitHub.
+> `.agp/governance.yaml.template` del starter contiene un SHA ficticio;
+> ningún proyecto debe usarlo para autorizar producción.
+
+Para una prueba local del kit: instala `requirements-release.txt` y
+`requirements-security.txt` en un entorno virtual propio y ejecuta
+`python -m unittest discover -s tests -v`, `python -m ruff check agpctl scripts tests`,
+`python -m bandit -r agpctl scripts -lll -q` y
+`python scripts/validate_release.py`. `python -m agpctl validate --repo <proyecto>`
+requiere un manifiesto con tag y SHA reales; el ejemplo con SHA ficticio debe
+fallar. Estas pruebas no realizan despliegue.
+
 Kit de gobierno para el uso de inteligencia artificial en el desarrollo, documentación, pruebas, revisión, despliegue, soporte y mantenimiento de soluciones digitales empresariales.
 
 Este repositorio define reglas, controles, plantillas, agentes y lineamientos para que las soluciones digitales asistidas por IA se desarrollen de forma segura, trazable, mantenible, auditable y alineada con las necesidades del negocio.
@@ -66,25 +80,18 @@ Constitución
 agp-ai-governance-kit/
 │
 ├── README.md
-│
-├── constitution/
-│   └── constitution.md
-│
-├── harness/
-│   └── harness-policy.md
-│
-├── agents/
-│   ├── agent-context-package.md
-│   ├── agent-documental.md
-│   ├── agent-specification.md
-│   ├── agent-technical-review.md
-│   ├── agent-development.md
-│   ├── agent-testing.md
-│   ├── agent-support.md
-│   └── agent-consultation.md
-│
-└── prompts/
-    └── prompt-master-development.md
+├── START-HERE.md
+├── AGENTS.md
+├── constitution.md
+├── harness-policy.md
+├── agent-*.md
+├── prompt-*.md
+├── schemas/
+│   └── data-access-manifest.schema.json
+├── templates/
+│   └── data-access-manifest.example.json
+├── RELEASE-POLICY.md
+└── CHANGELOG.md
 ```
 
 ---

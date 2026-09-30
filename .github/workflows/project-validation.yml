@@ -1,0 +1,91 @@
+# Preview técnico MA-03. Un ruleset de la organización debe exigir este check y
+# proteger el workflow del repositorio consumidor antes de llamarlo gate formal.
+name: agp-project-validation
+
+on:
+  workflow_call:
+    inputs:
+      kit_sha:
+        description: SHA completo e inmutable del kit de gobernanza
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: agp-project-validation
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Comprobar referencia inmutable del kit
+        shell: bash
+        env:
+          KIT_SHA: ${{ inputs.kit_sha }}
+        run: |
+          if [[ ! "$KIT_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo 'kit_sha debe ser un SHA Git completo de 40 caracteres' >&2
+            exit 1
+          fi
+      - name: Checkout del proyecto llamador
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: project
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Checkout del kit fijado
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: AGPAutomatizacionCO/agp-ai-governance-kit
+          ref: ${{ inputs.kit_sha }}
+          path: kit
+          persist-credentials: false
+      - name: Verificar SHA efectivo del kit
+        shell: bash
+        env:
+          KIT_SHA: ${{ inputs.kit_sha }}
+        run: test "$(git -C kit rev-parse HEAD)" = "$KIT_SHA"
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+      - name: Instalar dependencias del validador
+        run: python -m pip install -r kit/requirements-release.txt
+      - name: Comprobar que el manifiesto usa el mismo kit
+        shell: bash
+        env:
+          KIT_SHA: ${{ inputs.kit_sha }}
+          PYTHONPATH: ${{ github.workspace }}/kit
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          import yaml
+
+          from scripts.validate_governance_ref import UniqueKeyLoader
+
+          manifest = Path("project/.agp/governance.yaml")
+          data = yaml.load(manifest.read_text(encoding="utf-8"), Loader=UniqueKeyLoader)
+          if not isinstance(data, dict) or not isinstance(data.get("kit"), dict):
+              raise SystemExit("Manifiesto de gobernanza incompleto")
+          if data["kit"].get("ref") != os.environ["KIT_SHA"]:
+              raise SystemExit("kit_sha no coincide con .agp/governance.yaml:kit.ref")
+          PY
+      - name: Validar manifiestos, perfil, Docker e IaC
+        env:
+          PYTHONPATH: ${{ github.workspace }}/kit
+        run: python -m agpctl validate --repo "$GITHUB_WORKSPACE/project" --environment dev
+      - name: Instalar Gitleaks con SHA-256 verificado
+        shell: bash
+        run: |
+          curl --fail --silent --show-error --location --retry 3 \
+            --output "$RUNNER_TEMP/gitleaks.tar.gz" \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.30.0/gitleaks_8.30.0_linux_x64.tar.gz
+          echo "79a3ab579b53f71efd634f3aaf7e04a0fa0cf206b7ed434638d1547a2470a66e  $RUNNER_TEMP/gitleaks.tar.gz" | sha256sum --check
+          mkdir -p "$RUNNER_TEMP/gitleaks-bin"
+          tar -xzf "$RUNNER_TEMP/gitleaks.tar.gz" -C "$RUNNER_TEMP/gitleaks-bin" gitleaks
+      - name: Detectar secretos en historial y árbol del proyecto
+        shell: bash
+        run: |
+          "$RUNNER_TEMP/gitleaks-bin/gitleaks" git --redact --no-banner --log-level warn project
+          "$RUNNER_TEMP/gitleaks-bin/gitleaks" dir --redact --no-banner --log-level warn project

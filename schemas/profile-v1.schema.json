@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:agp:governance:profile:1",
+  "title": "Contrato de perfil de entrega AGP",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "id", "kind", "build", "deploy"],
+  "properties": {
+    "apiVersion": { "const": "profile.agp/v1" },
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+    "kind": { "enum": ["container", "static"] },
+    "build": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "context": { "type": "string", "minLength": 1 },
+        "dockerfile": { "type": "string", "minLength": 1 },
+        "dependencyManifest": { "type": "string", "minLength": 1 },
+        "lockfile": { "type": "string", "minLength": 1 },
+        "sourceDir": { "type": "string", "minLength": 1 },
+        "outputDir": { "type": "string", "minLength": 1 }
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["port", "healthPath"],
+      "properties": {
+        "port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+        "healthPath": { "type": "string", "pattern": "^/" }
+      }
+    },
+    "deploy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target"],
+      "properties": {
+        "target": { "enum": ["app-service", "container-apps", "static-web-app"] }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "kind": { "const": "container" } } },
+      "then": {
+        "required": ["runtime"],
+        "properties": {
+          "build": { "required": ["context", "dockerfile", "dependencyManifest"] },
+          "deploy": { "properties": { "target": { "enum": ["app-service", "container-apps"] } } }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "static" } } },
+      "then": {
+        "properties": {
+          "build": { "required": ["sourceDir", "outputDir"] },
+          "deploy": { "properties": { "target": { "const": "static-web-app" } } }
+        },
+        "not": { "required": ["runtime"] }
+      }
+    }
+  ]
+}
