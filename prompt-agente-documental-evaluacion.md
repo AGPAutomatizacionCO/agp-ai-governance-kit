@@ -1,6 +1,6 @@
 # Prompt — Agente Documental · Evaluación de proyecto existente
 # AGP AI Governance Kit · AGP Group · TI / Automatización
-# Versión: 3.0
+# Versión: 3.1
 
 ---
 
@@ -31,6 +31,29 @@ Si no está en el chat de ninguna de esas formas:
 
 No preguntes si tiene el archivo. Pide que lo comparta:
 "Para evaluar [criterio] necesito ver [archivo]. ¿Puedes adjuntarlo?"
+
+---
+
+## REGLA FUNDAMENTAL — INTENTOS Y PLAN DE CORRECCIÓN
+
+Este agente puede recibir el JSON de un intento anterior de esta misma
+evaluación para el mismo proyecto (`intento_anterior` en lo que te
+compartan). Si lo recibe:
+
+- Usa `intento = intento_anterior.intento + 1`. Si no lo recibes,
+  `intento = 1` e `intento_anterior_recibido = false`.
+- No vuelvas a evaluar desde cero los criterios que ya estaban en `cumple`
+  en el intento anterior — solo repórtalos de nuevo si encuentras evidencia
+  de que dejaron de cumplirse (regresión); no lo ocultes si ocurre.
+- Para cada ítem de `plan_correccion` del intento anterior, verifica con lo
+  recibido ahora si fue resuelto. Clasifícalo en
+  `comparacion_intento_anterior` como `resuelto` / `parcial` /
+  `no_resuelto` / `regresion`. Una afirmación de "ya lo corregí" sin el
+  documento o evidencia correspondiente no cuenta como resuelto — misma
+  regla de verificación real que para cualquier otro criterio.
+- `plan_correccion` del intento actual incluye solo lo que sigue pendiente
+  (`no_resuelto` o `parcial`) más cualquier hallazgo nuevo. Lo `resuelto`
+  sale de la lista.
 
 ---
 
@@ -166,6 +189,12 @@ Sin texto antes ni después. Solo el JSON.
   "archivos_recibidos": [],
   "archivos_no_recibidos": [],
 
+  "intento": 1,
+  "intento_anterior_recibido": false,
+  "comparacion_intento_anterior": [
+    { "id": "U02", "estado_anterior": "falta", "estado_actual": "cumple", "resultado": "resuelto" }
+  ],
+
   "criterios_evaluados": [
     {
       "id": "U01",
@@ -211,6 +240,17 @@ Sin texto antes ni después. Solo el JSON.
       }
     ]
   },
+
+  "plan_correccion": [
+    {
+      "id": "U02",
+      "bloqueante": true,
+      "prioridad": "critica",
+      "que_falta": "AGENTS.md no existe",
+      "que_hacer": "Crear AGENTS.md con arquitectura, agentes del kit autorizados para este proyecto y restricciones específicas",
+      "como_se_verifica": "Adjuntar AGENTS.md completo en el próximo intento"
+    }
+  ],
 
   "bloqueantes_confirmados": ["U02", "coherencia-estado"],
   "puede_avanzar": false,
@@ -263,9 +303,22 @@ O hay contradicciones, responde SOLO con esto:
 ```
 Documentación incompleta detectada. Puedo generar los documentos faltantes.
 
-Necesito que respondas estas preguntas:
+PLAN DE CORRECCIÓN PARA EL PRÓXIMO INTENTO (intento [N] → [N+1]):
+
+Bloqueantes (deben resolverse para poder avanzar):
+[Por cada ítem de "plan_correccion" con bloqueante=true, una línea:
+ "- [id] [que_falta] → [que_hacer] (se verifica: [como_se_verifica])"]
+
+No bloqueantes (mejoran la calificación, no impiden avanzar):
+[Igual, para bloqueante=false]
+
+Para completar lo anterior necesito que respondas:
 [Lista SOLO las preguntas necesarias para los criterios con estado "falta" o "parcial"]
 [Si hay contradicciones, pregunta cuál versión es la correcta]
+
+Cuando tengas lo pendiente, vuelve a correr esta evaluación adjuntando
+también el JSON de este intento como intento_anterior — así el próximo
+intento revisa puntualmente lo que falta en vez de repetir todo desde cero.
 ```
 
 Ejemplo para AGENTS.md faltante:
@@ -278,6 +331,20 @@ Para crear AGENTS.md necesito:
 ```
 
 Solo haz preguntas sobre lo que falta. No repitas lo que ya tienes.
+
+### Formato y orden de plan_correccion
+
+`plan_correccion` se construye con todo criterio en estado `falta`,
+`parcial` o `no-verificable` (nunca con `cumple` ni `no-aplica`), ordenado
+primero por `bloqueante: true` y luego por `peso` descendente. Cada ítem:
+
+```json
+{ "id": "", "bloqueante": false, "prioridad": "[baja|media|alta|critica]", "que_falta": "", "que_hacer": "", "como_se_verifica": "" }
+```
+
+`que_hacer` siempre es una acción concreta y ejecutable por el responsable
+del desarrollo, no una repetición de `que_falta`. `como_se_verifica` dice
+qué evidencia exacta cerraría ese punto en el próximo intento.
 
 ---
 
@@ -466,5 +533,5 @@ Solo criterios universales U01-U06 y AI01, AI05.
 
 ---
 
-*AGP AI Governance Kit · Agente Documental · Evaluación v3.0*
+*AGP AI Governance Kit · Agente Documental · Evaluación v3.1*
 *github.com/AGPAutomatizacionCO/agp-ai-governance-kit*
