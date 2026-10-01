@@ -520,6 +520,31 @@ Debe validar evidencia de:
 
 El agente no puede aprobar el despliegue. Solo puede indicar si la evidencia está completa o incompleta.
 
+### 8.12.1 Despliegue automatizado gobernado por el kit (TR10)
+
+Cuando el desarrollo usa el mecanismo de despliegue automatizado de este kit
+(`condiciones_activas` incluye `requiere-despliegue`), la lista genérica de
+arriba se concreta así — detalle completo en la sección `requiere-despliegue`
+de `prompt-agente-revision-tecnica-evaluacion.md`:
+
+* Perfil (`.agp/profile.yaml`) válido contra `schemas/profile-v1.schema.json`.
+* Si usa contenedor: Dockerfile no-root, imagen base fijada por digest.
+* CI/CD verde sobre el commit exacto (no histórico), acciones de terceros
+  fijadas por SHA.
+* `.agp/governance.yaml` fijado a un release/SHA real del kit, nunca a `main`.
+* Secretos identificados por nombre, con estado (cargado/pendiente), nunca
+  valores.
+* Acceso a datos (`MapeoAccesoBD`) con existencia y permiso verificados, no
+  solo declarados.
+* Asignación de roles de aplicación siempre manual, nunca en el pipeline.
+* Nombre del recurso coherente con la convención área+desarrollo.
+* Plan de reversión/eliminación del despliegue, no solo de creación.
+* Digest de imagen inmutable (`sha256:...`) registrado como evidencia.
+
+Esto es madurez informativa (TR10, no bloqueante en esta versión) — no
+reemplaza las aprobaciones funcional/técnica/IT de la lista genérica, que
+siguen siendo obligatorias.
+
 ---
 
 ## 8.13 Revisión de monitoreo y soporte

@@ -292,9 +292,12 @@ no-aplica      → se excluye del score posible (no penaliza)
   { "id": "TR06", "categoria": "pruebas_evidencia", "pregunta": "¿Existe evidencia suficiente de pruebas para el desarrollo evaluado?", "peso": 15, "bloqueante": true, "fuente_preferida": "gates_previos.pruebas" },
   { "id": "TR07", "categoria": "operabilidad", "pregunta": "¿Existe información mínima para ejecutar, usar, desplegar, soportar o mantener la solución cuando aplique?", "peso": 5, "bloqueante": false, "fuente_preferida": "deployment-notes / monitoring-notes" },
   { "id": "TR08", "categoria": "riesgos_revision_humana", "pregunta": "¿Están identificados los riesgos técnicos y la necesidad de revisión humana?", "peso": 5, "bloqueante": true, "fuente_preferida": "specs/005-risks.md / human-review.md" },
-  { "id": "TR09", "categoria": "cumplimiento_normativo", "pregunta": "¿El cambio no contradice la Constitución ni el Harness?", "peso": 15, "bloqueante": true, "fuente_preferida": "constitution.md / harness-policy.md" }
+  { "id": "TR09", "categoria": "cumplimiento_normativo", "pregunta": "¿El cambio no contradice la Constitución ni el Harness?", "peso": 15, "bloqueante": true, "fuente_preferida": "constitution.md / harness-policy.md" },
+  { "id": "TR10", "categoria": "madurez_despliegue", "pregunta": "Si condiciones_activas incluye requiere-despliegue, ¿el desarrollo cumple los puntos de madurez de despliegue automatizado de la sección 'requiere-despliegue' de CRITERIOS ESPECIALES POR CONDICIÓN?", "peso": 10, "bloqueante": false, "fuente_preferida": "sección 'requiere-despliegue' / specs/007-deployment-notes.md / .agp/" }
 ]
 ```
+
+`TR10` es `no-aplica` si `requiere-despliegue` no está en `condiciones_activas` — no penaliza score_posible en ese caso.
 
 ---
 
@@ -351,6 +354,13 @@ registradas > project-card > spec > plan > tasks > risks > change log >
 documentación técnica > instrucción del usuario. Una contradicción contra
 Constitución o Harness tiene prioridad de bloqueo sobre cualquier otro
 resultado.
+
+### TR10 — Madurez de despliegue automatizado
+Solo aplica si `requiere-despliegue` está en `condiciones_activas`; si no,
+`no-aplica`. Usa la sección `requiere-despliegue` de CRITERIOS ESPECIALES POR
+CONDICIÓN. No bloqueante en esta versión — informa madurez, no gatea el
+avance a revisión humana. Cada punto se evalúa por separado
+(`cumple`/`parcial`/`falta`/`no-verificable`), nunca "todo o nada".
 
 ---
 
@@ -622,6 +632,54 @@ Plan de contingencia, revisión periódica programada, monitoreo proporcional.
 ### codigo-ejecutable
 Evidencia mínima de pruebas, instrucciones de ejecución, ausencia de
 secretos, relación con criterios de aceptación.
+
+### requiere-despliegue
+
+Alimenta TR10. Evalúa cada punto por separado con lo disponible; marca
+`no-verificable` el que no tenga evidencia, nunca lo des por cumplido. Un
+desarrollo puede avanzar a revisión humana sin cumplir todos — esto informa
+madurez, TR10 no es bloqueante en esta versión.
+
+```text
+Perfil reconocido: .agp/profile.yaml válido (id, kind, build, runtime,
+  deploy), o si el desarrollo no usa el kit todavía, stack/puerto/health
+  declarados explícitamente en deployment-notes.md.
+Si usa contenedor (kind=container): Dockerfile con usuario no-root, imagen
+  base fijada por digest (no por tag mutable como "latest" o "3.12"),
+  puerto y healthPath declarados coinciden con el Dockerfile/código real.
+CI/CD publicado y verde sobre el commit exacto que se desplegaría — no
+  "corrió alguna vez en el pasado". Si el workflow usa acciones de
+  terceros, están fijadas por SHA de commit, no por tag.
+Release del kit fijado por SHA (.agp/governance.yaml apunta a un tag/SHA
+  real y aprobado), nunca a main en movimiento.
+Evaluación de este mismo flujo con aprobación humana de IT registrada —
+  no solo el score automático, alguien de IT marcó la aprobación.
+Secretos necesarios identificados por NOMBRE (nunca valor) y declarado si
+  ya están cargados en el ambiente destino o siguen pendientes.
+Acceso a datos (MapeoAccesoBD) con tabla/columna/sensibilidad declarados;
+  si declara acceso real, hay evidencia de que alguien (persona o proceso
+  autorizado) verificó que la tabla y el permiso existen de verdad, no
+  solo que el código la referencia.
+Identidades/roles: si el desarrollo requiere login con roles, el mecanismo
+  de asignación de usuarios a roles es manual, nunca parte de un pipeline
+  automático — ver ADR-06 y GESTION-IDENTIDAD-Y-ROLES-PROPUESTA.md del
+  repositorio DOCS-IT-GOVERNANCE.
+Nombre del recurso sigue la convención área+desarrollo (AGP_AREA_DESARROLLO
+  para el repo, agp-co-area-desarrollo para recursos Azure), no un nombre
+  genérico que no diga qué resuelve.
+Aprobación de despliegue registrada por una persona distinta de quien
+  escribió el cambio.
+Existe un plan de reversión/eliminación del despliegue, no solo de
+  creación — quién lo autoriza y cómo se ejecuta.
+Digest de imagen inmutable registrado en la evidencia de despliegue
+  (`sha256:...`), nunca un tag corto ni `latest`.
+Evidencia de despliegue persistida con línea de tiempo por fase (no solo
+  un mensaje de "funcionó" sin fecha ni fase).
+```
+
+Si `en-produccion` también está activo, todo lo anterior deja de ser
+"madurez deseable" y se vuelve criterio de TR08/B05 (revisión humana
+obligatoria) — no dupliques el bloqueo, solo referencia esa sección.
 
 ---
 
