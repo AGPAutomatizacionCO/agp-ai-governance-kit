@@ -2011,8 +2011,10 @@ El patrón de despliegue controlado corporativo es:
 GitHub
 → Pull Request
 → Revisión de código
-→ Azure DevOps
-→ Build en Docker
+→ Gates obligatorios del kit sobre commit exacto
+→ Mesa: plan y aprobación humana verificable
+→ GitHub Actions o ejecutor central autorizado según ADR-01
+→ Build de imagen Docker o paquete estático según perfil
 → Deploy Dev
 → Validación técnica
 → Deploy Test
@@ -2023,27 +2025,17 @@ GitHub
 
 ### Regla
 
-Azure DevOps es la plataforma de CI/CD corporativa aprobada para despliegues productivos.
+GitHub Actions es el ejecutor objetivo de CI/CD para `dev`, `qa` y producción. Esta sustitución de Azure DevOps exige ADR-01 aprobada, armonización de documentos y prueba de controles no eludibles; hasta entonces Azure DevOps conserva el carácter de ejecutor productivo aprobado y el piloto GitHub Actions se limita a `dev`.
 
 ### GitHub Actions
 
-GitHub Actions puede usarse para:
+GitHub Actions puede ejecutar linting, pruebas, validaciones de gobierno, build y publicación con OIDC e identidades separadas por ambiente. `qa/prod` sólo se habilitan tras la decisión normativa y la prueba de un gate que impida omitir la aprobación humana de la Mesa, cambiar el commit o modificar el workflow para obtener una identidad productiva.
 
-* Linting y validaciones estáticas de código.
-* Pruebas unitarias automáticas sin acceso a infraestructura productiva.
-* Verificaciones de calidad pre-PR.
-
-GitHub Actions **no puede**:
-
-* Conectarse directamente a producción.
-* Desplegarse a ambientes productivos sin aprobación humana.
-* Manejar secretos productivos directamente.
+En repositorios privados de GitHub Free, no asumir disponibles revisores obligatorios de *environments*, protección de ramas o rulesets. Si el plan no ofrece un control equivalente, la identidad productiva debe residir en un ejecutor central controlado por IT al que el proyecto no pueda acceder directamente. Una actualización de licencia por sí sola no sustituye la prueba negativa de bypass.
 
 ### Docker
 
-Todo despliegue formal debe ser reproducible vía contenedor Docker.
-
-El `Dockerfile` debe estar documentado y versionado en el repositorio.
+Las aplicaciones con servidor se despliegan mediante imagen Docker reproducible; su `Dockerfile` debe estar documentado y versionado. Los perfiles estáticos sin servidor pueden desplegar un paquete con hash verificable si su contrato aprobado así lo establece.
 
 ### Aprobación humana en pipeline
 
@@ -2051,7 +2043,7 @@ Todo pipeline de producción debe incluir un paso de aprobación manual explíci
 
 ### Bloqueo
 
-El Agente de Desarrollo debe detenerse si se solicita configurar un pipeline de producción que no pase por Azure DevOps o que no incluya aprobación humana.
+El Agente de Desarrollo debe detenerse si se solicita habilitar producción sin ADR-01 aprobada, aprobación humana vinculada al plan y al artefacto exactos, o un control técnico no eludible de acceso al ambiente. La mera ejecución de GitHub Actions en `dev` no autoriza `qa/prod`.
 
 ---
 

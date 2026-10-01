@@ -293,10 +293,11 @@ Los agentes deben reconocer las siguientes tecnologías como estándares corpora
 
 ### Pipeline de despliegue
 
-- **Azure DevOps → Docker → despliegue controlado**: patrón aprobado para producción.
-- **GitHub Actions**: válido para linting, pruebas unitarias y validaciones de calidad sin acceso a infraestructura productiva.
-- GitHub Actions no puede conectar directamente a producción.
-- Todo pipeline productivo debe incluir aprobación humana explícita.
+- **GitHub Actions → artefacto versionado → despliegue controlado**: patrón propuesto para CI/CD en `dev`, `qa` y producción, sujeto a la aprobación corporativa de ADR-01 antes de sustituir la norma Azure DevOps vigente.
+- El pipeline debe validar el commit exacto, ejecutar los gates del kit y publicar un artefacto inmutable. Las aplicaciones con servidor usan imagen Docker por digest; las aplicaciones estáticas usan un paquete verificable según su perfil aprobado.
+- OIDC e identidades de mínimo privilegio separadas por ambiente; ningún workflow editable por el proyecto debe poder obtener por sí solo acceso productivo sin una aprobación humana vigente y verificable del plan exacto en la Mesa.
+- La aprobación de producción no se presume por un CI verde, un botón o un archivo YAML. Debe ser no eludible, auditable y probarse con intentos negativos antes de activar el acceso.
+- En repositorios privados de GitHub Free, no asumir revisores obligatorios de *environments*, protección de ramas ni rulesets como controles disponibles. Hasta contar con protección equivalente verificada, producción sigue con el ejecutor corporativo vigente.
 
 ### Documentos obligatorios por proyecto
 
