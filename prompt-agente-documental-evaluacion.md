@@ -292,7 +292,8 @@ Solo haz preguntas sobre lo que falta. No repitas lo que ya tienes.
   { "id": "U03", "pregunta": "¿Existe project-card con functional_owner, technical_owner e it_owner definidos?", "peso": 10, "bloqueante": true },
   { "id": "U04", "pregunta": "¿Existe specs/005-risks.md con al menos un riesgo con owner y mitigación?", "peso": 15, "bloqueante": true },
   { "id": "U05", "pregunta": "¿No hay secretos, tokens ni credenciales en código o documentación?", "peso": 20, "bloqueante": true },
-  { "id": "U06", "pregunta": "¿Existe specs/009-change-log.md con al menos una entrada reciente?", "peso": 5, "bloqueante": false }
+  { "id": "U06", "pregunta": "¿Existe specs/009-change-log.md con al menos una entrada reciente?", "peso": 5, "bloqueante": false },
+  { "id": "U07", "pregunta": "¿El project_name en project-card.md es coherente con business_area y con el alcance descrito en project-card.md/001-spec.md, y —si el proyecto tiene RepoGithub— el nombre del repositorio sigue la convención vigente de la Mesa (<área>-<nombre del desarrollo>, la que genera crear_repo_proyecto.nombre_repo()) y los recursos Azure usan la misma identidad área-desarrollo?", "peso": 10, "bloqueante": true }
 ]
 ```
 
