@@ -292,7 +292,8 @@ no-aplica      → se excluye del score posible (no penaliza)
   { "id": "TR06", "categoria": "pruebas_evidencia", "pregunta": "¿Existe evidencia suficiente de pruebas para el desarrollo evaluado?", "peso": 15, "bloqueante": true, "fuente_preferida": "gates_previos.pruebas" },
   { "id": "TR07", "categoria": "operabilidad", "pregunta": "¿Existe información mínima para ejecutar, usar, desplegar, soportar o mantener la solución cuando aplique?", "peso": 5, "bloqueante": false, "fuente_preferida": "deployment-notes / monitoring-notes" },
   { "id": "TR08", "categoria": "riesgos_revision_humana", "pregunta": "¿Están identificados los riesgos técnicos y la necesidad de revisión humana?", "peso": 5, "bloqueante": true, "fuente_preferida": "specs/005-risks.md / human-review.md" },
-  { "id": "TR09", "categoria": "cumplimiento_normativo", "pregunta": "¿El cambio no contradice la Constitución ni el Harness?", "peso": 15, "bloqueante": true, "fuente_preferida": "constitution.md / harness-policy.md" }
+  { "id": "TR09", "categoria": "cumplimiento_normativo", "pregunta": "¿El cambio no contradice la Constitución ni el Harness?", "peso": 15, "bloqueante": true, "fuente_preferida": "constitution.md / harness-policy.md" },
+  { "id": "TR10", "categoria": "ci_cd_base", "pregunta": "Si el desarrollo tiene código ejecutable desplegable: ¿el repositorio propio en GitHub tiene CI (workflow que corre las pruebas/build en cada PR) con resultado exitoso sobre el commit evaluado, y la base de CD de la plantilla de candidatos (agp-dev-starter-template: .github/workflows/ci.yml con el job de despliegue deshabilitado por defecto o con identidad federada OIDC, .agp/governance.yaml fijado a un SHA del kit y manifiesto .github/agp-deploy.json con perfil) sin credenciales de larga duración en el repositorio?", "peso": 10, "bloqueante": true, "fuente_preferida": "repositorio GitHub: .github/workflows, resultado del check del commit, .agp/, .github/agp-deploy.json" }
 ]
 ```
 
@@ -377,7 +378,8 @@ cualquiera de estos hallazgos:
   { "id": "B14", "criterio": "Ausencia de plan de rollback o monitoreo en solución de criticidad alta", "fuente": "condiciones_activas = criticidad-alta / en-produccion" },
   { "id": "B15", "criterio": "Contradicción confirmada contra Constitución o Harness", "fuente": "TR09 — prioridad máxima" },
   { "id": "B16", "criterio": "gates_previos.documental.puede_avanzar = false", "fuente": "gates_previos" },
-  { "id": "B17", "criterio": "gates_previos.pruebas.puede_avanzar = false o evidencia_valida = invalida", "fuente": "gates_previos" }
+  { "id": "B17", "criterio": "gates_previos.pruebas.puede_avanzar = false o evidencia_valida = invalida", "fuente": "gates_previos" },
+  { "id": "B18", "criterio": "Código desplegable sin CI de GitHub exitoso sobre el commit evaluado, o sin la base de CD de la plantilla de candidatos (workflow, .agp/governance.yaml con SHA del kit, .github/agp-deploy.json), o con credenciales de despliegue de larga duración en el repositorio. Un despliegue manual no sustituye este requisito; no aplica a desarrollos sin código desplegable (no-aplica)", "fuente": "TR10" }
 ]
 ```
 
