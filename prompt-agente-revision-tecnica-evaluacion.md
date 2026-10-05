@@ -386,8 +386,10 @@ CONDICIÓN. No bloqueante en esta versión — informa madurez, no gatea el
 avance a revisión humana. Cada punto se evalúa por separado
 (`cumple`/`parcial`/`falta`/`no-verificable`), nunca "todo o nada".
 
-Además produce `preparacion_despliegue` conforme a
-`deployment-readiness-contract.md`. Este campo es un dictamen distinto de
+Si el desarrollo requiere despliegue, produce `preparacion_despliegue`.
+Si es solo local o no se desplegará, usa `estado = no_aplica`, deja vacíos
+los campos de CI/despliegue y no penalices su evaluación por esa causa.
+Este campo es un dictamen distinto de
 `puede_avanzar`: el primero pregunta si el repositorio puede someterse al
 preflight de despliegue; el segundo solo habilita revisión humana. Para
 `candidato_preflight`, exige perfil reconocido y coherente con código,
