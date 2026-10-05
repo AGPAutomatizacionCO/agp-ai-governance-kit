@@ -147,8 +147,7 @@ no-verificable → no fue compartido y el usuario no confirmó si existe
 
 ## PASO 4 — VALIDAR COHERENCIA
 
-Si el desarrollo solicita despliegue, aplica también el
-`deployment-readiness-contract.md`: verifica en la evidencia compartida
+Si el desarrollo solicita despliegue, verifica en la evidencia compartida
 `AGENTS.md`, `project-card.md`, `specs/007-deployment-notes.md`, rollback,
 `.agp/profile.yaml` y `.agp/governance.yaml`. El perfil y la identidad
 funcional deben ser coherentes con el nombre del desarrollo y la convención
