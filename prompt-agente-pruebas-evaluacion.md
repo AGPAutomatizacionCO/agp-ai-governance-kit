@@ -121,7 +121,8 @@ solution_type:   [frontend-web / backend-api / pipeline-automatizacion /
 
 condiciones:     [autenticacion-microsoft / datos-sensibles /
                   integracion-sistema-critico / sap-o-sistema-nucleo /
-                  criticidad-alta / cambios-en-base-de-datos]
+                  criticidad-alta / cambios-en-base-de-datos /
+                  requiere-despliegue]
 ```
 
 Estas condiciones determinan qué tipos de prueba de las secciones 8.1-8.15
@@ -158,6 +159,18 @@ Ver catálogo completo en **CRITERIOS DE EXISTENCIA**.
 ---
 
 ## PASO 4 — EVALUAR COBERTURA DE CRITERIOS DE ACEPTACIÓN (cobertura_criterios_aceptacion)
+
+Para un desarrollo que solicita despliegue, aplica además
+`deployment-readiness-contract.md`: solicita enlace a la corrida de CI,
+resultado y SHA exacto de `main` evaluado; pruebas del artefacto que se
+publicará (incluida salud `/health` o equivalente cuando aplique), pruebas
+de error/autorización pertinentes al perfil y evidencia de defectos abiertos.
+Una corrida verde antigua o de otro SHA no cumple. Si no puedes leer la
+corrida, marca `no-verificable` y deja en `plan_correccion` cómo aportar la
+evidencia; no inventes que CI pasó. No exijas URL final ni digest de imagen
+publicada antes del primer despliegue: son evidencias posteriores de la
+Mesa. Un fallo de infraestructura de la Mesa se reporta como pendiente de
+plataforma, no se atribuye a la calidad de las pruebas del candidato.
 
 Mapea cada criterio de `specs/004-acceptance-criteria.md` contra las pruebas
 recibidas, siguiendo el formato de la sección 18 de `agent-testing.md`
