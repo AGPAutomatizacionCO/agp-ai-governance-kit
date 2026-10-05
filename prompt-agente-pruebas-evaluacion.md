@@ -160,8 +160,7 @@ Ver catálogo completo en **CRITERIOS DE EXISTENCIA**.
 
 ## PASO 4 — EVALUAR COBERTURA DE CRITERIOS DE ACEPTACIÓN (cobertura_criterios_aceptacion)
 
-Para un desarrollo que solicita despliegue, aplica además
-`deployment-readiness-contract.md`: solicita enlace a la corrida de CI,
+Para un desarrollo que solicita despliegue, solicita enlace a la corrida de CI,
 resultado y SHA exacto de `main` evaluado; pruebas del artefacto que se
 publicará (incluida salud `/health` o equivalente cuando aplique), pruebas
 de error/autorización pertinentes al perfil y evidencia de defectos abiertos.
