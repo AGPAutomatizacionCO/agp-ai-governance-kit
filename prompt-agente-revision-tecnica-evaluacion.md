@@ -401,6 +401,16 @@ de una ejecución pasada. Si no tienes esos datos, usa `no_verificable` y
 explica qué evidencia se debe adjuntar. Azure, IAM, cuota, secretos cargados,
 migración de la Mesa y aprobación final siguen siendo `pendientes_plataforma`
 o verificaciones reservadas a la Mesa; no los cargues al score del candidato.
+Cuando el perfil necesita base de datos, verifica que el Dockerfile incluya
+el driver apropiado para el motor y sistema operativo, que el código use
+configuración externa y TLS, que declare el modo de autenticación previsto
+y que exista una prueba de conexión/consulta mínima sin credenciales en Git.
+Revisa que los workflows YAML correspondan al perfil: CI debe construir y
+probar el artefacto para el SHA evaluado; CD debe publicar esa imagen
+inmutable en el entorno autorizado con identidad OIDC, controles de ambiente
+y comprobación de salud posterior. La existencia de YAML o CI verde no
+demuestra que Azure, la red ni la base respondan: deja esas pruebas de
+ejecución como verificaciones de la Mesa, no como afirmaciones del agente.
 
 ---
 
