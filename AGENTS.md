@@ -25,12 +25,6 @@ El propósito de esta prueba es validar desarrollos realizados por usuarios o eq
 
 ## Documento principal obligatorio
 
-Las URL con `/main/` de este índice sirven para descubrir la versión vigente.
-Si el proyecto contiene `.agp/governance.yaml`, carga el documento principal,
-la Constitución, el Harness y los agentes desde el SHA `kit.ref` fijado allí,
-después de verificar que `kit.version` resuelve al mismo SHA. No mezcles
-reglas de `main` con prompts de un release anterior en una evaluación formal.
-
 Todo agente, asistente de código o sistema automatizado que utilice este repositorio debe iniciar leyendo y aplicando el siguiente documento principal:
 
 https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/main/PROMPT_ANALISIS_REPOSITORIO_AGENTES.md
@@ -332,12 +326,7 @@ prompt-agente-documental-evaluacion.md        → gate obligatorio
 prompt-agente-pruebas-evaluacion.md           → gate obligatorio
 prompt-agente-revision-tecnica-evaluacion.md  → gate obligatorio (consume los dos anteriores)
 prompt-agente-especificacion-evaluacion.md    → apoyo de fase previa, no es gate
-deployment-readiness-contract.md              → evidencia del candidato y límites del estado ready_to_deploy
 ```
-
-Si el proyecto fija un release del kit por SHA en `.agp/governance.yaml`, los
-prompts de evaluación deben cargarse desde ese SHA; `main` solo sirve para
-descubrimiento y no constituye evidencia reproducible de una evaluación.
 
 Base URL del kit:
 `https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/main/`
