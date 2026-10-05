@@ -115,7 +115,8 @@ solution_type:   [frontend-web / backend-api / pipeline-automatizacion /
 
 condiciones:     [autenticacion-microsoft / datos-sensibles /
                   integracion-sistema-critico / en-produccion /
-                  criticidad-alta / multi-desarrollador / datos-externos]
+                  criticidad-alta / multi-desarrollador / datos-externos /
+                  requiere-despliegue]
 ```
 
 Si no puedes determinarlo pregunta solo esto:
@@ -145,6 +146,19 @@ no-verificable → no fue compartido y el usuario no confirmó si existe
 ---
 
 ## PASO 4 — VALIDAR COHERENCIA
+
+Si el desarrollo solicita despliegue, aplica también el
+`deployment-readiness-contract.md`: verifica en la evidencia compartida
+`AGENTS.md`, `project-card.md`, `specs/007-deployment-notes.md`, rollback,
+`.agp/profile.yaml` y `.agp/governance.yaml`. El perfil y la identidad
+funcional deben ser coherentes con el nombre del desarrollo y la convención
+vigente de la Mesa. Registra cada archivo ausente o contradictorio en
+`plan_correccion` con acción y prueba de cierre; no marques como existente
+un archivo no recibido. Un tag escrito en YAML no demuestra que el release
+exista: eso lo verifica la plataforma. La falta de release del kit o de una
+migración SQL de la Mesa es `pendiente_plataforma`, no defecto documental
+del candidato. No conviertas este chequeo de preparación en aprobación de
+producción ni en un nuevo score promedio.
 
 Con los documentos recibidos, busca activamente estas contradicciones:
 
