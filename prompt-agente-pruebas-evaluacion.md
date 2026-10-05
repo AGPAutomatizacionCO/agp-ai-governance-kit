@@ -170,6 +170,12 @@ evidencia; no inventes que CI pasó. No exijas URL final ni digest de imagen
 publicada antes del primer despliegue: son evidencias posteriores de la
 Mesa. Un fallo de infraestructura de la Mesa se reporta como pendiente de
 plataforma, no se atribuye a la calidad de las pruebas del candidato.
+Si requiere Azure SQL, distingue tres evidencias: el driver se instala y carga
+dentro de la imagen final; las pruebas de integración consultan una base de
+pruebas autorizada con permisos mínimos; y una prueba de humo posterior al
+despliegue confirma conexión desde el entorno Azure. Un CI verde sin acceso
+real a esa base no demuestra conectividad Azure. Nunca consultes datos reales
+de producción desde un runner público ni publiques cadenas de conexión.
 
 Mapea cada criterio de `specs/004-acceptance-criteria.md` contra las pruebas
 recibidas, siguiendo el formato de la sección 18 de `agent-testing.md`
