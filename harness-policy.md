@@ -2601,18 +2601,3 @@ Gris    ⚪  Información insuficiente o JSON inválido para evaluar.
 Ningún estado general —ni siquiera Verde— habilita despliegue automático.
 El resultado máximo que un agente de IA puede producir es "listo para
 revisión humana".
-
-### 47.6 Preparación del candidato versus autorización de despliegue
-
-Para desarrollos con `requiere-despliegue`, los tres gates deben además aportar
-las evidencias del `deployment-readiness-contract.md`. Revisión Técnica emite
-`preparacion_despliegue.estado = candidato_preflight` solo cuando el repositorio
-y su CI del commit evaluado pueden someterse al preflight de la Mesa. Si falta
-evidencia, devuelve `pendiente` o `no_verificable` con acciones concretas.
-
-Este dictamen no cambia el significado de `puede_avanzar`: puede avanzar a
-revisión humana aun cuando falten configuraciones de despliegue. Tampoco
-otorga `ready_to_deploy`. Ese estado solo lo calcula la Mesa después de
-verificar los SHA vigentes, el perfil, los recursos/configuración de la
-plataforma y la aprobación humana exigida. Una nota promedio nunca compensa
-un bloqueante confirmado ni reemplaza el preflight.
