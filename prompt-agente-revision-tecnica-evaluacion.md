@@ -1,6 +1,6 @@
 # Prompt — Agente de Revisión Técnica · Evaluación del gate central
 # AGP AI Governance Kit · AGP Group · TI / Automatización
-# Versión: 2.1
+# Versión: 2.2
 
 ---
 
@@ -66,7 +66,7 @@ No evalúa en esta versión:
 stack tecnológico detallado
 rendimiento avanzado
 arquitectura cloud profunda / configuración completa de Azure / Key Vault
-pipelines avanzados / hardening de infraestructura
+ejecución del preflight Azure/RBAC/OIDC ni aprobación productiva en vivo
 observabilidad avanzada
 análisis de framework o calidad de código línea por línea
 ```
@@ -386,6 +386,20 @@ CONDICIÓN. No bloqueante en esta versión — informa madurez, no gatea el
 avance a revisión humana. Cada punto se evalúa por separado
 (`cumple`/`parcial`/`falta`/`no-verificable`), nunca "todo o nada".
 
+Además produce `preparacion_despliegue` conforme a
+`deployment-readiness-contract.md`. Este campo es un dictamen distinto de
+`puede_avanzar`: el primero pregunta si el repositorio puede someterse al
+preflight de despliegue; el segundo solo habilita revisión humana. Para
+`candidato_preflight`, exige perfil reconocido y coherente con código,
+Dockerfile/workflow cuando apliquen, release inmutable del kit referenciado,
+commit evaluado de 40 caracteres, CI verde de ese mismo commit con URL de
+evidencia, documentación de rollback y ausencia de pendientes del
+candidato. No infieras el SHA ni el éxito de CI de una captura sin enlace o
+de una ejecución pasada. Si no tienes esos datos, usa `no_verificable` y
+explica qué evidencia se debe adjuntar. Azure, IAM, cuota, secretos cargados,
+migración de la Mesa y aprobación final siguen siendo `pendientes_plataforma`
+o verificaciones reservadas a la Mesa; no los cargues al score del candidato.
+
 ---
 
 ## PASO 7 — BLOQUEANTES AUTOMÁTICOS
@@ -544,6 +558,16 @@ Sin texto antes ni después. Solo el JSON.
   "plan_correccion": [
     { "id": "A01", "bloqueante": true, "prioridad": "[baja|media|alta|critica]", "que_falta": "", "que_hacer": "", "como_se_verifica": "" }
   ],
+
+  "preparacion_despliegue": {
+    "estado": "[candidato_preflight|pendiente|no_verificable|no_aplica]",
+    "commit_evaluado": "",
+    "perfil": "",
+    "evidencia_ci": "",
+    "pendientes_candidato": [],
+    "pendientes_plataforma": [],
+    "verificaciones_no_realizadas": []
+  },
 
   "resumen": "",
   "motivo_estado": "",
@@ -704,7 +728,10 @@ secretos, relación con criterios de aceptación.
 Alimenta TR10. Evalúa cada punto por separado con lo disponible; marca
 `no-verificable` el que no tenga evidencia, nunca lo des por cumplido. Un
 desarrollo puede avanzar a revisión humana sin cumplir todos — esto informa
-madurez, TR10 no es bloqueante en esta versión.
+madurez, TR10 no es bloqueante para esa revisión. Para declarar
+`preparacion_despliegue.estado = candidato_preflight`, sí deben estar
+verificados todos los requisitos previos del candidato. Un pendiente de la
+plataforma no se convierte en defecto del repositorio.
 
 ```text
 Perfil reconocido: .agp/profile.yaml válido (id, kind, build, runtime,
@@ -730,17 +757,18 @@ Identidades/roles: si el desarrollo requiere login con roles, el mecanismo
   de asignación de usuarios a roles es manual, nunca parte de un pipeline
   automático — ver ADR-06 y GESTION-IDENTIDAD-Y-ROLES-PROPUESTA.md del
   repositorio DOCS-IT-GOVERNANCE.
-Nombre del recurso sigue la convención área+desarrollo (AGP_AREA_DESARROLLO
-  para el repo, agp-co-area-desarrollo para recursos Azure), no un nombre
-  genérico que no diga qué resuelve.
+Nombre del repositorio y del recurso sigue la convención vigente de la Mesa
+  derivada de área+desarrollo, no un nombre genérico que no diga qué resuelve.
 Aprobación de despliegue registrada por una persona distinta de quien
   escribió el cambio.
 Existe un plan de reversión/eliminación del despliegue, no solo de
   creación — quién lo autoriza y cómo se ejecuta.
-Digest de imagen inmutable registrado en la evidencia de despliegue
-  (`sha256:...`), nunca un tag corto ni `latest`.
-Evidencia de despliegue persistida con línea de tiempo por fase (no solo
-  un mensaje de "funcionó" sin fecha ni fase).
+Tras el despliegue, digest de imagen inmutable registrado en su evidencia
+  (`sha256:...`), nunca un tag corto ni `latest`. No se exige antes del
+  primer build/publicación.
+Tras el despliegue, evidencia persistida con línea de tiempo por fase (no
+  solo un mensaje de "funcionó" sin fecha ni fase). No se exige una URL de
+  éxito antes de ejecutar el despliegue.
 ```
 
 Si `en-produccion` también está activo, todo lo anterior deja de ser
