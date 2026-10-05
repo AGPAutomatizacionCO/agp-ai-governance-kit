@@ -543,9 +543,9 @@ de `prompt-agente-revision-tecnica-evaluacion.md`:
   y línea de tiempo por fase registrados como evidencia; no exigir URL o
   digest de una publicación que aún no ocurrió.
 
-TR10 no bloquea por sí solo el avance a revisión humana. Sí determina si
-el candidato puede entrar al preflight de la Mesa según
-`deployment-readiness-contract.md`. Separa fallas del repositorio de
+TR10 no bloquea por sí solo el avance a revisión humana. Solo cuando el
+desarrollo requiere despliegue, informa si puede entrar al preflight de la
+Mesa. Separa fallas del repositorio de
 configuraciones pendientes de la plataforma; ninguna nota de agente
 reemplaza las aprobaciones funcional/técnica/IT ni declara producción lista.
 
