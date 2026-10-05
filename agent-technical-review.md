@@ -539,11 +539,15 @@ de `prompt-agente-revision-tecnica-evaluacion.md`:
 * Asignación de roles de aplicación siempre manual, nunca en el pipeline.
 * Nombre del recurso coherente con la convención área+desarrollo.
 * Plan de reversión/eliminación del despliegue, no solo de creación.
-* Digest de imagen inmutable (`sha256:...`) registrado como evidencia.
+* Después del primer despliegue, digest de imagen inmutable (`sha256:...`)
+  y línea de tiempo por fase registrados como evidencia; no exigir URL o
+  digest de una publicación que aún no ocurrió.
 
-Esto es madurez informativa (TR10, no bloqueante en esta versión) — no
-reemplaza las aprobaciones funcional/técnica/IT de la lista genérica, que
-siguen siendo obligatorias.
+TR10 no bloquea por sí solo el avance a revisión humana. Sí determina si
+el candidato puede entrar al preflight de la Mesa según
+`deployment-readiness-contract.md`. Separa fallas del repositorio de
+configuraciones pendientes de la plataforma; ninguna nota de agente
+reemplaza las aprobaciones funcional/técnica/IT ni declara producción lista.
 
 ---
 
