@@ -730,6 +730,17 @@ Identidades/roles: si el desarrollo requiere login con roles, el mecanismo
   de asignación de usuarios a roles es manual, nunca parte de un pipeline
   automático — ver ADR-06 y GESTION-IDENTIDAD-Y-ROLES-PROPUESTA.md del
   repositorio DOCS-IT-GOVERNANCE.
+Login Microsoft Entra ID (si el desarrollo declara login corporativo): trae
+  definido lo necesario para que la Mesa pueda solicitar el registro de la
+  app sin preguntar nada: manifiesto .agp/entra.yaml (redirect URI derivado
+  del nombre del recurso Azure, permisos Graph mínimos como User.Read y
+  offline_access, assignmentRequired y grupo de acceso), variables MSAL_*
+  listadas por NOMBRE en .env.example, módulo de login apagado por defecto
+  (AGP_MSAL_ENABLED) y prueba local con usuario de desarrollo. El registro
+  de la app puede automatizarlo la Mesa; la asignación de usuarios y el
+  consentimiento siguen siendo manuales (ADR-06) y el secreto de cliente
+  nunca pasa por la Mesa ni por un agente: va a Key Vault. Si falta el
+  manifiesto, márcalo `falta`; si no declara login, `no-aplica`.
 Nombre del recurso sigue la convención área+desarrollo (AGP_AREA_DESARROLLO
   para el repo, agp-co-area-desarrollo para recursos Azure), no un nombre
   genérico que no diga qué resuelve.
