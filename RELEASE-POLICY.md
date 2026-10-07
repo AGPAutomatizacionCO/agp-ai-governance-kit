@@ -27,6 +27,13 @@ Cada release adjunta un `compatibility.json` basado en `release/compatibility.te
 
 Las versiones de perfiles y esquemas evolucionan por separado del kit. La Mesa rechaza una combinación no declarada compatible y ofrece un PR de actualización; nunca migra silenciosamente un proyecto.
 
+Para el primer RC, generar el adjunto desde el checkout exacto aprobado con
+`python -m scripts.build_compatibility --expected-sha <SHA> --output compatibility.json`.
+El archivo generado no se incorpora al commit porque debe contener el SHA de ese
+mismo commit. Comprobar su contenido y checksum antes de adjuntarlo al release.
+El RC sólo declara el contrato `python-api` v1 y `agpctl 0.1.0`; otros perfiles
+requieren evidencia y una publicación posterior.
+
 ## Secuencia de publicación
 
 1. Abrir PR con `CHANGELOG.md`, manifiesto de compatibilidad propuesto, impacto, migración y pruebas.

@@ -9,6 +9,7 @@ from pathlib import Path
 import yaml
 from jsonschema import Draft202012Validator
 
+from agpctl import __version__
 from agpctl.detection import detect_project
 from agpctl.local_runtime import LocalRunError, local_down, local_plan, local_up
 from scripts.validate_governance_ref import UniqueKeyLoader
@@ -203,6 +204,7 @@ def validate_project(
 
 def main() -> int:
     parser = argparse.ArgumentParser(prog="agpctl")
+    parser.add_argument("--version", action="version", version=f"agpctl {__version__}")
     sub = parser.add_subparsers(dest="command", required=True)
     validate = sub.add_parser("validate", help="Validar un repositorio AGP")
     validate.add_argument("--repo", type=Path, required=True)
