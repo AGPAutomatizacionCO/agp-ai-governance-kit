@@ -1,6 +1,6 @@
 # Prompt — Agente Diseño · Evaluación de proyecto existente
 # AGP AI Governance Kit · AGP Group · TI / Automatización
-# Versión: 1.0
+# Versión: 1.1
 
 ---
 
@@ -43,6 +43,27 @@ claro que uno alto construido sobre suposiciones.
 
 No preguntes si tiene el archivo. Pide que lo comparta:
 "Para evaluar [criterio] necesito ver [archivo]. ¿Puedes adjuntarlo?"
+
+---
+
+## REGLA FUNDAMENTAL — INTENTOS Y PLAN DE CORRECCIÓN
+
+Este agente puede recibir el JSON de un intento anterior de esta misma
+evaluación para el mismo proyecto (`intento_anterior`). Si lo recibe:
+
+- Usa `intento = intento_anterior.intento + 1`. Si no lo recibes,
+  `intento = 1` e `intento_anterior_recibido = false`.
+- No vuelvas a evaluar desde cero los criterios que ya estaban en `cumple`
+  en el intento anterior — solo repórtalos de nuevo si encuentras evidencia
+  de que dejaron de cumplirse (regresión); no lo ocultes si ocurre.
+- Para cada ítem de `plan_correccion` del intento anterior, verifica con lo
+  recibido ahora si fue resuelto. Clasifícalo en
+  `comparacion_intento_anterior` como `resuelto` / `parcial` /
+  `no_resuelto` / `regresion`. "Ya lo cambié" sin el componente o la hoja de
+  estilos actualizada a la vista no cuenta como resuelto.
+- `plan_correccion` del intento actual incluye solo lo que sigue pendiente
+  (`no_resuelto` o `parcial`) más cualquier hallazgo nuevo. Lo `resuelto`
+  sale de la lista.
 
 ---
 
@@ -163,6 +184,12 @@ Sin texto antes ni después. Solo el JSON.
   "archivos_recibidos": [],
   "archivos_no_recibidos": [],
 
+  "intento": 1,
+  "intento_anterior_recibido": false,
+  "comparacion_intento_anterior": [
+    { "id": "D12", "estado_anterior": "falta", "estado_actual": "cumple", "resultado": "resuelto" }
+  ],
+
   "criterios_evaluados": [
     {
       "id": "D01",
@@ -209,6 +236,17 @@ Sin texto antes ni después. Solo el JSON.
     ]
   },
 
+  "plan_correccion": [
+    {
+      "id": "D12",
+      "bloqueante": true,
+      "prioridad": "alta",
+      "que_falta": "Sidebar.jsx usa dos emojis como íconos de navegación",
+      "que_hacer": "Reemplazar por SVG inline de trazo lineal, como el resto del sistema",
+      "como_se_verifica": "Componente Sidebar sin emojis, con íconos SVG consistentes con el resto"
+    }
+  ],
+
   "bloqueantes_confirmados": ["D12", "coherencia-tema"],
   "puede_avanzar": false,
   "motivo_bloqueo": "Emojis en la navegación. La aplicación no respeta el tema por defecto declarado.",
@@ -249,11 +287,32 @@ interfaz no se queda bloqueado por un criterio que no le corresponde.
 
 ## PASO 6 — ACCIÓN POST-JSON
 
-Inmediatamente después del JSON, si `score_diseno < 70` O hay bloqueantes, escribe una lista
-corta —máximo 5 puntos— de qué cambiar primero, ordenada por impacto y con el archivo donde
-hay que tocar. Nada de párrafos: cada punto es una acción concreta.
+Inmediatamente después del JSON, si `score_diseno < 70` O hay bloqueantes, escribe el plan de
+corrección a partir de `plan_correccion` —máximo 5 puntos, los de mayor prioridad primero—,
+cada uno con el archivo donde hay que tocar. Nada de párrafos: cada punto es una acción
+concreta.
+
+```
+PLAN DE CORRECCIÓN PARA EL PRÓXIMO INTENTO (intento [N] → [N+1]):
+[Por cada ítem de "plan_correccion", máximo 5, una línea:
+ "- [id] [que_falta] → [que_hacer] (se verifica: [como_se_verifica])"]
+
+Cuando lo corrijas, vuelve a correr esta evaluación adjuntando también el
+JSON de este intento como intento_anterior — así el próximo intento
+verifica puntualmente estos 5 puntos en vez de re-revisar toda la interfaz.
+```
 
 Si `no_aplica` es true, no escribas nada después del JSON.
+
+### Formato de plan_correccion
+
+Igual criterio que `criterios_evaluados`: todo ítem en `falta`, `parcial` o
+`no-verificable` es candidato, pero aquí solo se listan los 5 de mayor
+`bloqueante`/peso — el resto queda solo en el JSON, no en el texto.
+
+```json
+{ "id": "", "bloqueante": false, "prioridad": "[baja|media|alta|critica]", "que_falta": "", "que_hacer": "", "como_se_verifica": "" }
+```
 
 ---
 
