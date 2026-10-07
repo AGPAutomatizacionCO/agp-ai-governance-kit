@@ -1,5 +1,5 @@
 {
-  "kitVersion": "vX.Y.Z-rc.N",
+  "kitVersion": "v4.0.0-rc.1",
   "kitCommit": "<sha completo de 40 caracteres>",
   "status": "candidate",
   "schemaVersions": {
@@ -9,10 +9,10 @@
     "profileContract": "1"
   },
   "agpctl": {
-    "minInclusive": "pending",
-    "maxExclusive": "pending"
+    "minInclusive": "0.1.0",
+    "maxExclusive": "0.1.1"
   },
   "profiles": {
-    "python-api": "pending"
+    "python-api": "1"
   }
 }

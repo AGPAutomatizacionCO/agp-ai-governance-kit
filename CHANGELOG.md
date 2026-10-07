@@ -6,6 +6,7 @@ Este historial registra únicamente versiones publicadas o cambios preparados pa
 
 ### Preparación
 
+- El RC de prueba declara `agpctl 0.1.0`, contrato `profile.agp/v1` para `python-api` y generación verificable del manifiesto de compatibilidad; el SHA se completa desde el commit publicado.
 - Corrección local de rutas y referencias inmutables en `AGENTS.md`.
 - Definición inicial de la política de releases y del contrato de compatibilidad.
 - Esquemas versionados para gobierno, despliegue v2 y perfiles; el identificador lógico del esquema de acceso a datos ya no apunta a `main`.

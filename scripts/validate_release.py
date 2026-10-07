@@ -15,6 +15,9 @@ from jsonschema import Draft202012Validator
 from jsonschema.exceptions import SchemaError
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from scripts.build_compatibility import build as build_compatibility
+
 RAW_PREFIX = "https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/"
 REQUIRED = (
     "AGENTS.md",
@@ -126,6 +129,10 @@ def validate_json(errors: list[str]) -> None:
         for key in ("kitVersion", "kitCommit", "status", "schemaVersions", "agpctl", "profiles"):
             if key not in data:
                 report(errors, f"Plantilla de compatibilidad sin {key}")
+        try:
+            build_compatibility("a" * 40, template=manifest)
+        except (ValueError, KeyError) as exc:
+            report(errors, f"Compatibilidad del RC inválida: {exc}")
     except (OSError, json.JSONDecodeError) as exc:
         report(errors, f"Plantilla de compatibilidad inválida: {exc}")
 
