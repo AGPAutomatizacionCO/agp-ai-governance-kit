@@ -1,0 +1,6 @@
+apiVersion: governance.agp/v1
+kit:
+  source: AGPAutomatizacionCO/agp-ai-governance-kit
+  version: main
+  ref: main
+profile: python-api

@@ -1,0 +1,19 @@
+# Entornos y credenciales locales; el código Python, schemas y workflows sí se versionan.
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+# Salidas de Python y herramientas de prueba.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+build/
+dist/
+*.egg-info/

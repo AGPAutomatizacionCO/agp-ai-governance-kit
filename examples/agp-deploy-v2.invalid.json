@@ -1,0 +1,25 @@
+{
+  "agente": "despliegue",
+  "version": 2,
+  "idProyecto": "ejemplo-123",
+  "generadoEn": "2026-09-22T12:00:00",
+  "campos": {
+    "RepoGithub": {
+      "valor": "https://github.com/AGPAutomatizacionCO/ejemplo-api",
+      "evidencia": "RegistroDesarrollos",
+      "confianza": "alta"
+    }
+  },
+  "azure": {
+    "recursos": [
+      {
+        "TipoRecurso": "App Service (contenedor único)",
+        "RolRecurso": "Único",
+        "WebAppName": "ejemplo-api-dev",
+        "ResourceGroup": "ejemplo-rg-dev",
+        "VarianteTemplate": "python-api",
+        "Puerto": 8000
+      }
+    ]
+  }
+}
