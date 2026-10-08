@@ -1,6 +1,6 @@
 # Prompt — Agente Documental · Evaluación de proyecto existente
 # AGP AI Governance Kit · AGP Group · TI / Automatización
-# Versión: 3.1
+# Versión: 3.2
 
 ---
 
@@ -28,6 +28,10 @@ Un documento existe SOLO si ocurre una de estas condiciones:
 Si no está en el chat de ninguna de esas formas:
 - El usuario dijo que no existe → estado: "falta"
 - El usuario no lo compartió aún → estado: "no-verificable"
+
+No evalúes ni pidas nada sobre despliegue (pipeline, ambiente, URL, rollback,
+CI/CD, contenedores): eso es del Agente de Despliegue
+(prompt-agente-despliegue-evaluacion.md), no de este gate.
 
 No preguntes si tiene el archivo. Pide que lo comparta:
 "Para evaluar [criterio] necesito ver [archivo]. ¿Puedes adjuntarlo?"
@@ -79,7 +83,6 @@ SPECS:
 □ specs/004-acceptance-criteria.md
 □ specs/005-risks.md
 □ specs/006-human-review.md
-□ specs/007-deployment-notes.md
 □ specs/008-monitoring-notes.md
 □ specs/009-change-log.md
 
@@ -151,19 +154,17 @@ Con los documentos recibidos, busca activamente estas contradicciones:
 **Tipo estado:**
 ```
 project-card.status vs human-review.md (firmado o no)
-project-card.status vs deployment-notes (URL activa o no)
 ```
 
 **Tipo técnico:**
 ```
 spec.md vs AGENTS.md (arquitectura declarada vs real)
 plan.md vs README.md (tecnología declarada vs descrita)
-spec.md vs deployment-notes (ambiente declarado vs desplegado)
 ```
 
 **Tipo responsables:**
 ```
-project-card.it_owner vs deployment-notes.approver
+project-card.it_owner vs human-review.md (quién aprobó por TI)
 project-card.functional_owner vs human-review.md firmante
 ```
 
@@ -236,7 +237,7 @@ Sin texto antes ni después. Solo el JSON.
     "advertencias": [
       {
         "tipo": "responsables",
-        "descripcion": "it_owner vacío en project-card pero deployment-notes menciona aprobación de TI"
+        "descripcion": "it_owner vacío en project-card pero human-review menciona aprobación de TI"
       }
     ]
   },
@@ -401,7 +402,6 @@ evaluarse.
 
 ```json
 [
-  { "id": "T-FW01", "pregunta": "¿Está documentada la URL de despliegue y el ambiente?", "peso": 10, "bloqueante": false },
   { "id": "T-FW02", "pregunta": "¿Están documentados los clientes o navegadores soportados?", "peso": 5, "bloqueante": false }
 ]
 ```
@@ -411,8 +411,7 @@ evaluarse.
 ```json
 [
   { "id": "T-BA01", "pregunta": "¿Está documentada la arquitectura de capas en plan.md?", "peso": 10, "bloqueante": false },
-  { "id": "T-BA02", "pregunta": "¿Están documentados los endpoints principales?", "peso": 10, "bloqueante": false },
-  { "id": "T-BA03", "pregunta": "¿Existe deployment-notes con pipeline y plan de rollback?", "peso": 10, "bloqueante": true }
+  { "id": "T-BA02", "pregunta": "¿Están documentados los endpoints principales?", "peso": 10, "bloqueante": false }
 ]
 ```
 
@@ -533,5 +532,5 @@ Solo criterios universales U01-U06 y AI01, AI05.
 
 ---
 
-*AGP AI Governance Kit · Agente Documental · Evaluación v3.1*
+*AGP AI Governance Kit · Agente Documental · Evaluación v3.2*
 *github.com/AGPAutomatizacionCO/agp-ai-governance-kit*

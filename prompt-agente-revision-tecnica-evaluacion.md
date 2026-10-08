@@ -1,6 +1,6 @@
 # Prompt — Agente de Revisión Técnica · Evaluación del gate central
 # AGP AI Governance Kit · AGP Group · TI / Automatización
-# Versión: 2.1
+# Versión: 2.2
 
 ---
 
@@ -67,6 +67,7 @@ stack tecnológico detallado
 rendimiento avanzado
 arquitectura cloud profunda / configuración completa de Azure / Key Vault
 pipelines avanzados / hardening de infraestructura
+preparación y mecanismo de despliegue (los evalúa solo el Agente de Despliegue)
 observabilidad avanzada
 análisis de framework o calidad de código línea por línea
 ```
@@ -223,7 +224,7 @@ condiciones_activas:
 - datos-sensibles / autenticacion-microsoft
 - integracion-sistema-critico / sap-o-sistema-nucleo
 - cambios-en-base-de-datos / en-produccion / criticidad-alta
-- multi-desarrollador / datos-externos / codigo-ejecutable / requiere-despliegue
+- multi-desarrollador / datos-externos / codigo-ejecutable
 ```
 
 Si no puedes determinarlo, pregunta SOLO esto:
@@ -314,14 +315,11 @@ no-aplica      → se excluye del score posible (no penaliza)
   { "id": "TR04", "categoria": "seguridad_basica", "pregunta": "¿El desarrollo evita secretos, credenciales hardcodeadas, tokens reales, llaves privadas y exposición de datos sensibles?", "peso": 20, "bloqueante": true, "fuente_preferida": "PASO 3" },
   { "id": "TR05", "categoria": "datos_integraciones", "pregunta": "¿Están claras las fuentes de datos, integraciones, archivos externos, APIs, owners y restricciones de acceso?", "peso": 10, "bloqueante": false, "fuente_preferida": "spec.md / código" },
   { "id": "TR06", "categoria": "pruebas_evidencia", "pregunta": "¿Existe evidencia suficiente de pruebas para el desarrollo evaluado?", "peso": 15, "bloqueante": true, "fuente_preferida": "gates_previos.pruebas" },
-  { "id": "TR07", "categoria": "operabilidad", "pregunta": "¿Existe información mínima para ejecutar, usar, desplegar, soportar o mantener la solución cuando aplique?", "peso": 5, "bloqueante": false, "fuente_preferida": "deployment-notes / monitoring-notes" },
+  { "id": "TR07", "categoria": "operabilidad", "pregunta": "¿Existe información mínima para ejecutar, usar, soportar o mantener la solución cuando aplique?", "peso": 5, "bloqueante": false, "fuente_preferida": "README / monitoring-notes" },
   { "id": "TR08", "categoria": "riesgos_revision_humana", "pregunta": "¿Están identificados los riesgos técnicos y la necesidad de revisión humana?", "peso": 5, "bloqueante": true, "fuente_preferida": "specs/005-risks.md / human-review.md" },
-  { "id": "TR09", "categoria": "cumplimiento_normativo", "pregunta": "¿El cambio no contradice la Constitución ni el Harness?", "peso": 15, "bloqueante": true, "fuente_preferida": "constitution.md / harness-policy.md" },
-  { "id": "TR10", "categoria": "madurez_despliegue", "pregunta": "Si condiciones_activas incluye requiere-despliegue, ¿el desarrollo cumple los puntos de madurez de despliegue automatizado de la sección 'requiere-despliegue' de CRITERIOS ESPECIALES POR CONDICIÓN?", "peso": 10, "bloqueante": false, "fuente_preferida": "sección 'requiere-despliegue' / specs/007-deployment-notes.md / .agp/" }
+  { "id": "TR09", "categoria": "cumplimiento_normativo", "pregunta": "¿El cambio no contradice la Constitución ni el Harness?", "peso": 15, "bloqueante": true, "fuente_preferida": "constitution.md / harness-policy.md" }
 ]
 ```
-
-`TR10` es `no-aplica` si `requiere-despliegue` no está en `condiciones_activas` — no penaliza score_posible en ese caso.
 
 ---
 
@@ -378,13 +376,6 @@ registradas > project-card > spec > plan > tasks > risks > change log >
 documentación técnica > instrucción del usuario. Una contradicción contra
 Constitución o Harness tiene prioridad de bloqueo sobre cualquier otro
 resultado.
-
-### TR10 — Madurez de despliegue automatizado
-Solo aplica si `requiere-despliegue` está en `condiciones_activas`; si no,
-`no-aplica`. Usa la sección `requiere-despliegue` de CRITERIOS ESPECIALES POR
-CONDICIÓN. No bloqueante en esta versión — informa madurez, no gatea el
-avance a revisión humana. Cada punto se evalúa por separado
-(`cumple`/`parcial`/`falta`/`no-verificable`), nunca "todo o nada".
 
 ---
 
@@ -600,9 +591,8 @@ descendente. Cada ítem:
 `que_hacer` siempre es una acción concreta y ejecutable por el responsable
 del desarrollo o por IT (nunca una repetición de `que_falta`).
 `como_se_verifica` dice qué evidencia exacta cerraría ese punto en el
-próximo intento — para un ítem de `requiere-despliegue`, por ejemplo, eso
-suele ser "CI verde sobre el commit exacto" o "digest sha256 registrado en
-la evidencia de despliegue", nunca "confirmar que ya se hizo".
+próximo intento — por ejemplo, un archivo concreto o un resultado de prueba,
+nunca "confirmar que ya se hizo".
 
 ---
 
@@ -611,7 +601,7 @@ la evidencia de despliegue", nunca "confirmar que ya se hizo".
 ### frontend-web
 Separación de componentes, consumo de datos, manejo de errores, estados de
 carga, ausencia de secretos, ausencia de lógica crítica de permisos solo en
-frontend, documentación de despliegue si aplica.
+frontend.
 
 ### vista-simple
 No exigir backend automáticamente. Evaluar si está justificado que sea solo
@@ -689,7 +679,7 @@ Script probado en Dev/Test, respaldo requerido, plan de reversión,
 integridad de relaciones, no afectación de datos productivos.
 
 ### en-produccion
-human-review, deployment-notes, monitoring-notes, soporte, responsable,
+human-review, monitoring-notes, soporte, responsable,
 evidencia de pruebas.
 
 ### criticidad-alta
@@ -698,54 +688,6 @@ Plan de contingencia, revisión periódica programada, monitoreo proporcional.
 ### codigo-ejecutable
 Evidencia mínima de pruebas, instrucciones de ejecución, ausencia de
 secretos, relación con criterios de aceptación.
-
-### requiere-despliegue
-
-Alimenta TR10. Evalúa cada punto por separado con lo disponible; marca
-`no-verificable` el que no tenga evidencia, nunca lo des por cumplido. Un
-desarrollo puede avanzar a revisión humana sin cumplir todos — esto informa
-madurez, TR10 no es bloqueante en esta versión.
-
-```text
-Perfil reconocido: .agp/profile.yaml válido (id, kind, build, runtime,
-  deploy), o si el desarrollo no usa el kit todavía, stack/puerto/health
-  declarados explícitamente en deployment-notes.md.
-Si usa contenedor (kind=container): Dockerfile con usuario no-root, imagen
-  base fijada por digest (no por tag mutable como "latest" o "3.12"),
-  puerto y healthPath declarados coinciden con el Dockerfile/código real.
-CI/CD publicado y verde sobre el commit exacto que se desplegaría — no
-  "corrió alguna vez en el pasado". Si el workflow usa acciones de
-  terceros, están fijadas por SHA de commit, no por tag.
-Release del kit fijado por SHA (.agp/governance.yaml apunta a un tag/SHA
-  real y aprobado), nunca a main en movimiento.
-Evaluación de este mismo flujo con aprobación humana de IT registrada —
-  no solo el score automático, alguien de IT marcó la aprobación.
-Secretos necesarios identificados por NOMBRE (nunca valor) y declarado si
-  ya están cargados en el ambiente destino o siguen pendientes.
-Acceso a datos (MapeoAccesoBD) con tabla/columna/sensibilidad declarados;
-  si declara acceso real, hay evidencia de que alguien (persona o proceso
-  autorizado) verificó que la tabla y el permiso existen de verdad, no
-  solo que el código la referencia.
-Identidades/roles: si el desarrollo requiere login con roles, el mecanismo
-  de asignación de usuarios a roles es manual, nunca parte de un pipeline
-  automático — ver ADR-06 y GESTION-IDENTIDAD-Y-ROLES-PROPUESTA.md del
-  repositorio DOCS-IT-GOVERNANCE.
-Nombre del recurso sigue la convención área+desarrollo (AGP_AREA_DESARROLLO
-  para el repo, agp-co-area-desarrollo para recursos Azure), no un nombre
-  genérico que no diga qué resuelve.
-Aprobación de despliegue registrada por una persona distinta de quien
-  escribió el cambio.
-Existe un plan de reversión/eliminación del despliegue, no solo de
-  creación — quién lo autoriza y cómo se ejecuta.
-Digest de imagen inmutable registrado en la evidencia de despliegue
-  (`sha256:...`), nunca un tag corto ni `latest`.
-Evidencia de despliegue persistida con línea de tiempo por fase (no solo
-  un mensaje de "funcionó" sin fecha ni fase).
-```
-
-Si `en-produccion` también está activo, todo lo anterior deja de ser
-"madurez deseable" y se vuelve criterio de TR08/B05 (revisión humana
-obligatoria) — no dupliques el bloqueo, solo referencia esa sección.
 
 ---
 
@@ -760,6 +702,8 @@ No pidas secretos ni .env real.
 No declares pruebas exitosas sin evidencia.
 No castigues automáticamente una solución solo-frontend si está justificada.
 No conviertas stack tecnológico en criterio obligatorio en esta versión.
+No evalúes la preparación ni el mecanismo de despliegue: son del Agente de
+  Despliegue (prompt-agente-despliegue-evaluacion.md), no de este gate.
 No re-evalúes desde cero lo que un gate previo (Documental, Pruebas) ya
   evaluó — usa su resultado.
 No re-evalúes desde cero lo que un intento anterior de este mismo agente ya
@@ -772,5 +716,5 @@ Si puede avanzar, aclara que avanza a revisión humana, no a producción.
 
 ---
 
-*AGP AI Governance Kit · Agente de Revisión Técnica · Evaluación v2.1*
+*AGP AI Governance Kit · Agente de Revisión Técnica · Evaluación v2.2*
 *github.com/AGPAutomatizacionCO/agp-ai-governance-kit*
