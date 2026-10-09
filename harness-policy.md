@@ -1959,8 +1959,10 @@ El Agente de Desarrollo debe detenerse si se propone un frontend sin framework p
 La tecnología de autenticación corporativa aprobada es:
 
 ```text
-Azure Easy Auth + Microsoft Entra ID
+MSAL + Microsoft Entra ID
 ```
+
+Los permisos y el registro de la aplicación los otorga el despliegue. En desarrollo basta con dejar la estructura definida (variables de configuración, scopes, roles).
 
 ### Casos de uso aprobados
 
@@ -2276,7 +2278,7 @@ Bash / PowerShell
 ```text
 Pruebas de código:         Azure Cloud Shell (Node, Python, Bash).
 Pruebas de vistas estáticas: Azure Static Web Apps preview automático por PR.
-Pruebas de Easy Auth:      Ambiente Dev en Azure App Service (no se puede probar localmente).
+Pruebas de MSAL:           Casos definidos en desarrollo; ejecución real en Dev tras el despliegue, cuando se otorgan los permisos.
 Pruebas funcionales:       Browser contra URL de preview o ambiente Dev.
 ```
 
@@ -2339,33 +2341,34 @@ test-report-YYYY-MM-DD.md actualizado.
 
 ---
 
-### Caso especial — Easy Auth no se puede probar localmente
+### Caso especial — MSAL: permisos otorgados en el despliegue
 
-Easy Auth (Azure App Service Authentication) es gestionado por la infraestructura de Azure. No funciona en `localhost` ni en `file://`.
+MSAL requiere un registro de aplicación y permisos que se otorgan en el despliegue, por lo que el flujo completo no siempre puede validarse antes de desplegar.
 
-**Flujo obligatorio para proyectos con Easy Auth:**
+**Flujo para proyectos con MSAL:**
 
 ```text
-1. Desarrollar en local o Cloud Shell (sin Easy Auth activo).
-2. Subir a rama de desarrollo en GitHub.
-3. Azure crea preview automático (Static Web Apps) o desplegar a App Service Dev.
-4. Probar Easy Auth en el ambiente Dev de Azure (browser).
-5. Validar autenticación, token y roles en el ambiente real.
-6. Documentar evidencia de prueba con URL del ambiente Dev.
-7. No avanzar a producción sin evidencia de Easy Auth validado en Azure.
+1. Desarrollar en local o Cloud Shell dejando la estructura lista:
+   tenant, client ID y scopes como variables de configuración, roles definidos.
+2. Diseñar en la matriz de pruebas los casos de autenticación
+   (autorizado, no autorizado, sin rol, rol insuficiente, sesión expirada),
+   marcados como pendientes de despliegue si aún no hay permisos.
+3. Subir a rama de desarrollo en GitHub.
+4. El despliegue registra la app y otorga los permisos.
+5. Ejecutar los casos pendientes en el ambiente Dev y documentar la evidencia.
 ```
 
-**Bloqueo:**
+**Regla:**
 
 ```text
-Un proyecto con Easy Auth no puede declararse probado si la validación
-de autenticación se hizo únicamente en local.
-La evidencia de prueba debe incluir validación en ambiente Azure.
+La falta de permisos otorgados antes del despliegue no bloquea la evaluación.
+Lo exigible es que la estructura y los casos de prueba estén definidos.
+La validación en ambiente Azure se documenta cuando el despliegue la habilita.
 ```
 
 ---
 
-### 46.1 Arquitectura estática con SharePoint y Easy Auth
+### 46.1 Arquitectura estática con SharePoint y MSAL
 
 Esta arquitectura es un patrón aprobado y estandarizado para soluciones de consulta interna de AGP Group.
 
@@ -2374,9 +2377,9 @@ Esta arquitectura es un patrón aprobado y estandarizado para soluciones de cons
 ```text
 Vista estática (HTML/JS o React)
 → Desplegada en Azure Static Web Apps o Azure App Service
-→ Protegida por Easy Auth (Microsoft Entra ID)
+→ Protegida por MSAL (Microsoft Entra ID)
 → Accede a SharePoint via Microsoft Graph API
-→ Token gestionado por Easy Auth o MSAL Browser
+→ Token gestionado por MSAL Browser
 → Sin backend propio
 → Sin base de datos propia
 ```
@@ -2394,10 +2397,10 @@ Sin transacciones ni modificación de datos.
 **Criterios de aceptación mínimos para este patrón:**
 
 ```text
-auth_mechanism:         Easy Auth con Microsoft Entra ID
+auth_mechanism:         MSAL con Microsoft Entra ID
 data_source:            SharePoint (Graph API)
 permissions_minimum:    Sites.Selected + Files.Read (no Sites.Read.All)
-token_handling:         /.auth/me o MSAL Browser (no hardcoded)
+token_handling:         MSAL Browser (no hardcoded)
 secrets:                Ninguno en código
 data_sensitivity:       Clasificada y documentada
 access_control:         Restricción por grupo de SharePoint o Entra ID
@@ -2416,26 +2419,20 @@ support_channel:        Definido y documentado
 
 Si se usan `Sites.Read.All` o `Files.Read.All`, debe documentarse en `specs/005-risks.md` el motivo y el responsable IT que aprobó el permiso ampliado.
 
-**MSAL Browser vs Easy Auth directo:**
+**Mecanismo de autenticación:**
 
 ```text
-Easy Auth directo (/.auth/me):
-- Más simple.
-- Válido para autenticación básica sin roles.
-- No requiere librería adicional.
-- Recomendado para vistas de solo consulta sin diferenciación de roles.
-
 MSAL Browser (@azure/msal-browser):
-- Más control sobre el token.
-- Válido cuando se necesita renovación explícita o manejo de scopes.
-- Recomendado cuando hay múltiples recursos o scopes Graph distintos.
-- Ambas opciones son válidas y aprobadas para este patrón.
+- Único mecanismo contemplado para este patrón.
+- Control sobre el token, renovación explícita y manejo de scopes.
+- Tenant, client ID y scopes como variables de configuración.
+- El registro de la app y los permisos se otorgan en el despliegue.
 ```
 
 **Pruebas mínimas para este patrón:**
 
 ```text
-1. Usuario corporativo puede autenticarse (Easy Auth funciona).
+1. Usuario corporativo puede autenticarse (MSAL funciona; se ejecuta tras el despliegue).
 2. Usuario no corporativo no puede acceder.
 3. Los datos del SharePoint se cargan correctamente.
 4. El token no está expuesto en código ni en logs.
@@ -2449,7 +2446,7 @@ MSAL Browser (@azure/msal-browser):
 No se puede desplegar a producción si:
 - Los permisos son más amplios que los necesarios sin justificación documentada.
 - El token está hardcodeado o en código fuente.
-- No se validó autenticación en ambiente Azure (no local).
+- No se validó autenticación en ambiente Azure tras el despliegue (no local).
 - No está documentado quién tiene acceso y por qué.
 - No existe canal de soporte definido.
 ```
@@ -2463,7 +2460,7 @@ Todo proyecto debe declarar su perfil de desarrollador en `specs/002-plan.md`:
 ```text
 developer_profile:         A / B / C
 test_environment:          local / Azure Cloud Shell / Azure preview / App Service Dev
-easy_auth_validation:      local (no válido) / Azure Dev (válido) / Azure Prod
+msal_validation:           pendiente de despliegue / Azure Dev (válido) / Azure Prod
 tech_lead_review:          [nombre del responsable de revisión de código]
 test_evidence_location:    /tests/test-report-YYYY-MM-DD.md
 ```
@@ -2483,7 +2480,7 @@ No puede avanzar a merge sin pruebas locales documentadas.
 **Perfil B:**
 
 ```text
-No puede declarar Easy Auth probado sin evidencia de Azure Dev.
+No puede declarar MSAL probado sin evidencia de Azure Dev (los casos pueden quedar pendientes de despliegue).
 No puede avanzar sin resultado de Cloud Shell o URL de preview documentada.
 ```
 

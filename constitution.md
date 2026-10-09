@@ -986,7 +986,7 @@ La IA no debe recomendar HTML estático para proyectos que involucren usuarios a
 
 ## 38. Tecnología de autenticación estándar
 
-La tecnología de autenticación corporativa aprobada es **Azure Easy Auth + Microsoft Entra ID**.
+La tecnología de autenticación corporativa aprobada es **MSAL + Microsoft Entra ID**. Los permisos y el registro de la aplicación se otorgan en el despliegue; durante el desarrollo basta con dejar la estructura de autenticación definida y documentada.
 
 Toda solución digital que requiera autenticación de usuarios debe usar este estándar, salvo que exista aprobación explícita de IT para una alternativa documentada.
 

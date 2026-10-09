@@ -672,9 +672,20 @@ Clasificación, owner, restricciones, minimización, ausencia de datos reales
 en prompts o pruebas, controles mínimos.
 
 ### autenticacion-microsoft
-Validar solo a nivel documental medio: mecanismo descrito, ambiente donde
-aplica, si hay roles, si en producción requerirá validación de TI. No
-exigir implementación detallada de Entra ID en esta versión.
+Validar solo a nivel documental medio: mecanismo descrito (MSAL, único
+mecanismo contemplado), ambiente donde aplica, si hay
+roles, si en producción requerirá validación de TI. No exigir implementación
+detallada de Entra ID ni permisos ya otorgados: se otorgan en el despliegue.
+Verificar solo que la estructura esté lista (variables de configuración,
+scopes, roles) y no marcar esta condición como bloqueante.
+
+MSAL se habilita y se prueba DESPUÉS, en el despliegue. Por eso la falta de
+evidencia de pruebas de login, usuario autorizado/no autorizado, rol o sesión
+expirada NO activa B06, B09, B10 ni B17, y no baja TR06 a `falta`: márcala
+`no-verificable` con el motivo "pendiente de despliegue" y sigue evaluando lo
+demás. Tampoco es bloqueante que la autenticación aún no pueda ejecutarse
+(es normal que no haya permisos ni registro de la app antes de desplegar). Sí
+sigue siendo bloqueante B01 si hay un secreto o client secret real en el código.
 
 ### integracion-sistema-critico
 Capa intermedia, manejo de errores, rollback, trazabilidad, aprobación TI.
@@ -706,41 +717,53 @@ Alimenta TR10. Evalúa cada punto por separado con lo disponible; marca
 desarrollo puede avanzar a revisión humana sin cumplir todos — esto informa
 madurez, TR10 no es bloqueante en esta versión.
 
+LA MESA DE REQUERIMIENTOS Y SU WORKER HACEN EL DESPLIEGUE: lo que ellos
+producen o resuelven al desplegar NO se le pide al desarrollador y NO baja
+TR10. Marca esos puntos `no-aplica`: nombre del recurso Azure (lo asigna la
+Mesa con la convención co-área-desarrollo), aprobación de despliegue,
+plan de reversión (el worker vuelve a la imagen anterior), digest de imagen
+y evidencia de despliegue por fase (los registra el worker), CI/CD de
+publicación y permisos o registro de la app MSAL (se otorgan al desplegar).
+Que el desarrollo todavía no tenga evidencia de despliegue es lo normal
+ANTES de desplegar: no es una falta ni "no-verificable" que reste.
+
+Lo que SÍ aporta el desarrollador y se evalúa:
+
 ```text
-Perfil reconocido: .agp/profile.yaml válido (id, kind, build, runtime,
-  deploy), o si el desarrollo no usa el kit todavía, stack/puerto/health
-  declarados explícitamente en deployment-notes.md.
+Perfil reconocido: .agp/profile.yaml válido contra profile.agp/v1 (id, kind,
+  build, runtime —solo en contenedores—, deploy), o si el desarrollo no usa
+  el kit todavía, stack/puerto/health declarados en deployment-notes.md.
 Si usa contenedor (kind=container): Dockerfile con usuario no-root, imagen
   base fijada por digest (no por tag mutable como "latest" o "3.12"),
   puerto y healthPath declarados coinciden con el Dockerfile/código real.
-CI/CD publicado y verde sobre el commit exacto que se desplegaría — no
-  "corrió alguna vez en el pasado". Si el workflow usa acciones de
-  terceros, están fijadas por SHA de commit, no por tag.
+Pruebas que el worker pueda repetir: el CI del repositorio verde sobre el
+  commit, o un dev-publish.yml que corra las pruebas antes de construir la
+  imagen. Si el workflow usa acciones de terceros, fijadas por SHA de commit.
 Release del kit fijado por SHA (.agp/governance.yaml apunta a un tag/SHA
   real y aprobado), nunca a main en movimiento.
-Evaluación de este mismo flujo con aprobación humana de IT registrada —
-  no solo el score automático, alguien de IT marcó la aprobación.
 Secretos necesarios identificados por NOMBRE (nunca valor) y declarado si
   ya están cargados en el ambiente destino o siguen pendientes.
-Acceso a datos (MapeoAccesoBD) con tabla/columna/sensibilidad declarados;
-  si declara acceso real, hay evidencia de que alguien (persona o proceso
-  autorizado) verificó que la tabla y el permiso existen de verdad, no
-  solo que el código la referencia.
+Acceso a datos: ai/outputs/data-access-manifest.json con TODAS las tablas
+  que el código toca —las propias y las preexistentes— con base, esquema,
+  columnas, sensibilidad y operaciones. Usar datos reales no es un hallazgo;
+  no declararlos completos sí.
 Identidades/roles: si el desarrollo requiere login con roles, el mecanismo
   de asignación de usuarios a roles es manual, nunca parte de un pipeline
   automático — ver ADR-06 y GESTION-IDENTIDAD-Y-ROLES-PROPUESTA.md del
   repositorio DOCS-IT-GOVERNANCE.
-Nombre del recurso sigue la convención área+desarrollo (AGP_AREA_DESARROLLO
-  para el repo, agp-co-area-desarrollo para recursos Azure), no un nombre
-  genérico que no diga qué resuelve.
-Aprobación de despliegue registrada por una persona distinta de quien
-  escribió el cambio.
-Existe un plan de reversión/eliminación del despliegue, no solo de
-  creación — quién lo autoriza y cómo se ejecuta.
-Digest de imagen inmutable registrado en la evidencia de despliegue
-  (`sha256:...`), nunca un tag corto ni `latest`.
-Evidencia de despliegue persistida con línea de tiempo por fase (no solo
-  un mensaje de "funcionó" sin fecha ni fase).
+Login Microsoft Entra ID (si el desarrollo declara login corporativo): trae
+  definido lo necesario para que la Mesa pueda solicitar el registro de la
+  app sin preguntar nada: manifiesto .agp/entra.yaml (redirect URI derivado
+  del nombre del recurso Azure, permisos Graph mínimos como User.Read y
+  offline_access, assignmentRequired y grupo de acceso), variables MSAL_*
+  listadas por NOMBRE en .env.example, módulo de login apagado por defecto
+  (AGP_MSAL_ENABLED) y prueba local con usuario de desarrollo. El registro
+  de la app lo automatiza la Mesa; la asignación de usuarios y el
+  consentimiento siguen siendo manuales (ADR-06) y el secreto de cliente
+  nunca pasa por la Mesa ni por un agente: va a Key Vault. Si falta el
+  manifiesto, márcalo `falta`; si no declara login, `no-aplica`. Las
+  pruebas de ese login se hacen después del despliegue: no cuentan contra
+  el desarrollo.
 ```
 
 Si `en-produccion` también está activo, todo lo anterior deja de ser

@@ -134,7 +134,7 @@ Si no puedes determinarlo pregunta solo esto:
 ```
 Para determinar qué tipos de prueba son obligatorios necesito saber:
 1. ¿Qué tipo de solución se probó?
-2. ¿Usa autenticación Microsoft o maneja roles/permisos?
+2. ¿Usa autenticación Microsoft (MSAL) o maneja roles/permisos?
 3. ¿Maneja datos sensibles?
 4. ¿Involucra SAP, sistema núcleo o integración crítica?
 ```
@@ -416,7 +416,7 @@ punto en el próximo intento.
 ```json
 [
   { "id": "T-FW01", "solution_type": "frontend-web", "pregunta": "¿Se probaron carga inicial, formularios, estados vacíos y comportamiento ante errores del backend?", "peso": 10, "bloqueante": false },
-  { "id": "T-BA01", "solution_type": "backend-api", "pregunta": "¿Se probaron endpoints, autenticación, autorización, errores y códigos HTTP esperados?", "peso": 15, "bloqueante": true },
+  { "id": "T-BA01", "solution_type": "backend-api", "pregunta": "¿Se probaron endpoints, errores y códigos HTTP esperados? La autenticación y la autorización con MSAL no se exigen aquí: se habilitan y prueban después, en el despliegue (ver C-AM01).", "peso": 15, "bloqueante": true },
   { "id": "T-PP01", "solution_type": "power-platform", "pregunta": "¿Se probaron ambiente, conectores, flujos, roles y separación Dev/Test/Prod si aplica?", "peso": 15, "bloqueante": true },
   { "id": "T-PBI01", "solution_type": "power-bi", "pregunta": "¿Se probaron fuente de datos, permisos, RLS si aplica y no exposición de datos restringidos?", "peso": 15, "bloqueante": true },
   { "id": "T-DB01", "solution_type": "cambios-en-base-de-datos", "pregunta": "¿Se probó el script en Dev/Test, con respaldo y sin afectar datos productivos?", "peso": 15, "bloqueante": true }
@@ -429,7 +429,7 @@ punto en el próximo intento.
 
 ```json
 [
-  { "id": "C-AM01", "condicion": "autenticacion-microsoft", "pregunta": "¿Se probaron usuario autorizado, no autorizado, sin rol, con rol insuficiente y sesión expirada?", "peso": 15, "bloqueante": true },
+  { "id": "C-AM01", "condicion": "autenticacion-microsoft", "pregunta": "¿Están definidos (o ejecutados, si MSAL ya tiene permisos) los casos de prueba de usuario autorizado, no autorizado, sin rol, con rol insuficiente y sesión expirada? Si los permisos se otorgan en el despliegue, basta con que los casos estén diseñados en la matriz y marcados como pendientes de despliegue.", "peso": 15, "bloqueante": false },
   { "id": "C-DS01", "condicion": "datos-sensibles", "pregunta": "¿Se probó que la solución no expone datos sensibles a usuarios no autorizados?", "peso": 15, "bloqueante": true },
   { "id": "C-IC01", "condicion": "integracion-sistema-critico", "pregunta": "¿Se probó manejo de errores de integración sin ejecutar pruebas destructivas sin autorización?", "peso": 15, "bloqueante": true },
   { "id": "C-SAP01", "condicion": "sap-o-sistema-nucleo", "pregunta": "¿Se probó en ambiente autorizado, sin modificar SAP directamente y sin usar credenciales expuestas?", "peso": 20, "bloqueante": true },

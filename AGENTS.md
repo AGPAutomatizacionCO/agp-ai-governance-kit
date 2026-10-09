@@ -291,7 +291,7 @@ Los agentes deben reconocer las siguientes tecnologías como estándares corpora
 
 ### Autenticación
 
-- **Azure Easy Auth + Microsoft Entra ID**: tecnología de autenticación corporativa aprobada.
+- **MSAL + Microsoft Entra ID**: tecnología de autenticación corporativa aprobada. Los permisos se otorgan en el despliegue; en desarrollo se deja la estructura lista.
 - **Managed Identity**: preferida para identidades de servicio.
 - No se puede implementar autenticación custom sin aprobación IT.
 

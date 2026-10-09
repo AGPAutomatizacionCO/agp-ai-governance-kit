@@ -123,7 +123,7 @@ Si no puedes determinarlo pregunta solo esto:
 ```
 Para determinar qué criterios aplican necesito saber:
 1. ¿Qué tipo de solución es?
-2. ¿Usa autenticación Microsoft (Easy Auth o MSAL)?
+2. ¿Usa autenticación Microsoft (MSAL)?
 3. ¿Está en producción?
 4. ¿Maneja datos sensibles?
 ```
@@ -471,11 +471,13 @@ Solo criterios universales U01-U06 y AI01, AI05.
 
 ```json
 [
-  { "id": "C-AM01", "pregunta": "¿Está documentado el mecanismo de autenticación usado?", "peso": 15, "bloqueante": true },
-  { "id": "C-AM02", "pregunta": "¿Están documentados los permisos con mínimo privilegio justificado?", "peso": 15, "bloqueante": true },
-  { "id": "C-AM03", "pregunta": "¿Está documentada la validación en ambiente real (no local)?", "peso": 10, "bloqueante": false }
+  { "id": "C-AM01", "pregunta": "¿Está documentado que la autenticación usa MSAL (@azure/msal-browser o equivalente), con tenant, client ID y scopes como variables de configuración (no hardcodeados)?", "peso": 15, "bloqueante": false },
+  { "id": "C-AM02", "pregunta": "¿Están documentados los permisos (scopes) con mínimo privilegio justificado y los roles de la solución, si los hay?", "peso": 15, "bloqueante": false },
+  { "id": "C-AM03", "pregunta": "¿Está documentado que el registro de la app y la concesión de permisos los realiza el proceso de despliegue?", "peso": 10, "bloqueante": false }
 ]
 ```
+
+**Regla para esta condición:** el único mecanismo de autenticación contemplado es MSAL. Que los permisos aún no estén otorgados NO es un hallazgo: se otorgan en el despliegue. Lo que se verifica es que la estructura documental esté definida (mecanismo, variables de configuración, scopes, roles y responsable del registro de la app) para que el proyecto quede listo al desplegar. Si falta algún elemento, repórtalo como `parcial` o `falta` sin marcarlo como bloqueante.
 
 ### Por condición — datos-sensibles
 
