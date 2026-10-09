@@ -159,7 +159,7 @@ Ambiente                str    — ambiente de despliegue (ej. PROD, staging)
 UrlDespliegue           str    — URL pública de la solución desplegada
 WebAppName              str    — nombre del Azure Web App
 ResourceGroup           str    — resource group de Azure
-VarianteTemplate        str    — fullstack / python / node
+VarianteTemplate        str    — valor observado del catálogo de la Mesa; no se infiere del stack
 VariablesEntorno        str    — nombres de variables (una por línea), sin valores
 RequiereAccesoBD        bool   — true si detecta dependencia de base de datos
 DetalleAccesoBD         str    — resumen corto del acceso a datos detectado
@@ -270,8 +270,9 @@ adivinar un nombre con fecha:
 ai/outputs/data-access-manifest.json
 ```
 
-Se sobreescribe completo en cada corrida del Agente de Despliegue — no se
-versiona por fecha, la versión vigente es siempre la última. Debe existir
+El responsable del desarrollo lo crea o actualiza mediante un cambio
+revisado; este agente solo devuelve el objeto, no modifica archivos. La
+versión vigente del archivo no lleva fecha en el nombre. Debe existir
 (aunque sea con `MapeoAccesoBD: null` si `RequiereAccesoBD` es `false`) desde
 que el desarrollo completa por primera vez sus "Datos técnicos" en Panel
 Gobernanza, para que ya esté disponible cuando se pida la primera evaluación
@@ -304,7 +305,7 @@ evidencia.
 ## 13. Ejemplo de respuesta esperada ante información faltante
 
 ```text
-Extracción completada con 11 de 15 campos con evidencia directa.
+Extracción completada con 11 de 16 campos con evidencia directa.
 
 Sin evidencia (quedan null):
 - UrlDespliegue: no hay deployment-notes.md ni URL documentada en README.
