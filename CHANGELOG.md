@@ -10,5 +10,7 @@ Este historial registra únicamente versiones publicadas o cambios preparados pa
 - Corrección local de rutas y referencias inmutables en `AGENTS.md`.
 - Definición inicial de la política de releases y del contrato de compatibilidad.
 - Esquemas versionados para gobierno, despliegue v2 y perfiles; el identificador lógico del esquema de acceso a datos ya no apunta a `main`.
+- Agente de despliegue: la extracción usa la referencia inmutable del kit cuando el proyecto la declara; entrega un único JSON parseable con 16 campos; distingue datos observados de nombres de Azure decididos por la Mesa; y deja la persistencia del manifiesto de datos al desarrollador mediante un cambio revisado. Requiere un release posterior; no altera `v4.0.0-rc.1`.
+- Se define un modo separado de preparación para el Agente de Despliegue, propietario exclusivo de la validación de artefactos y CI/CD por perfil. No modifica las calificaciones Documental, Pruebas o Revisión Técnica; aún requiere release e integración en la Mesa.
 
-> Todavía no existe un tag o release oficial del kit. `v4.0.0-rc.1` es la primera versión candidata propuesta, no una versión publicada.
+> `v4.0.0-rc.1` ya está publicado como prerelease. Los cambios de esta sección no forman parte de ese tag inmutable.
