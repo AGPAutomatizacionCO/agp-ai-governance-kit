@@ -418,10 +418,14 @@ El flujo recomendado para una nueva solución digital empresarial es:
 ```
 
 Nota: el **Agente de Despliegue** (`prompt-agente-despliegue-evaluacion.md`)
-no es parte de esta secuencia — es independiente y puede activarse en
-cualquier punto del ciclo de vida para extraer datos de configuración
-técnica (puerto, imagen Docker, resource group, etc.) desde el repositorio
-real. No evalúa, no aprueba y no bloquea el flujo anterior.
+no es parte de los tres gates de calificación: en modo extracción recoge
+Datos técnicos en cualquier momento. Su modo preparación
+(`prompt-agente-despliegue-preparacion.md`) es el único que dictamina si
+los archivos, el perfil y el CI del candidato permiten solicitar preflight
+de despliegue. Esa preparación no altera las notas de los otros agentes,
+ni aprueba recursos o producción; la Mesa y una persona autorizada conservan
+esas decisiones. Hasta publicar un release de este contrato y conectarlo a
+la Mesa, el modo preparación no está operativo en el flujo automático.
 
 ---
 

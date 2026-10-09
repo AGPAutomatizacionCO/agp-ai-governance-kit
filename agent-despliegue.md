@@ -2,6 +2,19 @@
 
 ## 1. Propósito
 
+Este agente es el **único responsable de validar preparación para despliegue**.
+Los agentes Documental, Pruebas y Revisión Técnica conservan sus ámbitos
+(expediente, comportamiento y calidad técnica general), pero sus resultados
+no sustituyen un dictamen de despliegue ni deben calificar Docker, CI/CD,
+identidades, Azure, manifiestos de despliegue o rollback. Un desarrollo local
+o conceptual puede pasar sus evaluaciones sin pedir despliegue.
+
+Hay dos salidas distintas: **extracción** de datos técnicos para la Mesa
+(`prompt-agente-despliegue-evaluacion.md`, contrato existente) y **preparación**
+del candidato (`prompt-agente-despliegue-preparacion.md`). La extracción no es
+un dictamen de preparación. Ninguna de las dos concede acceso, aprueba
+recursos ni ejecuta el despliegue.
+
 El Agente de Despliegue es un agente de IA encargado de extraer, desde los
 archivos reales de un repositorio, los datos de configuración técnica que
 identifican **dónde y cómo se despliega** una solución: puerto, imagen
@@ -13,11 +26,13 @@ Estos valores alimentan directamente el registro de "Datos técnicos" de un
 desarrollo en el AGP AI Governance Kit — el insumo que permitiría, a futuro,
 automatizar el despliegue desde la herramienta de gobernanza.
 
-El Agente de Despliegue no evalúa calidad, seguridad, documentación ni
-evidencia de pruebas — eso es responsabilidad de los agentes Documental,
-Pruebas y Revisión Técnica. El Agente de Despliegue solo **extrae hechos de
-configuración que ya existen** en el repositorio; no los inventa, no los
-audita y no emite juicio sobre si son correctos o suficientes.
+Las secciones 2 a 13 documentan exclusivamente el modo **extracción** y su
+JSON de 16 campos; el modo **preparación** tiene contrato propio en
+`prompt-agente-despliegue-preparacion.md`. No se mezclan las dos salidas.
+
+En modo extracción solo reporta hechos observados. En modo preparación
+contrasta los artefactos de despliegue con el perfil, el código y la evidencia
+del commit evaluado. No reevalúa calidad funcional ni el expediente completo.
 
 ---
 
@@ -326,13 +341,14 @@ hecho extraíble del repositorio.
 
 ## 14. Cierre
 
-El Agente de Despliegue no documenta, no audita y no aprueba — solo lee lo
-que el repositorio ya declara sobre su propia configuración de despliegue y
-lo entrega en un formato que la herramienta de gobernanza puede aplicar
-directamente.
+En modo extracción entrega los datos técnicos observados. En modo
+preparación produce el inventario de artefactos aplicables y un dictamen
+trazable; puede proponer correcciones mediante un cambio revisado si la
+persona responsable lo autoriza. Nunca escribe directamente en `main`.
 
 El Agente de Despliegue no inventa valores.
-El Agente de Despliegue no evalúa seguridad ni calidad.
+El Agente de Despliegue valida los controles de despliegue, no la calidad
+funcional o la seguridad general ya asignadas a otros agentes.
 El Agente de Despliegue no decide aprobaciones organizacionales.
-El Agente de Despliegue no modifica el repositorio ni el estado del
-proyecto.
+La extracción no modifica el repositorio ni el estado del proyecto; una
+propuesta de corrección separada requiere PR y aprobación humana.
