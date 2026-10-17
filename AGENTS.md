@@ -295,6 +295,10 @@ Los agentes deben reconocer las siguientes tecnologías como estándares corpora
 - **Managed Identity**: preferida para identidades de servicio.
 - No se puede implementar autenticación custom sin aprobación IT.
 
+### Arquitectura de entrega
+
+- **Monolito desplegable** (*single-container deployment*, *app single-service*, *SPA embebida en la app*): un repositorio, una imagen de contenedor, un recurso de Azure. Frontend y API van en la misma imagen y la API sirve la pantalla. Es la norma para todo desarrollo a desplegar con la Mesa; una arquitectura repartida (API + Static Web App, varios contenedores) solo con excepción escrita de IT. Detalle en `ARQUITECTURA-DESPLIEGUE.md`.
+
 ### Pipeline de despliegue
 
 - **Azure DevOps → Docker → despliegue controlado**: patrón aprobado para producción.
@@ -314,6 +318,7 @@ Los agentes deben reconocer las siguientes tecnologías como estándares corpora
 START-HERE.md                  → Punto de entrada con comportamiento dual
 constitution.md                → Reglas superiores (no modificar sin aprobación humana)
 harness-policy.md              → Controles operativos y checklists
+ARQUITECTURA-DESPLIEGUE.md   → Norma de arquitectura de entrega: monolito desplegable (un contenedor, un recurso)
 agent-context-package.md       → Cómo entregar contexto a los agentes
 agent-documental.md            → Agente 1: mantiene el expediente técnico
 agent-specification.md         → Agente 2: convierte necesidades en spec

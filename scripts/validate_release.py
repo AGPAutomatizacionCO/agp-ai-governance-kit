@@ -103,6 +103,7 @@ def validate_json(errors: list[str]) -> None:
         ("agp-deploy-v2.schema.json", "agp-deploy-v2.valid.json", True),
         ("agp-deploy-v2.schema.json", "agp-deploy-v2.invalid.json", False),
         ("profile-v1.schema.json", "profile-container.valid.yaml", True),
+        ("profile-v1.schema.json", "profile-container-monolito.valid.yaml", True),
         ("profile-v1.schema.json", "profile-static.valid.yaml", True),
         ("profile-v1.schema.json", "profile-container.invalid.yaml", False),
     )

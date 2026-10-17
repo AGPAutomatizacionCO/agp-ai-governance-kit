@@ -274,6 +274,12 @@ No debe recomendar tecnología solo por facilidad de implementación.
 
 ---
 
+### Arquitectura de entrega (obligatoria en el plan)
+
+En `recommended_architecture` el plan declara la arquitectura de entrega. La norma de IT es el **monolito desplegable** (*single-container deployment*): un repositorio, una imagen de contenedor, un recurso de Azure, con el frontend compilado dentro de la imagen de la API y servido por ella. El agente de especificación no propone dos recursos de Azure para una misma aplicación; si el caso lo exige, lo marca como excepción pendiente de aprobación escrita de IT. Ver [ARQUITECTURA-DESPLIEGUE.md](ARQUITECTURA-DESPLIEGUE.md).
+
+---
+
 ## 10. `003-tasks.md`
 
 El documento de tareas convierte el plan en trabajo ejecutable.

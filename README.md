@@ -547,6 +547,8 @@ La IA puede apoyar desarrollo personalizado cuando se requiera:
 
 El desarrollo personalizado debe mantener separación entre capas, trazabilidad, pruebas y documentación.
 
+La arquitectura de entrega estándar es el **monolito desplegable** (*single-container deployment*): un repositorio, una imagen de contenedor, un recurso de Azure, con el frontend dentro de la imagen de la API. Ver [ARQUITECTURA-DESPLIEGUE.md](ARQUITECTURA-DESPLIEGUE.md).
+
 ---
 
 ## 22. Integraciones críticas

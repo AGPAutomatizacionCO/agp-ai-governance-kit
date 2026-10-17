@@ -346,6 +346,14 @@ tener backend: puede cumplir si documenta qué hace, de dónde vienen los
 datos, por qué no requiere backend por ahora, y qué condiciones obligarían a
 migrar a uno.
 
+**Arquitectura de entrega (norma de IT):** un desarrollo a desplegar con la Mesa es un
+**monolito desplegable** (*single-container deployment*, *app single-service*, *SPA embebida
+en la app*): un repositorio, una imagen, un recurso de Azure, con el frontend compilado dentro
+de la imagen y servido por la API. Es hallazgo (no bloqueante) que tenga frontend propio y el
+Dockerfile del perfil no lo compile, o que se reparta en varios recursos de Azure (API +
+Static Web App, contenedores sidecar) sin excepción escrita de IT. Un perfil `react-static` es
+una excepción, no el camino normal. Referencia: `ARQUITECTURA-DESPLIEGUE.md`.
+
 ### TR04 — Seguridad básica (prioridad alta)
 Usa el resultado del PASO 3. Si se detectó un secreto real: estado `falta`,
 dispara bloqueante B01, `puede_avanzar = false`, semáforo rojo,
@@ -736,6 +744,10 @@ Perfil reconocido: .agp/profile.yaml válido contra profile.agp/v1 (id, kind,
 Si usa contenedor (kind=container): Dockerfile con usuario no-root, imagen
   base fijada por digest (no por tag mutable como "latest" o "3.12"),
   puerto y healthPath declarados coinciden con el Dockerfile/código real.
+Arquitectura (monolito desplegable, ARQUITECTURA-DESPLIEGUE.md): una sola imagen y un solo
+  recurso de Azure; si el repositorio tiene frontend (package.json con
+  script build), el Dockerfile del perfil lo compila y la API lo sirve.
+  Dos recursos o contenedores sidecar sin excepción de IT: `parcial`.
 Pruebas que el worker pueda repetir: el CI del repositorio verde sobre el
   commit, o un dev-publish.yml que corra las pruebas antes de construir la
   imagen. Si el workflow usa acciones de terceros, fijadas por SHA de commit.

@@ -454,6 +454,7 @@ Debe incluir, cuando aplique:
 * Identidad y acceso.
 * Variables de entorno.
 * Gestión de secretos.
+* Arquitectura de entrega (monolito desplegable: una imagen, un recurso de Azure, frontend dentro de la imagen).
 * Estructura de carpetas.
 * Instalación.
 * Ejecución.
@@ -576,6 +577,8 @@ approvers:
 deployment_date:
 deployment_status:
 ```
+
+Debe incluir además `architecture:` con la arquitectura de entrega. La norma es el **monolito desplegable** (*single-container deployment*, *app single-service*, *SPA embebida en la app*): una imagen, un recurso de Azure, frontend dentro de la imagen. Si el desarrollo es una excepción, debe citar la decisión de IT en `ai/decisions/`. Ver [ARQUITECTURA-DESPLIEGUE.md](ARQUITECTURA-DESPLIEGUE.md).
 
 Debe dejar claro que producción requiere aprobación humana.
 

@@ -225,6 +225,12 @@ perfil              .agp/profile.yaml cumple schemas/profile-v1.schema.json:
                     Los puntos siguientes dependen del kind: en un perfil
                     static no aplican dockerfile, publicacion ni puerto/health
                     (repórtalos no_aplica).
+                    Norma de arquitectura (monolito desplegable, ARQUITECTURA-DESPLIEGUE.md):
+                    el perfil esperado es kind container con UN solo
+                    Dockerfile y UN solo recurso; si el repositorio tiene
+                    frontend, ese Dockerfile lo compila (etapa de build) y
+                    la API lo sirve. Si no, repórtalo como falta, con la
+                    evidencia.
 governance          .agp/governance.yaml con apiVersion governance.agp/v1,
                     kit.source AGPAutomatizacionCO/agp-ai-governance-kit,
                     kit.version tipo vX.Y.Z o vX.Y.Z-rc.N, kit.ref = SHA de

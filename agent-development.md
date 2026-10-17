@@ -436,6 +436,12 @@ Cuando el agente implemente código, debe seguir estos principios:
 * No desactivar logs.
 * No ocultar fallos.
 
+### Arquitectura de entrega
+
+* Implementar el desarrollo como **monolito desplegable**: una sola imagen y un solo recurso de Azure; el frontend se compila en una etapa del Dockerfile de la raíz y la API lo sirve.
+* No crear un Dockerfile de frontend aparte, una Static Web App, ni contenedores adicionales (nginx, sidecars) sin excepción escrita de IT.
+* El frontend llama a su propio origen; el login se configura desde la API (`/api/config`, solo tenant y cliente). Patrón en [ARQUITECTURA-DESPLIEGUE.md](ARQUITECTURA-DESPLIEGUE.md).
+
 ---
 
 ## 16. Pruebas
