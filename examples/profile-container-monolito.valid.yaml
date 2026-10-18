@@ -1,0 +1,14 @@
+# Monolito desplegable (single-container): API + SPA embebida en una sola imagen.
+# El Dockerfile de la raíz compila el frontend en una etapa y la API lo sirve. Ver ARQUITECTURA-DESPLIEGUE.md.
+apiVersion: profile.agp/v1
+id: python-api
+kind: container
+build:
+  context: .
+  dockerfile: Dockerfile
+  dependencyManifest: backend/requirements.txt
+runtime:
+  port: 5000
+  healthPath: /api/health
+deploy:
+  target: app-service

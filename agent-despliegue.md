@@ -177,8 +177,9 @@ Además de los campos, el agente reporta `PreparacionDespliegue`: el estado
 (`ok` / `falta` / `no_aplica` / `no_verificable`) de cada requisito que la
 Mesa de Requerimientos verifica antes de aprobar un despliegue (perfil, pin
 del kit, `agp-deploy.json`, CI, workflow de publicación, Dockerfile, expediente
-`specs/`, notas de despliegue, manifiesto de datos y login MSAL con
-`.agp/entra.yaml`). Es informativo: el agente no califica ni bloquea.
+`specs/`, notas de despliegue, manifiesto de datos, contrato de ejecución `.agp/runtime.yaml`, contexto de
+build vs `.dockerignore` y login MSAL con `.agp/entra.yaml` y sus
+`administradores`). MSAL es obligatorio para todo desarrollo a desplegar. Es informativo: el agente no califica ni bloquea.
 `WebAppName`, `ResourceGroup` y `UrlDespliegue` los asigna la Mesa al aprobar
 el plan; si el repositorio no los declara quedan en `null` y se listan en
 `campos_que_asigna_la_mesa`, no como carencia.

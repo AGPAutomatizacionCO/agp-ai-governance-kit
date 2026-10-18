@@ -224,6 +224,22 @@ El frontend puede ayudar a mejorar la experiencia del usuario, pero la seguridad
 
 ---
 
+### 9.1 Arquitectura de entrega: monolito desplegable (norma de IT)
+
+Todo desarrollo empresarial que se vaya a desplegar se entrega como **monolito desplegable** (también llamado *single-container deployment*, *app single-service* o *SPA embebida en la app*): **un repositorio, una imagen de contenedor, un recurso de Azure**. Si hay frontend y API, la imagen lleva las dos: el frontend se compila dentro de la imagen y la misma API lo sirve desde el mismo origen.
+
+El agente debe:
+
+* Proponer y documentar esta arquitectura desde el inicio, no dos recursos (API en una Web App y pantalla en una Static Web App) ni varios contenedores «sidecar».
+* Pedir una excepción escrita de IT si el desarrollo necesita otra cosa, y registrarla en `ai/decisions/`.
+* Seguir el patrón de referencia de [ARQUITECTURA-DESPLIEGUE.md](ARQUITECTURA-DESPLIEGUE.md).
+
+```txt
+Una aplicación = un repositorio = una imagen = un recurso de Azure. El frontend viaja dentro de la imagen de la API.
+```
+
+---
+
 ## 10. Reglas de seguridad básica para todo desarrollo
 
 El agente debe advertir siempre:
@@ -504,6 +520,7 @@ Necesito que me hagas preguntas claras y organizadas sobre:
 4. Si los datos pueden ser sensibles.
 5. Si existen contraseñas, tokens, llaves, credenciales o URLs privadas.
 6. Si el desarrollo tendrá frontend, backend o ambos.
+   Si tendrá ambos, se entrega como monolito desplegable: una sola imagen de contenedor y un solo recurso de Azure, con el frontend compilado dentro de la API (ver ARQUITECTURA-DESPLIEGUE.md).
 7. Si no tendrá backend, qué justificación debe documentarse.
 8. Si consume archivos externos, cuál es el origen, responsable y permisos.
 9. Si requiere autenticación.
@@ -903,6 +920,7 @@ Archivos principales:
 constitution.md
 harness-policy.md
 agent-context-package.md
+ARQUITECTURA-DESPLIEGUE.md
 agent-documental.md
 agent-specification.md
 agent-technical-review.md

@@ -529,6 +529,7 @@ de `prompt-agente-revision-tecnica-evaluacion.md`:
 
 * Perfil (`.agp/profile.yaml`) válido contra `schemas/profile-v1.schema.json`.
 * Si usa contenedor: Dockerfile no-root, imagen base fijada por digest.
+* Arquitectura de entrega: monolito desplegable (una imagen, un recurso de Azure, frontend compilado dentro de la imagen y servido por la API). Un frontend con `package.json` y script `build` cuyo Dockerfile no lo compila, o una aplicación declarada en más de un recurso de Azure sin excepción de IT, es un hallazgo (ver `ARQUITECTURA-DESPLIEGUE.md`).
 * CI/CD verde sobre el commit exacto (no histórico), acciones de terceros
   fijadas por SHA.
 * `.agp/governance.yaml` fijado a un release/SHA real del kit, nunca a `main`.
