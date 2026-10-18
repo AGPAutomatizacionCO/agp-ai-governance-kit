@@ -264,6 +264,19 @@ manifiesto_datos    ai/outputs/data-access-manifest.json existe si
                     propias. Usar bases de datos reales no es un hallazgo.
                     La Mesa lo valida igual y, al completar la validación y
                     solicitar el despliegue, lo registra en Fuente de datos.
+contexto_docker     el .dockerignore del contexto del perfil (si existe) NO excluye
+                    lo que el Dockerfile copia con COPY/ADD. Patrones como
+                    *.json, *.html o *.md excluyen package.json, index.html o
+                    README.md: el build falla con «COPY failed: file does not
+                    exist». Cada archivo copiado debe quedar reincluido con
+                    «!archivo». Nombra los archivos excluidos en el detalle.
+runtime             .agp/runtime.yaml (apiVersion runtime.agp/v1) existe si
+                    RequiereAccesoBD es true (`no_aplica` si es false): declara
+                    por NOMBRE las variables (env) y los secretos (secrets:
+                    variable ← secreto del vault de desarrollos). Nunca
+                    valores. Sin él la API se despliega sin base y se cae al
+                    arrancar (503). La Mesa asigna un rol de lectura por
+                    secreto y el worker aplica referencias a Key Vault.
 entra               ver regla de login más abajo.
 ```
 
@@ -280,16 +293,24 @@ consentimiento se otorgan en el despliegue, así que NO son un hallazgo.
 Reporta solo la estructura:
 
 ```
-- Sin .agp/entra.yaml y sin señales de login en el código (dependencia msal,
-  variables MSAL_* en .env.example): entra = no_aplica.
-- Hay señales de login pero no existe .agp/entra.yaml: entra = falta.
-- Existe: debe ser YAML válido con apiVersion entra.agp/v1, login
-  (required u otro valor), redirectUriPath, graphPermissions mínimos
-  (User.Read, offline_access), secrets con store key-vault y env con
-  MSAL_CLIENT_ID, MSAL_TENANT_ID y MSAL_CLIENT_SECRET solo por NOMBRE.
-- status "definido-sin-implementar" es válido: la estructura está lista y la
-  Mesa omite la fase de login. Repórtalo como ok con ese detalle, no como
-  pendiente.
+- MSAL es OBLIGATORIO para todo desarrollo que se despliegue con la Mesa,
+  tenga o no bases de datos. Sin .agp/entra.yaml: entra = falta, aunque el
+  código no muestre señales de login.
+- Existe: debe ser YAML válido con apiVersion entra.agp/v1, login: required,
+  redirectUriPath, graphPermissions mínimos (User.Read, offline_access),
+  secrets con store key-vault y env con MSAL_CLIENT_ID, MSAL_TENANT_ID y
+  MSAL_CLIENT_SECRET solo por NOMBRE.
+- administradores: al menos una persona (el desarrollador funcional), con
+  nombre (como aparece en Teams) y correo corporativo @agpglass.com, máximo
+  cinco y sin repetidos. La Mesa los asigna al rol Admin de la app. Si falta:
+  entra = falta. Formato:
+      administradores:
+        - nombre: Nombre Apellido
+          correo: usuario@agpglass.com
+- login distinto de required, o status "definido-sin-implementar": entra =
+  falta. El login debe estar implementado para desplegar.
+- assignmentRequired: true por defecto. false solo se admite como prueba
+  temporal con el comentario TEMPORAL en el propio manifiesto.
 - Nunca pidas ni muestres valores de secretos, client ID reales ni tokens.
 ```
 
