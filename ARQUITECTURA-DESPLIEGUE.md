@@ -45,7 +45,7 @@ Quedan fuera de la norma, salvo excepción escrita de IT:
    `dist/` a la carpeta que la API sirve (`frontend_dist/`). Bases fijadas por digest, usuario sin privilegios, `HEALTHCHECK`.
 2. **La API sirve la pantalla**: archivos estáticos y `index.html` para toda ruta que no empiece por `api/`. Una ruta `api/...` desconocida sigue siendo 404 JSON.
 3. **El frontend llama a su propio origen** (URL relativa) cuando se compila para la imagen; en local usa `localhost`.
-4. **El login lo configura la API** con una ruta pública `GET /api/config` que devuelve solo tenant y cliente de Entra (nunca secretos).
+4. **El login es el estándar de AGP** (`templates/auth-estandar/`) y **lo configura la API** con una ruta pública `GET /api/config` que devuelve solo tenant y cliente de Entra (nunca secretos).
 5. **Un solo `.agp/profile.yaml`** `kind: container` (contexto en la raíz, `build.dockerfile: Dockerfile`) y un solo `.agp/runtime.yaml`.
 6. Healthcheck público y sin autenticación en la propia API (`/health` o `/api/health`); el puerto del perfil es el que escucha la imagen.
 

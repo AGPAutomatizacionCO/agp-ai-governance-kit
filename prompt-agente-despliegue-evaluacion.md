@@ -277,6 +277,15 @@ runtime             .agp/runtime.yaml (apiVersion runtime.agp/v1) existe si
                     valores. Sin él la API se despliega sin base y se cae al
                     arrancar (503). La Mesa asigna un rol de lectura por
                     secreto y el worker aplica referencias a Key Vault.
+auth_estandar       el desarrollo trae el login estándar de AGP (paquete de
+                    referencia: templates/auth-estandar/ de este kit). Perfil
+                    python-api (React + Flask): existen src/config/msal.js (con
+                    cargarConfigMsal), src/contexts/AuthContext.jsx,
+                    src/screens/LoginScreen.jsx y backend/src/helpers/auth.py
+                    (con require_auth), y package.json declara
+                    @azure/msal-browser. Si falta algo, falta: nombra cada
+                    archivo o dependencia ausente. Otros perfiles: no_aplica
+                    por ahora (el paquete se define por perfil).
 entra               ver regla de login más abajo.
 ```
 
@@ -298,8 +307,9 @@ Reporta solo la estructura:
   código no muestre señales de login.
 - Existe: debe ser YAML válido con apiVersion entra.agp/v1, login: required,
   redirectUriPath, graphPermissions mínimos (User.Read, offline_access),
-  secrets con store key-vault y env con MSAL_CLIENT_ID, MSAL_TENANT_ID y
-  MSAL_CLIENT_SECRET solo por NOMBRE.
+  secrets vacío (`secrets: []`: MSAL del navegador, PKCE, NO usa secreto de
+  cliente; solo se declara uno si el desarrollo es un cliente confidencial) y
+  env con MSAL_CLIENT_ID y MSAL_TENANT_ID solo por NOMBRE.
 - administradores: al menos una persona (el desarrollador funcional), con
   nombre (como aparece en Teams) y correo corporativo @agpglass.com, máximo
   cinco y sin repetidos. La Mesa los asigna al rol Admin de la app. Si falta:
