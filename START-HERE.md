@@ -240,6 +240,14 @@ Una aplicación = un repositorio = una imagen = un recurso de Azure. El frontend
 
 ---
 
+### 9.2 Login estándar de AGP
+
+Todo desarrollo con login usa el **login estándar de AGP**: el mismo de la Mesa, con el nombre propio del desarrollo. El paquete de referencia está en
+[templates/auth-estandar/](templates/auth-estandar/README.md) (React + Flask hoy; otros perfiles después). El agente no inventa un login propio ni cambia el
+diseño de la pantalla: copia el paquete al repositorio del desarrollo, en `main`, y declara a los administradores en `.agp/entra.yaml`. No hay secreto de cliente.
+
+---
+
 ## 10. Reglas de seguridad básica para todo desarrollo
 
 El agente debe advertir siempre:

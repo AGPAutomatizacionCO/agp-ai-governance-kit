@@ -1,0 +1,28 @@
+// src/main.jsx del desarrollo (ejemplo). El login se configura con lo que entrega la API; no hay identificadores escritos aquí.
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { MsalProvider } from "@azure/msal-react";
+import { cargarConfigMsal, getMsalInstance } from "./config/msal";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import LoginScreen from "./screens/LoginScreen";
+import App from "./App";
+
+// Con la imagen de un solo contenedor la API vive en el mismo origen: URL relativa.
+const API_URL = import.meta.env.VITE_MISMO_ORIGEN === "true" ? "" : (import.meta.env.VITE_API_URL || "http://localhost:5000");
+
+function Puerta() {
+  const { currentUser, authChecking } = useAuth();
+  if (authChecking) return <p style={{ padding: 24 }}>Cargando…</p>;
+  return currentUser ? <App /> : <LoginScreen />;
+}
+
+(async () => {
+  await cargarConfigMsal(API_URL);          // ANTES de crear la instancia de MSAL
+  ReactDOM.createRoot(document.getElementById("root")).render(
+    <MsalProvider instance={getMsalInstance()}>
+      <AuthProvider>
+        <Puerta />
+      </AuthProvider>
+    </MsalProvider>
+  );
+})();

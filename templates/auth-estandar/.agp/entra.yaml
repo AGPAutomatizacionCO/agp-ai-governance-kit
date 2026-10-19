@@ -1,0 +1,22 @@
+# Login Microsoft Entra ID del desarrollo (norma de IT: ver templates/auth-estandar/README.md).
+# La Mesa lo lee para el preflight y para la fase «entra». Solo NOMBRES: nada de valores ni secretos.
+apiVersion: entra.agp/v1
+login: required
+redirectUriPath: /                      # la SPA vuelve a la raíz del sitio (redirectUri = origen)
+logoutPath: /
+signInAudience: AzureADMyOrg            # un solo tenant (AGP)
+graphPermissions:                       # delegados, mínimos
+  - User.Read
+  - offline_access
+assignmentRequired: true                # false solo como prueba temporal, con el comentario TEMPORAL
+administradores:                        # desarrollador funcional = administrador de la app (al menos uno, máximo cinco)
+  - nombre: Nombre Apellido             # como aparece en Teams
+    correo: usuario@agpglass.com        # correo corporativo @agpglass.com
+accessGroup: pendiente-de-definir       # grupo de Entra ID con acceso; el resto de personas lo asigna IT
+secrets: []                             # MSAL del navegador (PKCE) no usa secreto de cliente
+env:
+  - MSAL_CLIENT_ID
+  - MSAL_TENANT_ID
+localDev:
+  login: usuario-de-desarrollo-fijo     # sin MSAL en local (DISABLE_AUTH=true, solo en tu equipo)
+  enabledBy: AGP_MSAL_ENABLED
