@@ -6,6 +6,7 @@ Este historial registra únicamente versiones publicadas o cambios preparados pa
 
 ### Preparación
 
+- Agente de despliegue: `administradores` en `.agp/entra.yaml` se pide siempre al responsable (nunca se infiere), y `.agp/runtime.yaml` se exige cuando el código lee variables de entorno sin valor utilizable, no solo si RequiereAccesoBD es true. Un desarrollo que fije un kit anterior al 2026-10-18 no recibe estas reglas: debe actualizar el pin.
 - Contrato de rutas del perfil explícito: `build.context` y `build.dockerfile` son rutas desde la raíz del repositorio y `az acr build --file` debe ser exactamente `build.dockerfile`. Descripciones en `schemas/profile-v1.schema.json` y regla en el prompt del agente de despliegue (la Mesa lo comprueba contra `dev-publish.yml` antes de publicar).
 - Login estándar de AGP: paquete de referencia `templates/auth-estandar/` (pantalla y flujo de la Mesa con el nombre propio del desarrollo, sin secreto de cliente; perfil `python-api`), regla en START-HERE 9.2 y requisito `auth_estandar` en el agente de despliegue. `.agp/entra.yaml` sin `MSAL_CLIENT_SECRET`. La pantalla trae sus propios estilos (`src/styles/login-estandar.css`) para verse igual en cualquier desarrollo.
 - Agente de despliegue: MSAL obligatorio para todo desarrollo (`.agp/entra.yaml` con `login: required` implementado y `administradores`), requisitos nuevos `runtime` (`.agp/runtime.yaml` con bases de datos reales) y `contexto_docker` (`.dockerignore` no excluye lo que el Dockerfile copia). Solo aplica a este agente.
