@@ -249,6 +249,17 @@ ci                  existe .github/workflows/ci.yml con trigger en main. Que
 publicacion         existe .github/workflows/dev-publish.yml con
                     workflow_dispatch e inputs run_id y expected_sha, y las
                     acciones de terceros fijadas por SHA de commit.
+                    Contrato de rutas: build.context y build.dockerfile del
+                    perfil son SIEMPRE rutas desde la raíz del repositorio,
+                    y `az acr build --file` se resuelve desde esa raíz (no
+                    desde el contexto). El `--file` del workflow debe ser
+                    exactamente build.dockerfile y el último argumento
+                    exactamente build.context, con el Dockerfile dentro del
+                    contexto. Ej.: context RPC, dockerfile
+                    RPC/docker/Dockerfile.prod →
+                    `az acr build ... --file RPC/docker/Dockerfile.prod RPC`.
+                    Si no coincide, repórtalo `falla` con la ruta esperada y
+                    la encontrada; no lo des por bueno por inspección.
 dockerfile          usuario no-root (USER), imagen base fijada por digest
                     (@sha256), EXPOSE igual al puerto del perfil.
 project_card        existe project-card.md.

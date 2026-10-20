@@ -13,8 +13,8 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "context": { "type": "string", "minLength": 1 },
-        "dockerfile": { "type": "string", "minLength": 1 },
+        "context": { "type": "string", "minLength": 1, "description": "Carpeta del contexto de build, como ruta desde la raíz del repositorio (\".\" si es la raíz)." },
+        "dockerfile": { "type": "string", "minLength": 1, "description": "Ruta del Dockerfile desde la raíz del repositorio (no desde build.context); debe quedar dentro de build.context. Es el valor exacto de `az acr build --file`." },
         "dependencyManifest": { "type": "string", "minLength": 1 },
         "lockfile": { "type": "string", "minLength": 1 },
         "sourceDir": { "type": "string", "minLength": 1 },
