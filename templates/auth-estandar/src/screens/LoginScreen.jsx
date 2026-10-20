@@ -3,6 +3,7 @@ import { useAuth } from "../contexts/AuthContext";
 import AgpLogo from "../components/AgpLogo";
 import Icon from "../components/Icon";
 import { appInfo } from "../config/msal";
+import "../styles/login-estandar.css";
 
 export default function LoginScreen() {
   const { login, loginError, loginLoading } = useAuth();

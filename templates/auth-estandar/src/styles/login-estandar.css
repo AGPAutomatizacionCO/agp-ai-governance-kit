@@ -1,0 +1,20 @@
+/* Estilos que necesita la pantalla de login estándar de AGP para verse IGUAL en cualquier desarrollo, sin depender del CSS global de la Mesa.
+   Todo va acotado a #login-screen: no cambia el resto de la aplicación. Reproduce lo que la Mesa define globalmente (reinicio de márgenes,
+   fuente, color de marca y la regla .screen.active); si cambia el diseño aprobado, se cambia aquí y en templates/auth-estandar del kit. */
+#login-screen {
+  --brand: #8FC5CF;
+  --text-on-brand: #0B2F36;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+#login-screen *, #login-screen *::before, #login-screen *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+#login-screen.screen.active {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}

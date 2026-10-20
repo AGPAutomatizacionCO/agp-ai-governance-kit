@@ -14,6 +14,7 @@ sin cambiar lo existente.
 | `src/config/msal.js` | `src/config/msal.js` | Configura MSAL con lo que entrega la API (`cargarConfigMsal`) y guarda el nombre (`appInfo`). |
 | `src/contexts/AuthContext.jsx` | `src/contexts/AuthContext.jsx` | Sesión: restauración silenciosa, `login`, `logout`, `getAuthToken`, `roles`, `isAdmin`. |
 | `src/screens/LoginScreen.jsx` | `src/screens/LoginScreen.jsx` | La pantalla de login aprobada, con el nombre del desarrollo. |
+| `src/styles/login-estandar.css` | `src/styles/login-estandar.css` | Los estilos que la pantalla toma del CSS global de la Mesa (color de marca, fuente, reinicio de márgenes). Va acotado a `#login-screen` y hace que la pantalla se vea **igual** en cualquier desarrollo. |
 | `src/components/AgpLogo.jsx`, `Icon.jsx` | `src/components/` | Piezas que usa la pantalla (si el desarrollo ya las tiene, no se pisan). |
 | `backend/src/helpers/auth.py` | `backend/src/helpers/auth.py` | `require_auth`: valida el `id_token` de Entra ID. |
 | `backend/src/flask_config/bp_base.py` | ídem (o agregar solo la ruta) | `GET /api/config` (público: tenant, cliente y nombre) y `/api/health`. |

@@ -281,8 +281,9 @@ auth_estandar       el desarrollo trae el login estándar de AGP (paquete de
                     referencia: templates/auth-estandar/ de este kit). Perfil
                     python-api (React + Flask): existen src/config/msal.js (con
                     cargarConfigMsal), src/contexts/AuthContext.jsx,
-                    src/screens/LoginScreen.jsx y backend/src/helpers/auth.py
-                    (con require_auth), y package.json declara
+                    src/screens/LoginScreen.jsx (que importa
+                    src/styles/login-estandar.css), src/styles/login-estandar.css
+                    y backend/src/helpers/auth.py (con require_auth), y package.json declara
                     @azure/msal-browser. Si falta algo, falta: nombra cada
                     archivo o dependencia ausente. Otros perfiles: no_aplica
                     por ahora (el paquete se define por perfil).
