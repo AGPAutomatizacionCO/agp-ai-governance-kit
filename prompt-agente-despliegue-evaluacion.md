@@ -330,16 +330,15 @@ Reporta solo la estructura:
   env con MSAL_CLIENT_ID y MSAL_TENANT_ID solo por NOMBRE.
 - administradores: SIEMPRE, con o sin bases de datos y con cualquier versión
   del kit fijada en .agp/governance.yaml. Al menos una persona (el
-  desarrollador funcional), con nombre (como aparece en Teams) y correo
-  corporativo @agpglass.com, máximo cinco y sin repetidos. La Mesa los asigna
-  al rol Admin de la app. Si falta: entra = falta. Esos datos solo los conoce
-  el responsable: PÍDESELOS antes de escribir el archivo (nombre y correo de
-  cada administrador); nunca los infieras del repositorio, del autor de los
-  commits ni de un correo `noreply`, y si no los tienes deja entra = falta.
-  Formato:
+  desarrollador funcional), con su correo corporativo @agpglass.com, máximo
+  cinco y sin repetidos. El `nombre` es OPCIONAL: la Mesa asigna el rol Admin
+  de la app por correo y toma el nombre de Entra ID. Si falta el correo:
+  entra = falta. Ese dato solo lo conoce el responsable: PÍDESELO antes de
+  escribir el archivo (el correo de cada administrador); nunca lo infieras del
+  repositorio, del autor de los commits ni de un correo `noreply`, y si no lo
+  tienes deja entra = falta. Formato:
       administradores:
-        - nombre: Nombre Apellido
-          correo: usuario@agpglass.com
+        - correo: usuario@agpglass.com
 - login distinto de required, o status "definido-sin-implementar": entra =
   falta. El login debe estar implementado para desplegar.
 - assignmentRequired: true por defecto. false solo se admite como prueba
