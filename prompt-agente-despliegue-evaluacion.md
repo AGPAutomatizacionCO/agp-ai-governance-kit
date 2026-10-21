@@ -275,6 +275,20 @@ manifiesto_datos    ai/outputs/data-access-manifest.json existe si
                     propias. Usar bases de datos reales no es un hallazgo.
                     La Mesa lo valida igual y, al completar la validación y
                     solicitar el despliegue, lo registra en Fuente de datos.
+                    Tablas PROPIAS que se crean en el despliegue: sigue
+                    NOMENCLATURA-DATOS.md. Marca cada una con
+                    `crear_en_despliegue: true`, esquema `app_<area>_<desarrollo>`,
+                    nombre `App_<Área>_<Desarrollo>_<tabla>` y, en cada columna,
+                    `tipo` de la lista cerrada del esquema (más `nulable`,
+                    `clave_primaria` y `referencia` si aplican). Léelos de los
+                    modelos/migraciones del código; si no hay evidencia del tipo,
+                    no lo inventes: deja la tabla sin `crear_en_despliegue` y dilo.
+                    `operaciones_permitidas` es lo que el código ejecuta de verdad,
+                    tabla por tabla (IT lo convierte en permisos al aprobar el
+                    plan). Las tablas `preexistentes` conservan su nombre y no
+                    llevan `crear_en_despliegue`. Un desarrollo no escribe en
+                    tablas preexistentes salvo excepción aprobada por IT: si el
+                    código lo hace, dilo con el nombre de la tabla.
 contexto_docker     el .dockerignore del contexto del perfil (si existe) NO excluye
                     lo que el Dockerfile copia con COPY/ADD. Patrones como
                     *.json, *.html o *.md excluyen package.json, index.html o
