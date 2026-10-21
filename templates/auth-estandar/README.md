@@ -28,8 +28,8 @@ Dependencias: frontend `@azure/msal-browser`; backend `PyJWT[crypto]` y `request
    (ver `main.jsx.example`). Con la imagen de un solo contenedor `API_URL` es `""` (mismo origen).
 2. En la app: si `authChecking` muestra «cargando»; si no hay `currentUser`, `<LoginScreen />`; si lo hay, la aplicación.
 3. En cada llamada a la API: `Authorization: Bearer ${await getAuthToken()}`; en cada ruta protegida: `@require_auth`.
-4. `.agp/entra.yaml`: declara **al menos un administrador** (desarrollador funcional) con el nombre como aparece en Teams y su correo
-   @agpglass.com. **No hay secreto de cliente** (`secrets: []`).
+4. `.agp/entra.yaml`: declara **al menos un administrador** (desarrollador funcional) con su correo
+   @agpglass.com (el nombre es opcional: la Mesa lo toma de Entra ID). **No hay secreto de cliente** (`secrets: []`).
 
 ## Qué hace la Mesa al desplegar (el desarrollo no necesita acceso a Azure)
 

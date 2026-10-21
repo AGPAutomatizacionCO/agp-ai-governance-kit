@@ -281,10 +281,16 @@ contexto_docker     el .dockerignore del contexto del perfil (si existe) NO excl
                     README.md: el build falla con «COPY failed: file does not
                     exist». Cada archivo copiado debe quedar reincluido con
                     «!archivo». Nombra los archivos excluidos en el detalle.
-runtime             .agp/runtime.yaml (apiVersion runtime.agp/v1) existe si
-                    RequiereAccesoBD es true (`no_aplica` si es false): declara
-                    por NOMBRE las variables (env) y los secretos (secrets:
-                    variable ← secreto del vault de desarrollos). Nunca
+runtime             .agp/runtime.yaml (apiVersion runtime.agp/v1): se exige
+                    siempre que el código lea variables de entorno sin valor
+                    por defecto utilizable (cadenas de conexión, claves de
+                    API, secretos de firma), tenga o no RequiereAccesoBD; si
+                    no lee ninguna, `no_aplica`. Lista cada variable que el
+                    código lee y declárala por NOMBRE: las no secretas en env
+                    y los secretos en secrets (variable ← secreto del vault
+                    de desarrollos). Si el desarrollo usa su propia base
+                    (p. ej. SQLite) y no una de las fuentes de AGP, dilo así
+                    y no inventes secretos de bases corporativas. Nunca
                     valores. Sin él la API se despliega sin base y se cae al
                     arrancar (503). La Mesa asigna un rol de lectura por
                     secreto y el worker aplica referencias a Key Vault.
@@ -322,13 +328,21 @@ Reporta solo la estructura:
   secrets vacío (`secrets: []`: MSAL del navegador, PKCE, NO usa secreto de
   cliente; solo se declara uno si el desarrollo es un cliente confidencial) y
   env con MSAL_CLIENT_ID y MSAL_TENANT_ID solo por NOMBRE.
-- administradores: al menos una persona (el desarrollador funcional), con
-  nombre (como aparece en Teams) y correo corporativo @agpglass.com, máximo
-  cinco y sin repetidos. La Mesa los asigna al rol Admin de la app. Si falta:
-  entra = falta. Formato:
+- administradores: SIEMPRE, con o sin bases de datos y con cualquier versión
+  del kit fijada en .agp/governance.yaml. Al menos una persona (el
+  desarrollador funcional), con su correo corporativo @agpglass.com, máximo
+  cinco y sin repetidos. El Responsable registrado en la Mesa (el
+  desarrollador funcional del panel de desarrollo autónomo) YA es administrador
+  de su desarrollo y la Mesa lo agrega sola: no lo escribas; `administradores`
+  lista a las demás personas que también administran. El `nombre` es OPCIONAL:
+  la Mesa asigna el rol Admin de la app por correo y toma el nombre de Entra
+  ID. Sin Responsable con correo corporativo en la Mesa, hace falta al menos
+  un administrador declarado: entra = falta si no hay ninguno. Ese dato solo lo
+  conoce el responsable: PÍDESELO antes de escribir el archivo (quién más
+  administra); nunca lo infieras del repositorio, del autor de los commits ni
+  de un correo `noreply`. Formato:
       administradores:
-        - nombre: Nombre Apellido
-          correo: usuario@agpglass.com
+        - correo: usuario@agpglass.com
 - login distinto de required, o status "definido-sin-implementar": entra =
   falta. El login debe estar implementado para desplegar.
 - assignmentRequired: true por defecto. false solo se admite como prueba
