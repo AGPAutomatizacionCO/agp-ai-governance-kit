@@ -1,0 +1,47 @@
+{
+  "$comment": "Ejemplo ilustrativo con datos ficticios — no corresponde a ningún desarrollo real de AGP. Muestra tablas PROPIAS que la Mesa crea en el despliegue (crear_en_despliegue=true) según NOMENCLATURA-DATOS.md: esquema app_<area>_<desarrollo>, tablas App_<Área>_<Desarrollo>_<tabla> y tipo de cada columna.",
+  "desarrollo": "ejemplo-gestor-solicitudes",
+  "fuentes_datos": [
+    {
+      "database_id": "colsap",
+      "server": "ejemplo-sql.database.windows.net",
+      "database": "DB_EJEMPLO",
+      "motor": "Azure SQL (mssql+pyodbc)",
+      "esquemas": [
+        {
+          "schema": "app_manufacturing_gestorsolicitudes",
+          "tablas": [
+            {
+              "table": "App_Manufacturing_GestorSolicitudes_solicitudes",
+              "origen": "propia_del_desarrollo",
+              "crear_en_despliegue": true,
+              "descripcion": "Solicitudes registradas por el personal de planta",
+              "sensibilidad": "media",
+              "operaciones_permitidas": ["SELECT", "INSERT", "UPDATE"],
+              "columnas": [
+                { "name": "id", "sensible": false, "tipo": "bigint", "clave_primaria": true },
+                { "name": "titulo", "sensible": false, "tipo": "nvarchar(200)", "nulable": false },
+                { "name": "solicitante_correo", "sensible": true, "categoria": "PII", "tipo": "nvarchar(320)", "nulable": false },
+                { "name": "creado_en", "sensible": false, "tipo": "datetime2", "nulable": false }
+              ]
+            },
+            {
+              "table": "App_Manufacturing_GestorSolicitudes_historial",
+              "origen": "propia_del_desarrollo",
+              "crear_en_despliegue": true,
+              "descripcion": "Cambios de estado de cada solicitud (solo se agregan filas)",
+              "sensibilidad": "baja",
+              "operaciones_permitidas": ["SELECT", "INSERT"],
+              "columnas": [
+                { "name": "id", "sensible": false, "tipo": "bigint", "clave_primaria": true },
+                { "name": "solicitud_id", "sensible": false, "tipo": "bigint", "nulable": false, "referencia": "App_Manufacturing_GestorSolicitudes_solicitudes.id" },
+                { "name": "estado", "sensible": false, "tipo": "nvarchar(40)", "nulable": false },
+                { "name": "cambiado_en", "sensible": false, "tipo": "datetime2", "nulable": false }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -4,7 +4,10 @@
   "title": "Mapeo de acceso a datos de un desarrollo",
   "description": "Estructura jerárquica (servidor → base de datos → esquema → tabla → columna) que declara qué datos toca un desarrollo y con qué operación. La genera el Agente de Despliegue leyendo el código real del repositorio (ver prompt-agente-despliegue-evaluacion.md, campo MapeoAccesoBD) — nunca se completa a mano ni se infiere por convención, mismo principio rector que el resto del agente (ver agent-despliegue.md sección 2). Pensado para que Panel Gobernanza (apartado Fuentes de datos) y el backend de Gobernanza AI puedan configurar control de acceso por tabla/columna sin pedirle al desarrollador la lista de tablas por separado.",
   "type": "object",
-  "required": ["desarrollo", "fuentes_datos"],
+  "required": [
+    "desarrollo",
+    "fuentes_datos"
+  ],
   "properties": {
     "desarrollo": {
       "type": "string",
@@ -13,44 +16,120 @@
     "fuentes_datos": {
       "type": "array",
       "description": "Una entrada por servidor/base de datos distinto que el repositorio toca. Vacío si RequiereAccesoBD es false.",
-      "items": { "$ref": "#/$defs/fuenteDatos" }
+      "items": {
+        "$ref": "#/$defs/fuenteDatos"
+      }
     }
   },
   "$defs": {
     "fuenteDatos": {
       "type": "object",
-      "required": ["database_id", "server", "database", "esquemas"],
+      "required": [
+        "database_id",
+        "server",
+        "database",
+        "esquemas"
+      ],
       "properties": {
         "database_id": {
           "type": "string",
           "pattern": "^[a-z0-9_-]+$",
           "description": "Identificador corto y estable de la fuente (ej. \"rrhh\", \"colsap\") — el mismo que usarían las herramientas de gobernanza para referenciarla, no un nombre libre."
         },
-        "server": { "type": ["string", "null"], "description": "Host del servidor (ej. agpcolombia.database.windows.net). null si no hay evidencia textual del host real." },
-        "database": { "type": ["string", "null"], "description": "null si no hay evidencia textual del nombre real de la base (mismo criterio que server)." },
+        "server": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Host del servidor (ej. agpcolombia.database.windows.net). null si no hay evidencia textual del host real."
+        },
+        "database": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "null si no hay evidencia textual del nombre real de la base (mismo criterio que server)."
+        },
         "motor": {
           "type": "string",
           "description": "Motor + driver detectado, en una frase (ej. \"Azure SQL (mssql+pyodbc)\", \"PostgreSQL vía SQLAlchemy 2.0\")."
         },
-        "esquemas": { "type": "array", "items": { "$ref": "#/$defs/esquema" } }
+        "esquemas": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/esquema"
+          }
+        }
       }
     },
     "esquema": {
       "type": "object",
-      "required": ["schema", "tablas"],
+      "required": [
+        "schema",
+        "tablas"
+      ],
       "properties": {
-        "schema": { "type": "string" },
-        "tablas": { "type": "array", "items": { "$ref": "#/$defs/tabla" } }
-      }
+        "schema": {
+          "type": "string"
+        },
+        "tablas": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tabla"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "tablas": {
+                "contains": {
+                  "required": [
+                    "crear_en_despliegue"
+                  ],
+                  "properties": {
+                    "crear_en_despliegue": {
+                      "const": true
+                    }
+                  }
+                }
+              }
+            },
+            "required": [
+              "tablas"
+            ]
+          },
+          "then": {
+            "properties": {
+              "schema": {
+                "pattern": "^app_[a-z0-9]+_[a-z0-9]+$",
+                "description": "Esquema propio del desarrollo: app_<area>_<desarrollo> en minúsculas (ver NOMENCLATURA-DATOS.md)."
+              }
+            }
+          }
+        }
+      ]
     },
     "tabla": {
       "type": "object",
-      "required": ["table", "origen", "sensibilidad", "operaciones_permitidas", "columnas"],
+      "required": [
+        "table",
+        "origen",
+        "sensibilidad",
+        "operaciones_permitidas",
+        "columnas"
+      ],
       "properties": {
-        "table": { "type": "string" },
+        "table": {
+          "type": "string"
+        },
         "origen": {
           "type": "string",
-          "enum": ["propia_del_desarrollo", "preexistente"],
+          "enum": [
+            "propia_del_desarrollo",
+            "preexistente"
+          ],
           "description": "\"propia_del_desarrollo\" si este mismo repositorio la crea (migración/script de creación propio) — es una tabla exclusiva de este desarrollo. \"preexistente\" si ya existía y el desarrollo solo la consulta/alimenta como fuente externa. operaciones_permitidas ya sugiere cuál es (solo INSERT sin SELECT previo suele ser nueva), pero este campo debe quedar explícito, no inferido por quien lea el JSON."
         },
         "descripcion": {
@@ -59,26 +138,115 @@
         },
         "sensibilidad": {
           "type": "string",
-          "enum": ["ninguna", "baja", "media", "alta"],
+          "enum": [
+            "ninguna",
+            "baja",
+            "media",
+            "alta"
+          ],
           "description": "El nivel más alto entre las columnas de la tabla — ver criterios en columna.categoria."
         },
         "operaciones_permitidas": {
           "type": "array",
-          "items": { "type": "string", "enum": ["SELECT", "INSERT", "UPDATE", "DELETE"] },
+          "items": {
+            "type": "string",
+            "enum": [
+              "SELECT",
+              "INSERT",
+              "UPDATE",
+              "DELETE"
+            ]
+          },
           "description": "Lo que el código del repositorio REALMENTE ejecuta contra esta tabla (visto en queries/ORM) — un hecho observado, no un permiso deseado ni una recomendación."
         },
-        "columnas": { "type": "array", "items": { "$ref": "#/$defs/columna" } }
-      }
+        "columnas": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/columna"
+          }
+        },
+        "crear_en_despliegue": {
+          "type": "boolean",
+          "description": "true si la Mesa debe crear esta tabla en el despliegue a partir de este manifiesto. Exige origen propia_del_desarrollo, el nombre App_<Área>_<Desarrollo>_<tabla> y el tipo de cada columna (ver NOMENCLATURA-DATOS.md). Si falta o es false, el manifiesto solo describe la tabla."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "crear_en_despliegue"
+            ],
+            "properties": {
+              "crear_en_despliegue": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "origen": {
+                "const": "propia_del_desarrollo"
+              },
+              "table": {
+                "pattern": "^App_[A-Za-z0-9]+_[A-Za-z0-9]+_[A-Za-z][A-Za-z0-9_]{0,100}$"
+              },
+              "columnas": {
+                "minItems": 1,
+                "items": {
+                  "required": [
+                    "name",
+                    "sensible",
+                    "tipo"
+                  ],
+                  "properties": {
+                    "name": {
+                      "pattern": "^[A-Za-z][A-Za-z0-9_]{0,127}$"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
     },
     "columna": {
       "type": "object",
-      "required": ["name", "sensible"],
+      "required": [
+        "name",
+        "sensible"
+      ],
       "properties": {
-        "name": { "type": "string" },
-        "sensible": { "type": "boolean" },
+        "name": {
+          "type": "string"
+        },
+        "sensible": {
+          "type": "boolean"
+        },
         "categoria": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "description": "Solo si sensible=true. Ej.: PII, PII-nacional, credenciales, financiero, salud, biometrico, derivado-IA. null si sensible=false."
+        },
+        "tipo": {
+          "type": "string",
+          "pattern": "^(int|bigint|smallint|tinyint|bit|date|datetime2|uniqueidentifier|float|real|nvarchar\\((max|4000|[1-3][0-9]{3}|[1-9][0-9]{0,2})\\)|varchar\\((max|8000|[1-7][0-9]{3}|[1-9][0-9]{0,2})\\)|decimal\\(([1-9]|[12][0-9]|3[0-8]),([0-9]|[12][0-9]|3[0-8])\\)|varbinary\\((max|[1-9][0-9]{0,3})\\))$",
+          "description": "Tipo T-SQL de una lista cerrada (int, bigint, smallint, tinyint, bit, date, datetime2, uniqueidentifier, float, real, nvarchar(n|max), varchar(n|max), decimal(p,s), varbinary(n|max)). Obligatorio solo si la tabla lleva crear_en_despliegue=true."
+        },
+        "nulable": {
+          "type": "boolean",
+          "description": "Si la columna acepta NULL. Por defecto true, salvo clave primaria."
+        },
+        "clave_primaria": {
+          "type": "boolean",
+          "description": "Si la columna es parte de la clave primaria de la tabla."
+        },
+        "referencia": {
+          "type": "string",
+          "pattern": "^App_[A-Za-z0-9]+_[A-Za-z0-9]+_[A-Za-z][A-Za-z0-9_]*\\.[A-Za-z][A-Za-z0-9_]*$",
+          "description": "Clave foránea a otra tabla PROPIA del mismo manifiesto, con formato tabla.columna."
         }
       }
     }
