@@ -88,3 +88,14 @@ class NomenclaturaDatosTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AutoincrementalTests(unittest.TestCase):
+    def test_el_ejemplo_declara_identidad_y_sigue_siendo_valido(self):
+        self.assertTrue(_tabla(CREAR)["columnas"][0]["autoincremental"])
+        self.assertEqual([], _errores(CREAR))
+
+    def test_autoincremental_debe_ser_booleano(self):
+        malo = copy.deepcopy(CREAR)
+        _tabla(malo)["columnas"][0]["autoincremental"] = "si"
+        self.assertNotEqual([], _errores(malo))

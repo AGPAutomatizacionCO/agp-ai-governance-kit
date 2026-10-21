@@ -243,6 +243,10 @@
           "type": "boolean",
           "description": "Si la columna es parte de la clave primaria de la tabla."
         },
+        "autoincremental": {
+          "type": "boolean",
+          "description": "Si el motor genera el valor (IDENTITY). Solo para una clave primaria de tipo int, bigint, smallint o tinyint."
+        },
         "referencia": {
           "type": "string",
           "pattern": "^App_[A-Za-z0-9]+_[A-Za-z0-9]+_[A-Za-z][A-Za-z0-9_]*\\.[A-Za-z][A-Za-z0-9_]*$",

@@ -19,7 +19,7 @@
               "sensibilidad": "media",
               "operaciones_permitidas": ["SELECT", "INSERT", "UPDATE"],
               "columnas": [
-                { "name": "id", "sensible": false, "tipo": "bigint", "clave_primaria": true },
+                { "name": "id", "sensible": false, "tipo": "bigint", "clave_primaria": true, "autoincremental": true },
                 { "name": "titulo", "sensible": false, "tipo": "nvarchar(200)", "nulable": false },
                 { "name": "solicitante_correo", "sensible": true, "categoria": "PII", "tipo": "nvarchar(320)", "nulable": false },
                 { "name": "creado_en", "sensible": false, "tipo": "datetime2", "nulable": false }
@@ -33,7 +33,7 @@
               "sensibilidad": "baja",
               "operaciones_permitidas": ["SELECT", "INSERT"],
               "columnas": [
-                { "name": "id", "sensible": false, "tipo": "bigint", "clave_primaria": true },
+                { "name": "id", "sensible": false, "tipo": "bigint", "clave_primaria": true, "autoincremental": true },
                 { "name": "solicitud_id", "sensible": false, "tipo": "bigint", "nulable": false, "referencia": "App_Manufacturing_GestorSolicitudes_solicitudes.id" },
                 { "name": "estado", "sensible": false, "tipo": "nvarchar(40)", "nulable": false },
                 { "name": "cambiado_en", "sensible": false, "tipo": "datetime2", "nulable": false }

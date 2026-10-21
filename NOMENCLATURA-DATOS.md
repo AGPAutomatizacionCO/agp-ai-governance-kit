@@ -40,8 +40,9 @@ preexistentes conservan su nombre.
 Una tabla propia que debe crearse en el despliegue lleva `"crear_en_despliegue": true`. Entonces:
 
 - `origen` debe ser `propia_del_desarrollo`, el esquema debe cumplir el formato anterior y la tabla el prefijo.
-- Cada columna declara `tipo` (de una lista cerrada, ver el esquema JSON), y opcionalmente `nulable`, `clave_primaria` y `referencia`
-  (`"tabla.columna"` de otra tabla propia del mismo manifiesto).
+- Cada columna declara `tipo` (de una lista cerrada, ver el esquema JSON), y opcionalmente `nulable`, `clave_primaria`, `autoincremental`
+  (identidad: solo en una clave primaria entera) y `referencia` (`"tabla.columna"` de otra tabla propia del mismo manifiesto). Cada tabla
+  necesita una clave primaria. No se declaran valores por defecto, índices ni restricciones únicas: no los crea la Mesa.
 - `operaciones_permitidas` es lo que el código ejecuta realmente. IT lo convierte en permiso al aprobar el plan: los `GRANT` se
   generan tabla por tabla y operación por operación, nunca a nivel de esquema.
 
