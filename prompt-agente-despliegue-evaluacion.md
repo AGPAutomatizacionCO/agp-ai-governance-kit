@@ -331,12 +331,16 @@ Reporta solo la estructura:
 - administradores: SIEMPRE, con o sin bases de datos y con cualquier versión
   del kit fijada en .agp/governance.yaml. Al menos una persona (el
   desarrollador funcional), con su correo corporativo @agpglass.com, máximo
-  cinco y sin repetidos. El `nombre` es OPCIONAL: la Mesa asigna el rol Admin
-  de la app por correo y toma el nombre de Entra ID. Si falta el correo:
-  entra = falta. Ese dato solo lo conoce el responsable: PÍDESELO antes de
-  escribir el archivo (el correo de cada administrador); nunca lo infieras del
-  repositorio, del autor de los commits ni de un correo `noreply`, y si no lo
-  tienes deja entra = falta. Formato:
+  cinco y sin repetidos. El Responsable registrado en la Mesa (el
+  desarrollador funcional del panel de desarrollo autónomo) YA es administrador
+  de su desarrollo y la Mesa lo agrega sola: no lo escribas; `administradores`
+  lista a las demás personas que también administran. El `nombre` es OPCIONAL:
+  la Mesa asigna el rol Admin de la app por correo y toma el nombre de Entra
+  ID. Sin Responsable con correo corporativo en la Mesa, hace falta al menos
+  un administrador declarado: entra = falta si no hay ninguno. Ese dato solo lo
+  conoce el responsable: PÍDESELO antes de escribir el archivo (quién más
+  administra); nunca lo infieras del repositorio, del autor de los commits ni
+  de un correo `noreply`. Formato:
       administradores:
         - correo: usuario@agpglass.com
 - login distinto de required, o status "definido-sin-implementar": entra =

@@ -9,7 +9,7 @@ graphPermissions:                       # delegados, mínimos
   - User.Read
   - offline_access
 assignmentRequired: true                # false solo como prueba temporal, con el comentario TEMPORAL
-administradores:                        # desarrollador funcional = administrador de la app (al menos uno, máximo cinco)
+administradores:                        # SOLO las demás personas que administran (máximo cinco): el Responsable registrado en la Mesa ya es administrador y se agrega solo
   - correo: usuario@agpglass.com        # correo corporativo @agpglass.com; `nombre` es opcional (la Mesa lo toma de Entra ID)
 accessGroup: pendiente-de-definir       # grupo de Entra ID con acceso; el resto de personas lo asigna IT
 secrets: []                             # MSAL del navegador (PKCE) no usa secreto de cliente
