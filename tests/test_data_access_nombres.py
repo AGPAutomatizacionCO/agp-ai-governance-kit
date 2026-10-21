@@ -99,3 +99,38 @@ class AutoincrementalTests(unittest.TestCase):
         malo = copy.deepcopy(CREAR)
         _tabla(malo)["columnas"][0]["autoincremental"] = "si"
         self.assertNotEqual([], _errores(malo))
+
+
+class IntegridadTests(unittest.TestCase):
+    def test_el_ejemplo_declara_unicidad_indices_y_valor_por_defecto_y_es_valido(self):
+        tabla = _tabla(CREAR)
+        columnas = {c["name"]: c for c in tabla["columnas"]}
+        self.assertTrue(columnas["codigo"]["unico"] and columnas["titulo"]["indice"])
+        self.assertEqual("abierta", columnas["estado"]["valor_por_defecto"])
+        self.assertEqual(["solicitante_correo", "titulo"], tabla["restricciones_unicas"][0]["columnas"])
+        self.assertEqual([], _errores(CREAR))
+
+    def test_las_restricciones_compuestas_exigen_dos_o_mas_columnas_y_nombres_validos(self):
+        for lista in ([{"columnas": ["solo_una"]}], [{"columnas": ["a", "b c"]}], [{"columnas": ["a", "b"], "extra": 1}], [{"nombres": ["a", "b"]}]):
+            malo = copy.deepcopy(CREAR)
+            _tabla(malo)["restricciones_unicas"] = lista
+            self.assertNotEqual([], _errores(malo), lista)
+            malo = copy.deepcopy(CREAR)
+            _tabla(malo)["indices"] = lista
+            self.assertNotEqual([], _errores(malo), lista)
+
+    def test_valor_por_defecto_solo_texto_simple_o_la_funcion_permitida(self):
+        for valor in ("x'; DROP TABLE t;--", "GETDATE()", "(select 1)", "a" * 101):
+            malo = copy.deepcopy(CREAR)
+            _tabla(malo)["columnas"][1]["valor_por_defecto"] = valor
+            self.assertNotEqual([], _errores(malo), valor)
+        for valor in (0, 1.5, True, "abierta", "SYSUTCDATETIME()"):
+            bueno = copy.deepcopy(CREAR)
+            _tabla(bueno)["columnas"][1]["valor_por_defecto"] = valor
+            self.assertEqual([], _errores(bueno), valor)
+
+    def test_unico_e_indice_deben_ser_booleanos(self):
+        for campo in ("unico", "indice"):
+            malo = copy.deepcopy(CREAR)
+            _tabla(malo)["columnas"][1][campo] = "si"
+            self.assertNotEqual([], _errores(malo), campo)

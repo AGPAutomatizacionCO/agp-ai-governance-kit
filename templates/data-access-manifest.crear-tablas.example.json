@@ -17,12 +17,61 @@
               "crear_en_despliegue": true,
               "descripcion": "Solicitudes registradas por el personal de planta",
               "sensibilidad": "media",
-              "operaciones_permitidas": ["SELECT", "INSERT", "UPDATE"],
+              "operaciones_permitidas": [
+                "SELECT",
+                "INSERT",
+                "UPDATE"
+              ],
               "columnas": [
-                { "name": "id", "sensible": false, "tipo": "bigint", "clave_primaria": true, "autoincremental": true },
-                { "name": "titulo", "sensible": false, "tipo": "nvarchar(200)", "nulable": false },
-                { "name": "solicitante_correo", "sensible": true, "categoria": "PII", "tipo": "nvarchar(320)", "nulable": false },
-                { "name": "creado_en", "sensible": false, "tipo": "datetime2", "nulable": false }
+                {
+                  "name": "id",
+                  "sensible": false,
+                  "tipo": "bigint",
+                  "clave_primaria": true,
+                  "autoincremental": true
+                },
+                {
+                  "name": "titulo",
+                  "sensible": false,
+                  "tipo": "nvarchar(200)",
+                  "nulable": false,
+                  "indice": true
+                },
+                {
+                  "name": "solicitante_correo",
+                  "sensible": true,
+                  "categoria": "PII",
+                  "tipo": "nvarchar(320)",
+                  "nulable": false
+                },
+                {
+                  "name": "creado_en",
+                  "sensible": false,
+                  "tipo": "datetime2",
+                  "nulable": false
+                },
+                {
+                  "name": "estado",
+                  "sensible": false,
+                  "tipo": "nvarchar(40)",
+                  "nulable": false,
+                  "valor_por_defecto": "abierta"
+                },
+                {
+                  "name": "codigo",
+                  "sensible": false,
+                  "tipo": "nvarchar(30)",
+                  "nulable": false,
+                  "unico": true
+                }
+              ],
+              "restricciones_unicas": [
+                {
+                  "columnas": [
+                    "solicitante_correo",
+                    "titulo"
+                  ]
+                }
               ]
             },
             {
@@ -31,12 +80,45 @@
               "crear_en_despliegue": true,
               "descripcion": "Cambios de estado de cada solicitud (solo se agregan filas)",
               "sensibilidad": "baja",
-              "operaciones_permitidas": ["SELECT", "INSERT"],
+              "operaciones_permitidas": [
+                "SELECT",
+                "INSERT"
+              ],
               "columnas": [
-                { "name": "id", "sensible": false, "tipo": "bigint", "clave_primaria": true, "autoincremental": true },
-                { "name": "solicitud_id", "sensible": false, "tipo": "bigint", "nulable": false, "referencia": "App_Manufacturing_GestorSolicitudes_solicitudes.id" },
-                { "name": "estado", "sensible": false, "tipo": "nvarchar(40)", "nulable": false },
-                { "name": "cambiado_en", "sensible": false, "tipo": "datetime2", "nulable": false }
+                {
+                  "name": "id",
+                  "sensible": false,
+                  "tipo": "bigint",
+                  "clave_primaria": true,
+                  "autoincremental": true
+                },
+                {
+                  "name": "solicitud_id",
+                  "sensible": false,
+                  "tipo": "bigint",
+                  "nulable": false,
+                  "referencia": "App_Manufacturing_GestorSolicitudes_solicitudes.id"
+                },
+                {
+                  "name": "estado",
+                  "sensible": false,
+                  "tipo": "nvarchar(40)",
+                  "nulable": false
+                },
+                {
+                  "name": "cambiado_en",
+                  "sensible": false,
+                  "tipo": "datetime2",
+                  "nulable": false
+                }
+              ],
+              "indices": [
+                {
+                  "columnas": [
+                    "solicitud_id",
+                    "cambiado_en"
+                  ]
+                }
               ]
             }
           ]

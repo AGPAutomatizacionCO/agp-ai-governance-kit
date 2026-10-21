@@ -168,6 +168,52 @@
         "crear_en_despliegue": {
           "type": "boolean",
           "description": "true si la Mesa debe crear esta tabla en el despliegue a partir de este manifiesto. Exige origen propia_del_desarrollo, el nombre App_<Área>_<Desarrollo>_<tabla> y el tipo de cada columna (ver NOMENCLATURA-DATOS.md). Si falta o es false, el manifiesto solo describe la tabla."
+        },
+        "restricciones_unicas": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "required": [
+              "columnas"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "columnas": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 8,
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_]{0,127}$"
+                }
+              }
+            }
+          },
+          "description": "Restricciones UNIQUE de dos o más columnas. Las de una sola columna se declaran con unico:true en la columna."
+        },
+        "indices": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "required": [
+              "columnas"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "columnas": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 8,
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_]{0,127}$"
+                }
+              }
+            }
+          },
+          "description": "Índices no únicos de dos o más columnas. Los de una sola columna se declaran con indice:true en la columna."
         }
       },
       "allOf": [
@@ -251,6 +297,24 @@
           "type": "string",
           "pattern": "^App_[A-Za-z0-9]+_[A-Za-z0-9]+_[A-Za-z][A-Za-z0-9_]*\\.[A-Za-z][A-Za-z0-9_]*$",
           "description": "Clave foránea a otra tabla PROPIA del mismo manifiesto, con formato tabla.columna."
+        },
+        "unico": {
+          "type": "boolean",
+          "description": "Restricción UNIQUE de una sola columna. En una tabla a crear, la columna no puede ser nvarchar(max)/varchar(max)/varbinary(max) y la clave no puede pasar de 1700 bytes."
+        },
+        "indice": {
+          "type": "boolean",
+          "description": "Índice no único de una sola columna (mismas restricciones de tipo y tamaño que unico)."
+        },
+        "valor_por_defecto": {
+          "type": [
+            "integer",
+            "number",
+            "boolean",
+            "string"
+          ],
+          "pattern": "^([A-Za-z0-9 _.:-]{0,100}|SYSUTCDATETIME[(][)])$",
+          "description": "Valor por defecto: número, booleano, texto corto de caracteres simples o SYSUTCDATETIME() (solo datetime2/date). No admite expresiones libres."
         }
       }
     }

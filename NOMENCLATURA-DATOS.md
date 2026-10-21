@@ -42,7 +42,13 @@ Una tabla propia que debe crearse en el despliegue lleva `"crear_en_despliegue":
 - `origen` debe ser `propia_del_desarrollo`, el esquema debe cumplir el formato anterior y la tabla el prefijo.
 - Cada columna declara `tipo` (de una lista cerrada, ver el esquema JSON), y opcionalmente `nulable`, `clave_primaria`, `autoincremental`
   (identidad: solo en una clave primaria entera) y `referencia` (`"tabla.columna"` de otra tabla propia del mismo manifiesto). Cada tabla
-  necesita una clave primaria. No se declaran valores por defecto, índices ni restricciones únicas: no los crea la Mesa.
+  necesita una clave primaria.
+- Integridad y rendimiento: `unico` e `indice` (una columna) y, en la tabla, `restricciones_unicas` e `indices` (dos o más columnas);
+  `valor_por_defecto` (número, booleano, texto corto de caracteres simples o `SYSUTCDATETIME()`). Una columna en una clave única o en un
+  índice **no puede ser `nvarchar(max)`, `varchar(max)` ni `varbinary(max)`**, y cada clave suma como máximo 1700 bytes (`nvarchar(n)`
+  ocupa `2n`): declara un largo razonable, por ejemplo `nvarchar(320)` para un correo.
+- Lo que la Mesa NO crea todavía: restricciones `CHECK`, reglas `ON DELETE`/`ON UPDATE`, claves foráneas compuestas, columnas calculadas,
+  disparadores, vistas ni procedimientos. Si el desarrollo los necesita, no los declara: IT los trata como un cambio aparte.
 - `operaciones_permitidas` es lo que el código ejecuta realmente. IT lo convierte en permiso al aprobar el plan: los `GRANT` se
   generan tabla por tabla y operación por operación, nunca a nivel de esquema.
 
