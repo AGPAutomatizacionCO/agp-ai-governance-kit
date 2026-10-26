@@ -9,11 +9,12 @@ import yaml
 from agpctl import __main__ as cli
 from agpctl import runtime
 
-
 # Valores de prueba que PARECEN secretos (para comprobar que nunca se copian). Se arman por partes: escritos de corrido, el escáner de secretos del CI
 # (gitleaks, que revisa todas las ramas) los tomaría por credenciales reales y bloquearía todos los PR del kit.
-VALOR_PARECIDO_A_UN_TOKEN = "".join(["eyJhbGci", "OiJIUzI1NiJ9", "abcdefghijklmnop"])
-VALOR_DEL_ENV_REAL = "".join(["NoDebe", "Leerse", "123"])
+_TOKEN_A, _TOKEN_B = "eyJhbGci", "OiJIUzI1NiJ9"
+_ENV_A, _ENV_B = "NoDebe", "Leerse"
+VALOR_PARECIDO_A_UN_TOKEN = f"{_TOKEN_A}{_TOKEN_B}abcdefghijklmnop"
+VALOR_DEL_ENV_REAL = f"{_ENV_A}{_ENV_B}123"
 
 
 class RuntimeTests(unittest.TestCase):
@@ -144,14 +145,12 @@ class RuntimeTests(unittest.TestCase):
 
     def test_cli_plan_y_check_con_codigo_de_salida(self):
         self._python_app()
-        with mock.patch("sys.argv", ["agpctl", "runtime", "plan", "--repo", str(self.repo), "--prefijo", "rpc"]):
-            with mock.patch("builtins.print") as imprimir:
-                self.assertEqual(0, cli.main())
+        with mock.patch("sys.argv", ["agpctl", "runtime", "plan", "--repo", str(self.repo), "--prefijo", "rpc"]), mock.patch("builtins.print") as imprimir:
+            self.assertEqual(0, cli.main())
         salida = json.loads(imprimir.call_args[0][0])
         self.assertTrue(salida["readOnly"])
-        with mock.patch("sys.argv", ["agpctl", "runtime", "check", "--repo", str(self.repo)]):
-            with mock.patch("builtins.print"):
-                self.assertEqual(1, cli.main())
+        with mock.patch("sys.argv", ["agpctl", "runtime", "check", "--repo", str(self.repo)]), mock.patch("builtins.print"):
+            self.assertEqual(1, cli.main())
 
 
 if __name__ == "__main__":
