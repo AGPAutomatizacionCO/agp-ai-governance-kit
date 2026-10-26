@@ -311,7 +311,7 @@ no-aplica      → se excluye del score posible (no penaliza)
   { "id": "TR01", "categoria": "contexto_tecnico", "pregunta": "¿Existe contexto técnico mínimo suficiente para entender el desarrollo?", "peso": 10, "bloqueante": true, "fuente_preferida": "gates_previos.documental" },
   { "id": "TR02", "categoria": "trazabilidad", "pregunta": "¿Lo implementado corresponde al alcance, tarea o necesidad documentada?", "peso": 15, "bloqueante": true, "fuente_preferida": "diff vs specs/003-tasks.md" },
   { "id": "TR03", "categoria": "arquitectura_separacion", "pregunta": "¿La arquitectura general y la separación frontend/backend están justificadas según el tipo de solución?", "peso": 15, "bloqueante": false, "fuente_preferida": "código/diff" },
-  { "id": "TR04", "categoria": "seguridad_basica", "pregunta": "¿El desarrollo evita secretos, credenciales hardcodeadas, tokens reales, llaves privadas y exposición de datos sensibles?", "peso": 20, "bloqueante": true, "fuente_preferida": "PASO 3" },
+  { "id": "TR04", "categoria": "seguridad_basica", "pregunta": "¿El desarrollo evita secretos, credenciales hardcodeadas, tokens reales y llaves privadas, y lee su configuración de variables de entorno (con .env.example, nunca un .env real versionado)?", "peso": 20, "bloqueante": true, "fuente_preferida": "PASO 3" },
   { "id": "TR05", "categoria": "datos_integraciones", "pregunta": "¿Están claras las fuentes de datos, integraciones, archivos externos, APIs, owners y restricciones de acceso?", "peso": 10, "bloqueante": false, "fuente_preferida": "spec.md / código" },
   { "id": "TR06", "categoria": "pruebas_evidencia", "pregunta": "¿Existe evidencia suficiente de pruebas para el desarrollo evaluado?", "peso": 15, "bloqueante": true, "fuente_preferida": "gates_previos.pruebas" },
   { "id": "TR07", "categoria": "operabilidad", "pregunta": "¿Existe información mínima para ejecutar, usar, desplegar, soportar o mantener la solución cuando aplique?", "peso": 5, "bloqueante": false, "fuente_preferida": "deployment-notes / monitoring-notes" },
@@ -405,7 +405,6 @@ cualquiera de estos hallazgos:
 [
   { "id": "B01", "criterio": "Secreto, token, llave, credencial o cadena de conexión real detectada", "fuente": "PASO 3" },
   { "id": "B02", "criterio": "Archivo .env real incluido (no .env.example)", "fuente": "PASO 3 / archivos recibidos" },
-  { "id": "B03", "criterio": "Datos sensibles reales expuestos sin control ni autorización", "fuente": "condiciones_activas + TR05" },
   { "id": "B04", "criterio": "Frontend conectado directamente a base de datos o sistema crítico sin capa intermedia", "fuente": "TR03" },
   { "id": "B05", "criterio": "Cambio en producción sin aprobación o revisión humana documentada", "fuente": "TR08 / human-review.md" },
   { "id": "B06", "criterio": "Código ejecutable sin evidencia mínima de pruebas", "fuente": "TR06" },
@@ -422,6 +421,12 @@ cualquiera de estos hallazgos:
   { "id": "B17", "criterio": "gates_previos.pruebas.puede_avanzar = false o evidencia_valida = invalida", "fuente": "gates_previos" }
 ]
 ```
+
+Nota (2026-10-26): B03 («datos sensibles reales expuestos») ya no es bloqueante.
+Un desarrollo puede usar datos reales; lo obligatorio es que su configuración
+vaya por variables de entorno (con `.env.example`, nunca un `.env` real) y que
+no haya secretos escritos en el código (B01 y B02). Si ves datos sensibles sin
+control de acceso, repórtalo como hallazgo con su acción, sin bloquear.
 
 Si existe al menos un bloqueante confirmado: `puede_avanzar = false`,
 `estado = blocked`, `semaforo = rojo`, sin importar el score.
