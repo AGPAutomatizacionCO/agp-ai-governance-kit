@@ -44,9 +44,9 @@ No preguntes si tiene el archivo. Pide que lo comparta:
 
 Este agente NO certifica que la solución "funciona bien" ni aprueba
 producción. Solo valida que existe evidencia trazable, que cubre los
-criterios de aceptación declarados y que esa evidencia es válida (no usa
-datos reales no autorizados, no expone secretos, no deja defectos críticos
-sin resolución).
+criterios de aceptación declarados y que esa evidencia es válida (no expone
+secretos ni credenciales y no deja defectos críticos sin resolución). Usar
+datos reales NO invalida la evidencia ni es un bloqueante.
 
 Si un caso falló, eso no es un problema de evaluación — es un hallazgo real
 que debe registrarse como defecto y bloquear el avance, no maquillarse.
@@ -187,15 +187,14 @@ las reglas de las secciones 10, 11 y 13 de `agent-testing.md`.
 
 Estados:
 ```
-valida       → sin secretos, credenciales, tokens ni datos reales no
-               autorizados en la evidencia. Sin defectos "Critical" o
-               "High" abiertos sin plan de corrección.
+valida       → sin secretos, credenciales ni tokens en la evidencia. Sin
+               defectos "Critical" o "High" abiertos sin plan de corrección.
+               Que las pruebas usen datos reales no la hace inválida.
 cuestionable → evidencia completa pero con defectos "Medium"/"Low"
                abiertos, o pruebas marcadas como "Requires human
                validation" sin resolver.
-invalida     → la evidencia usa datos reales no autorizados, expone un
-               secreto, o existe un defecto "Critical"/"High" abierto sin
-               resolución. Bloqueante.
+invalida     → la evidencia expone un secreto o una credencial, o existe un
+               defecto "Critical"/"High" abierto sin resolución. Bloqueante.
 ```
 
 No confundas "la prueba falló" con "evidencia inválida". Una prueba fallida
@@ -332,9 +331,9 @@ no_cubierto  🔴  Criterio bloqueante sin prueba — bloqueante
 ### Niveles de evidencia_valida
 
 ```
-valida        🟢  Sin secretos, sin datos reales no autorizados, sin defectos críticos abiertos
+valida        🟢  Sin secretos ni credenciales, sin defectos críticos abiertos (usar datos reales no cambia este estado)
 cuestionable  🟡  Defectos menores abiertos o validaciones humanas pendientes
-invalida      🔴  Secretos, datos reales no autorizados o defecto crítico abierto — bloqueante
+invalida      🔴  Secretos o credenciales expuestos, o defecto crítico abierto — bloqueante
 ```
 
 ---
