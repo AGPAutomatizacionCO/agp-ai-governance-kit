@@ -12,6 +12,8 @@ from jsonschema import Draft202012Validator
 from agpctl import __version__
 from agpctl.detection import detect_project
 from agpctl.local_runtime import LocalRunError, local_down, local_plan, local_up
+from agpctl.runtime import check as runtime_check
+from agpctl.runtime import plan as runtime_plan
 from scripts.validate_governance_ref import UniqueKeyLoader
 from scripts.validate_governance_ref import validate as validate_governance_ref
 
@@ -212,6 +214,13 @@ def main() -> int:
     validate.add_argument("--environment", choices=("dev", "qa", "prod"))
     detect = sub.add_parser("detect", help="Detectar perfiles candidatos sin modificar el repositorio")
     detect.add_argument("--repo", type=Path, required=True)
+    runtime = sub.add_parser("runtime", help="Proponer o comprobar .agp/runtime.yaml a partir de las variables que usa el desarrollo")
+    runtime_sub = runtime.add_subparsers(dest="runtime_command", required=True)
+    for action in ("plan", "check"):
+        command = runtime_sub.add_parser(action)
+        command.add_argument("--repo", type=Path, required=True)
+        if action == "plan":
+            command.add_argument("--prefijo", help="Prefijo de los nombres de secreto (por defecto, el nombre de la carpeta)")
     local = sub.add_parser("local", help="Planear o ejecutar una prueba Docker sólo local")
     local_sub = local.add_subparsers(dest="local_command", required=True)
     for action in ("plan", "up", "down"):
@@ -236,6 +245,15 @@ def main() -> int:
             return 1
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0
+
+    if args.command == "runtime":
+        try:
+            result = runtime_plan(args.repo, args.prefijo) if args.runtime_command == "plan" else runtime_check(args.repo)
+        except (OSError, ValueError) as exc:
+            print(json.dumps({"valid": False, "issues": [str(exc)]}, ensure_ascii=False, indent=2))
+            return 1
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0 if result.get("valid", True) else 1
 
     try:
         if args.local_command == "down":

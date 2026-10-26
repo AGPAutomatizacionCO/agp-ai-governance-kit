@@ -29,3 +29,12 @@ python -m agpctl local down --repo <proyecto>
 `up` requiere Docker Engine/CLI local. Construye la imagen desde el Dockerfile existente, la ejecuta sólo en `127.0.0.1`, aplica `no-new-privileges` y elimina capacidades Linux, exige HTTP 2xx en el health check y guarda evidencia en `.agp/local-runs/` (ignorar en Git). Si falla el health check, detiene el contenedor. `down` detiene y conserva el registro con estado `stopped`. No se entregan secretos ni se accede a Azure o ACR. Actualmente soporta perfiles `container`; un perfil `static` debe tener un flujo distinto y no requiere Docker por defecto.
 
 Para Docker Engine dentro de WSL/Ubuntu sin conceder al usuario el grupo privilegiado `docker`, primero ejecutar `sudo -v` en esa consola y añadir `--docker-sudo` a `local up` y `local down`. La opción invoca únicamente el CLI Docker mediante `sudo -n` (no eleva todo Python); si la autorización `sudo` caduca, falla sin esperar una contraseña oculta. Ejecutar `agpctl` desde la misma Ubuntu, con el kit y el proyecto accesibles por `/mnt/c/...`. El CLI de Windows no puede usar automáticamente un daemon instalado sólo dentro de WSL.
+
+## `agpctl runtime` — de las variables del código a `.agp/runtime.yaml`
+
+```text
+python -m agpctl runtime plan  --repo <proyecto> [--prefijo rpc]
+python -m agpctl runtime check --repo <proyecto>
+```
+
+Solo lectura. Nunca lee un `.env` real: usa los NOMBRES de `.env.example`, del código (`os.getenv`, `os.environ`, `process.env`, `import.meta.env`) y de los `docker-compose*.yml`; no copia valores secretos ni crea nada en un vault. `plan` clasifica cada variable (secreto, env, fuente de solo lectura del catálogo IED, build, reservada, o «decidir» por una persona), propone el contrato y avisa de valores que no se alcanzan desde Azure (IP privadas, SQLite local). `check` falla si el código usa una variable que `runtime.yaml` no declara, o al revés. Los nombres de secreto propuestos usan `<prefijo>-<variable>`; el vault y los valores los gestiona IT. Lee el código por patrones: las variables construidas dinámicamente no aparecen.
