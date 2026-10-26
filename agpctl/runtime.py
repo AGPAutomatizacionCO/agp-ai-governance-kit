@@ -24,8 +24,8 @@ _DEL_SISTEMA = {"PATH", "HOME", "PWD", "USER", "HOSTNAME", "LANG", "LC_ALL", "TZ
 _FUENTES = {"CALENDARIO": "calendar", "PRODUCTIVITY": "productivity", "AGPCOL": "agpcol", "SAGA": "saga", "COMERCIAL": "comercial"}
 _SECRETO = re.compile(r"(PASSWORD|PASSWD|PWD|SECRET|TOKEN|API_?KEY|PRIVATE|CREDENTIAL|CONNECTION|DATABASE_URL|(^|_)KEY$|(^|_)USER$|(^|_)SERVER$)")
 _CANTIDAD = re.compile(r"(EXPIRE|EXPIRES|TTL|(^|_)MAX(_|$)|MINUTES|SECONDS|TIMEOUT|TOKENS$|(^|_)LIMIT)")
-_PARECE_SECRETO = re.compile(r"-----BEGIN|AccountKey=|Password=|SharedAccessSignature|[?&]sig=|eyJ[A-Za-z0-9_-]{20,}|^[A-Za-z0-9+/_-]{40,}={0,2}$", re.I)
-_IP_PRIVADA = re.compile(r"(https?://|@|//)(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)", re.I)
+_PARECE_SECRETO = re.compile(r"-----BEGIN|AccountKey=|Password=|SharedAccessSignature|[?&]sig=|eyJ[A-Za-z0-9_-]{20,}|^[A-Za-z0-9+/_-]{40,}={0,2}$", re.IGNORECASE)
+_IP_PRIVADA = re.compile(r"(https?://|@|//)(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)", re.IGNORECASE)
 _CODIGO = {".py", ".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs"}
 _OMITIR = {"node_modules", ".git", ".venv", "venv", "__pycache__", "dist", "build", ".next", "tests", "test", "__tests__"}
 _PATRONES = (
@@ -91,7 +91,7 @@ def clasificar(nombre: str, defecto: str | None) -> tuple[str, str]:
         return "omitir", "variable del sistema"
     if any(nombre.startswith(p) for p in _RESERVADAS):
         return "omitir", "la fija la plataforma o la Mesa; un desarrollo no la redefine"
-    if nombre.startswith("VITE_") or nombre.startswith("NEXT_PUBLIC_"):
+    if nombre.startswith(("VITE_", "NEXT_PUBLIC_")):
         return "build", "se fija al COMPILAR el frontend, no al ejecutar: la Mesa no la entrega en runtime"
     prefijo = nombre.split("_", 1)[0]
     if prefijo in _FUENTES and (_SECRETO.search(nombre) or nombre.endswith("_DB")):
