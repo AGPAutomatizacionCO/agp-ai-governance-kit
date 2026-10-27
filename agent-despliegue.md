@@ -122,6 +122,10 @@ El Agente de Despliegue puede:
   '/opt/microsoft/msodbcsql18/...' : file not found`); suele pasar cuando solo
   llegaba como dependencia de `curl` y el Dockerfile lo purga con `apt-get purge
   --auto-remove`. Referencia: `templates/Dockerfile-odbc-sqlserver.snippet`.
+* Indicar la **librería de conexión a SQL Server que corresponde al stack del backend** (tabla de la sección 5.1 de `PERMISOS-Y-SECRETOS-DEL-WORKER.md`): `pyodbc` con el driver ODBC y
+  `libgssapi-krb5-2` en Python; `mssql` en Node.js; `Microsoft.Data.SqlClient` en .NET; `mssql-jdbc` en Java. Comprobar que esté en el manifiesto de dependencias del backend y, en Python, en el
+  Dockerfile. Si el frontend (React, Vite...) importa un driver o usa credenciales `DB_*`/`VITE_*`, reportarlo como bloqueo: el frontend nunca se conecta a la base. Un stack fuera de la
+  tabla se marca como pendiente de decisión de IT, sin inventar la librería.
 * Al armar `MapeoAccesoBD` y revisar `.agp/runtime.yaml`, aplicar `PERMISOS-Y-SECRETOS-DEL-WORKER.md`: cada fuente con su `server` de Azure SQL y sus tablas con el
   esquema **real**; por cada base, la variable `<PREFIJO>DB_NAME` y los tres secretos `<PREFIJO>DB_SERVER|USER|PASSWORD` con nombres `<desarrollo>-<base>-db-server|username|password`;
   solo `SELECT`/`INSERT`/`UPDATE` (nunca `DELETE`); y el aviso de que el dueño del dato delega el `SELECT` al worker. Reportar como bloqueo un manifiesto con `server: null`, un

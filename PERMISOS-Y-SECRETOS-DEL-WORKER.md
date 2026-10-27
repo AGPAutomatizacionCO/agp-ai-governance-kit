@@ -64,6 +64,26 @@ Falla (no apto) y dice qué corregir:
   `templates/Dockerfile-odbc-sqlserver.snippet`.
 - Una base cuyas cuentas de plataforma aún no existen (se ve en el botón «Bases de datos» del panel de IT).
 
+## 5.1. Librería de conexión a SQL Server según el framework
+
+La conexión a la base la hace **solo el backend**, y la librería depende de su stack. El agente de despliegue identifica el stack por sus manifiestos (`requirements.txt`, `package.json`, `*.csproj`, `pom.xml`)
+y reporta la librería que corresponde y dónde debe estar; la Mesa y el worker no la instalan por el desarrollo.
+
+| Stack del backend | Librería de conexión | Qué más necesita la imagen | Dónde se comprueba |
+|---|---|---|---|
+| Python (FastAPI, Flask, Django) | `pyodbc` (o SQLAlchemy con `mssql+pyodbc`) | Driver ODBC de Microsoft (`msodbcsql18` o `msodbcsql17`), `unixodbc` y **`libgssapi-krb5-2`** instalados explícitamente en el Dockerfile. Ver `templates/Dockerfile-odbc-sqlserver.snippet` | `requirements.txt` y Dockerfile. La Mesa bloquea el plan si falta `libgssapi-krb5-2` |
+| Node.js (Express, NestJS, Next.js en servidor) | `mssql` (usa `tedious`, JavaScript puro) | Nada del sistema: **no necesita ODBC ni `libgssapi`** | `package.json` del backend |
+| .NET | `Microsoft.Data.SqlClient` | Nada del sistema (runtime de la imagen base) | `*.csproj` |
+| Java | `mssql-jdbc` (`com.microsoft.sqlserver`) | Nada del sistema (JRE de la imagen base) | `pom.xml` o `build.gradle` |
+
+Reglas comunes:
+
+- **El frontend (React, Vite, Vue, Angular) no lleva librería de base de datos ni credenciales.** Corre en el navegador y habla solo con su propia API. Un driver, una cadena de conexión o una variable `DB_*` en el
+  código del frontend, o expuesta por Vite (`VITE_*`), es un hallazgo bloqueante: cualquier valor que llega al navegador es público.
+- La conexión usa siempre `Encrypt=yes` y `TrustServerCertificate=no` (Azure SQL), con el servidor, la base, el usuario y la clave que llegan por variables de entorno desde los secretos (ver sección 4); nunca
+  valores escritos en el código ni en un `.env` del repositorio.
+- Si el stack no está en la tabla, el agente no inventa la librería: lo marca como pendiente de decisión de IT.
+
 ## 6. Estado local y persistencia
 
 La Mesa crea las Web Apps **sin almacenamiento persistente** (`WEBSITES_ENABLE_APP_SERVICE_STORAGE=false`): un archivo local (SQLite, evidencias, JSON) se pierde al reiniciar. Lo que debe sobrevivir va
@@ -76,5 +96,5 @@ migra o respalda esos archivos (el despliegue de la Mesa sobre una Web App exist
 2. `runtime.yaml` declara, por base, la variable `<PREFIJO>DB_NAME` y los tres secretos, y el código los lee.
 3. No hay `DELETE` en lo declarado, ni permisos de esquema sobre tablas preexistentes.
 4. Si lee tablas de otra persona o área, el dueño del dato sabe que debe delegar el `SELECT` al worker.
-5. El Dockerfile instala el driver ODBC completo (`msodbcsql*`, `unixodbc` y `libgssapi-krb5-2`).
+5. La librería de conexión corresponde al stack del backend (sección 5.1); en Python, el Dockerfile instala el driver ODBC completo (`msodbcsql*`, `unixodbc` y `libgssapi-krb5-2`). El frontend no lleva ninguna.
 6. Si la Web App ya existe, IT la adopta primero («Adoptar recursos existentes») y el publicador propio se retira: el único camino de publicación es el que dispara la Mesa.
