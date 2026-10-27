@@ -29,13 +29,14 @@ Dependencias: frontend `@azure/msal-browser`; backend `PyJWT[crypto]` y `request
 2. En la app: si `authChecking` muestra «cargando»; si no hay `currentUser`, `<LoginScreen />`; si lo hay, la aplicación.
 3. En cada llamada a la API: `Authorization: Bearer ${await getAuthToken()}`; en cada ruta protegida: `@require_auth`.
 4. `.agp/entra.yaml`: declara **al menos un administrador** (desarrollador funcional) con el nombre como aparece en Teams y su correo
-   @agpglass.com. **No hay secreto de cliente** (`secrets: []`).
+   @agpglass.com, y **cómo se controla el acceso**: `acceso: organizacion` (toda cuenta de AGP entra como Usuario; exige `justificacion`) o
+   `acceso: asignado` (solo personas asignadas; describe el `publico`). Ver `ACCESO-Y-ROLES-DEL-DESARROLLO.md`. **No hay secreto de cliente** (`secrets: []`).
 
 ## Qué hace la Mesa al desplegar (el desarrollo no necesita acceso a Azure)
 
 Registra la aplicación en Entra ID como **Single-page application**, aprueba `User.Read` y `offline_access`, asigna a los administradores
-del manifiesto al rol Admin, entrega `MSAL_CLIENT_ID`/`MSAL_TENANT_ID` y el nombre (`APP_NAME`) como configuración de la Web App. IT asigna
-después al resto de personas desde el gestor de roles de la Mesa.
+del manifiesto al rol Admin, entrega `MSAL_CLIENT_ID`/`MSAL_TENANT_ID` y el nombre (`APP_NAME`) como configuración de la Web App. Con `acceso: organizacion` la app no exige asignación; con `asignado`, IT y el
+Responsable asignan al resto de personas desde el gestor de roles de la Mesa.
 
 ## Nombre propio y local
 

@@ -580,6 +580,10 @@ deployment_status:
 
 Debe incluir además `architecture:` con la arquitectura de entrega. La norma es el **monolito desplegable** (*single-container deployment*, *app single-service*, *SPA embebida en la app*): una imagen, un recurso de Azure, frontend dentro de la imagen. Si el desarrollo es una excepción, debe citar la decisión de IT en `ai/decisions/`. Ver [ARQUITECTURA-DESPLIEGUE.md](ARQUITECTURA-DESPLIEGUE.md).
 
+Debe incluir además la sección **«Acceso y roles»** (norma `ACCESO-Y-ROLES-DEL-DESARROLLO.md`): quién es el público del desarrollo (toda la organización, un área, varias áreas o personas),
+el valor de `acceso` de `.agp/entra.yaml` (`organizacion` o `asignado`) y por qué, los roles y áreas (los de `ROLES.md`), qué es administrativo y cómo lo valida la API. Si el expediente
+dice una cosa y `.agp/entra.yaml` o `ROLES.md` otra (por ejemplo, «lo usa toda la organización» con `acceso: asignado`), lo registra como contradicción (sección 25) y no elige por su cuenta.
+
 Debe dejar claro que producción requiere aprobación humana.
 
 ---

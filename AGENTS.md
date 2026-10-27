@@ -320,6 +320,7 @@ constitution.md                → Reglas superiores (no modificar sin aprobaci�
 harness-policy.md              → Controles operativos y checklists
 ARQUITECTURA-DESPLIEGUE.md   → Norma de arquitectura de entrega: monolito desplegable (un contenedor, un recurso)
 PERMISOS-Y-SECRETOS-DEL-WORKER.md → Cómo funciona el worker con permisos y secretos: qué declarar en el manifiesto y en runtime.yaml
+ACCESO-Y-ROLES-DEL-DESARROLLO.md → Quién entra y con qué rol: `acceso` en .agp/entra.yaml (organización o asignado), ROLES.md y qué documenta cada agente
 agent-context-package.md       → Cómo entregar contexto a los agentes
 agent-documental.md            → Agente 1: mantiene el expediente técnico
 agent-specification.md         → Agente 2: convierte necesidades en spec
