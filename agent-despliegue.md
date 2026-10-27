@@ -113,6 +113,15 @@ El Agente de Despliegue puede:
   un dato sensible (PII, documento de identidad, credenciales, salud, datos
   financieros, biométrico, o derivado de una IA) — un juicio por nombre, no
   una lectura de contenido real.
+* Cuando `RequiereAccesoBD` sea `true` por `pyodbc` (SQL Server), comprobar que el
+  Dockerfile del perfil (`build.dockerfile`) instale en la misma instrucción
+  `apt-get install` **`msodbcsql18`, `unixodbc` y `libgssapi-krb5-2`**, y
+  reportar como bloqueo (no como aviso) si falta `libgssapi-krb5-2`. Sin esa
+  librería el driver no carga, el contenedor arranca y `/api/health` responde
+  200, pero toda ruta con SQL Server devuelve 503 (`Can't open lib
+  '/opt/microsoft/msodbcsql18/...' : file not found`); suele pasar cuando solo
+  llegaba como dependencia de `curl` y el Dockerfile lo purga con `apt-get purge
+  --auto-remove`. Referencia: `templates/Dockerfile-odbc-sqlserver.snippet`.
 * Marcar como `null` cualquier campo sin evidencia (`MapeoAccesoBD` queda
   `null`, no una lista vacía, si no se pudo construir).
 
