@@ -196,7 +196,11 @@ Mesa de Requerimientos verifica antes de aprobar un despliegue (perfil, pin
 del kit, `agp-deploy.json`, CI, workflow de publicación, Dockerfile, expediente
 `specs/`, notas de despliegue, manifiesto de datos, contrato de ejecución `.agp/runtime.yaml`, contexto de
 build vs `.dockerignore`, estructura del login estándar y login MSAL con
-`.agp/entra.yaml` y sus `administradores`). MSAL es obligatorio para todo desarrollo a desplegar. Es informativo: el agente no califica ni bloquea.
+`.agp/entra.yaml` y sus `administradores`) y **acceso de usuarios**. MSAL es obligatorio para todo desarrollo a desplegar. Es informativo: el agente no califica ni bloquea.
+El requisito «acceso de usuarios» (norma `ACCESO-Y-ROLES-DEL-DESARROLLO.md`) reporta el valor de `acceso` en `.agp/entra.yaml` (`organizacion` o `asignado`, o «sin declarar»), si trae `justificacion`
+(organización) o `publico` (asignado), y si coincide con `ROLES.md` y con el código (`require_auth` para usuarios; el rol `Admin` en lo administrativo). Se reportan como hallazgo: `acceso` sin declarar
+(la Mesa asume `asignado` y lo avisa: un desarrollo abierto a toda la organización quedaría con restricción de rol por omisión), `organizacion` sin justificación o junto a `assignmentRequired: true`,
+`asignado` sin `publico`, y un módulo administrativo que no exige rol. La Mesa muestra ese acceso en el plan que aprueba IT.
 `WebAppName`, `ResourceGroup` y `UrlDespliegue` los asigna la Mesa al aprobar
 el plan; si el repositorio no los declara quedan en `null` y se listan en
 `campos_que_asigna_la_mesa`, no como carencia.
