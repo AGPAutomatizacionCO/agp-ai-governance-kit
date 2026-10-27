@@ -1,0 +1,6 @@
+# ODBC Driver 18 para SQL Server (Debian 12, imagen python slim). Copiar tal cual en el Dockerfile del perfil `python-api` si el desarrollo usa pyodbc.
+# libgssapi-krb5-2 es OBLIGATORIA: el driver la necesita para cargar y, si solo llega como dependencia de curl, el purge de abajo la retira
+# (el contenedor arrancaría y /api/health daría 200, pero toda ruta con SQL Server respondería 503).
+RUN apt-get update  && apt-get install -y --no-install-recommends ca-certificates curl gnupg  && curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg  && curl -fsSL https://packages.microsoft.com/config/debian/12/prod.list -o /etc/apt/sources.list.d/mssql-release.list  && apt-get update  && ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql18 unixodbc libgssapi-krb5-2  && apt-get purge -y --auto-remove curl gnupg  && rm -rf /var/lib/apt/lists/*
+# Comprobación contra la imagen construida (no debe imprimir nada):
+#   ldd /opt/microsoft/msodbcsql18/lib64/libmsodbcsql-18.*.so.* | grep "not found"
