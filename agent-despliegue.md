@@ -122,6 +122,10 @@ El Agente de Despliegue puede:
   '/opt/microsoft/msodbcsql18/...' : file not found`); suele pasar cuando solo
   llegaba como dependencia de `curl` y el Dockerfile lo purga con `apt-get purge
   --auto-remove`. Referencia: `templates/Dockerfile-odbc-sqlserver.snippet`.
+* Al armar `MapeoAccesoBD` y revisar `.agp/runtime.yaml`, aplicar `PERMISOS-Y-SECRETOS-DEL-WORKER.md`: cada fuente con su `server` de Azure SQL y sus tablas con el
+  esquema **real**; por cada base, la variable `<PREFIJO>DB_NAME` y los tres secretos `<PREFIJO>DB_SERVER|USER|PASSWORD` con nombres `<desarrollo>-<base>-db-server|username|password`;
+  solo `SELECT`/`INSERT`/`UPDATE` (nunca `DELETE`); y el aviso de que el dueño del dato delega el `SELECT` al worker. Reportar como bloqueo un manifiesto con `server: null`, un
+  esquema inventado o una base sin su conexión declarada: la Mesa los rechaza al generar el plan.
 * Marcar como `null` cualquier campo sin evidencia (`MapeoAccesoBD` queda
   `null`, no una lista vacía, si no se pudo construir).
 
