@@ -16,9 +16,14 @@ preexistentes conservan su nombre.
 | Usuario de la aplicación | `<esquema>_app` | `app_manufacturing_rpc_app` |
 | Rol de la aplicación | `<esquema>_crud` | `app_manufacturing_rpc_crud` |
 | Secretos en el vault de desarrollos | `<desarrollo>-db-user`, `<desarrollo>-db-pwd`, `<desarrollo>-db-server` | `rpc-db-user` |
+| **Cualquier otro secreto** del desarrollo (URL de un broker, clave compartida, firma de sesión…) | `<desarrollo>-<dato>` | `co-supply-chain-solped-smart-suite-rabbit-url` |
 
 - `<Área>` y `<Desarrollo>` son una sola palabra de letras y dígitos (sin guiones ni guiones bajos). `<Área>` es el departamento del
   responsable en Entra ID, el mismo que usa la Mesa para nombrar los recursos de Azure.
+- **Todo secreto del desarrollo lleva el nombre del desarrollo delante del dato** (`<desarrollo>-<dato>`, minúsculas, dígitos y guiones, máximo 127
+  caracteres). El desarrollo lo declara con la clave `desarrollo:` de `.agp/runtime.yaml`, y la Mesa bloquea el plan si algún secreto no empieza con
+  `<desarrollo>-`. Son obligatorios en los desarrollos nuevos; los anteriores a la norma pueden omitir la clave hasta su próximo despliegue. Los secretos de la
+  plataforma (`datos-*`, `msal-client-id-*`) no son del desarrollo y no siguen esta regla.
 - `<tabla>` empieza por letra y usa letras, dígitos y guion bajo. Longitud total de la tabla: máximo 128 caracteres.
 - El prefijo `App_<Área>_<Desarrollo>_` de la tabla **debe corresponder** al esquema (`app_<area>_<desarrollo>` en minúsculas). La
   Mesa lo comprueba; el esquema JSON no puede expresarlo.

@@ -127,7 +127,7 @@ El Agente de Despliegue puede:
   Dockerfile. Si el frontend (React, Vite...) importa un driver o usa credenciales `DB_*`/`VITE_*`, reportarlo como bloqueo: el frontend nunca se conecta a la base. Un stack fuera de la
   tabla se marca como pendiente de decisión de IT, sin inventar la librería.
 * Al armar `MapeoAccesoBD` y revisar `.agp/runtime.yaml`, aplicar `PERMISOS-Y-SECRETOS-DEL-WORKER.md`: cada fuente con su `server` de Azure SQL y sus tablas con el
-  esquema **real**; por cada base, la variable `<PREFIJO>DB_NAME` y los tres secretos `<PREFIJO>DB_SERVER|USER|PASSWORD` con nombres `<desarrollo>-<base>-db-server|username|password`;
+  esquema **real**; por cada base, la variable `<PREFIJO>DB_NAME` y los tres secretos `<PREFIJO>DB_SERVER|USER|PASSWORD` con nombres `<desarrollo>-<base>-db-server|username|password`; **todo** secreto del `runtime.yaml` (también los que no son de base de datos) se llama `<desarrollo>-<dato>` y el archivo declara `desarrollo: <desarrollo>` (norma en `NOMENCLATURA-DATOS.md`; la Mesa bloquea el plan si no cumple);
   solo `SELECT`/`INSERT`/`UPDATE` (nunca `DELETE`); y el aviso de que el dueño del dato delega el `SELECT` al worker. Reportar como bloqueo un manifiesto con `server: null`, un
   esquema inventado o una base sin su conexión declarada: la Mesa los rechaza al generar el plan.
 * Marcar como `null` cualquier campo sin evidencia (`MapeoAccesoBD` queda
