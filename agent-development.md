@@ -440,6 +440,7 @@ Cuando el agente implemente código, debe seguir estos principios:
 
 * Implementar el desarrollo como **monolito desplegable**: una sola imagen y un solo recurso de Azure; el frontend se compila en una etapa del Dockerfile de la raíz y la API lo sirve.
 * No crear un Dockerfile de frontend aparte, una Static Web App, ni contenedores adicionales (nginx, sidecars) sin excepción escrita de IT.
+* El encabezado de la aplicación monta el **menú de usuario estándar** (`UserMenu` de `templates/auth-estandar/`): nombre y rol de quien entró, «Configuración» → «Administración» (solo para quien administra) y «Cerrar sesión». Es obligatorio y está probado con RPC; no se inventa otro. Ver [ACCESO-Y-ROLES-DEL-DESARROLLO.md](ACCESO-Y-ROLES-DEL-DESARROLLO.md) §4.
 * El frontend llama a su propio origen; el login se configura desde la API (`/api/config`, solo tenant y cliente). Patrón en [ARQUITECTURA-DESPLIEGUE.md](ARQUITECTURA-DESPLIEGUE.md).
 
 ---

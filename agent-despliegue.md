@@ -197,6 +197,7 @@ del kit, `agp-deploy.json`, CI, workflow de publicación, Dockerfile, expediente
 `specs/`, notas de despliegue, manifiesto de datos, contrato de ejecución `.agp/runtime.yaml`, contexto de
 build vs `.dockerignore`, estructura del login estándar y login MSAL con
 `.agp/entra.yaml` y sus `administradores`) y **acceso de usuarios**. MSAL es obligatorio para todo desarrollo a desplegar. Es informativo: el agente no califica ni bloquea.
+El requisito «menú de usuario» (norma `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §4, paquete `templates/auth-estandar/`) se reporta como `ok` solo si el encabezado trae el menú estándar: el botón con `data-agp-menu="usuario"` y `aria-label` «Menú de usuario» (nombre y rol visibles), la entrada `data-agp-menu="configuracion"` («Configuración» → «Administración») y «Cerrar sesión»; si falta, `falta` y se nombra el archivo del paquete que hay que copiar. La Mesa lo bloquea igual que el login estándar.
 El requisito «acceso de usuarios» (norma `ACCESO-Y-ROLES-DEL-DESARROLLO.md`) reporta el valor de `acceso` en `.agp/entra.yaml` (`organizacion` o `asignado`, o «sin declarar»), si trae `justificacion`
 (organización) o `publico` (asignado), y si coincide con `ROLES.md` y con el código (`require_auth` para usuarios; el rol `Admin` en lo administrativo). Se reportan como hallazgo: `acceso` sin declarar
 (la Mesa asume `asignado` y lo avisa: un desarrollo abierto a toda la organización quedaría con restricción de rol por omisión), `organizacion` sin justificación o junto a `assignmentRequired: true`,

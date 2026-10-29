@@ -1,0 +1,24 @@
+/* Estilos del menú de usuario estándar de AGP (components/UserMenu.jsx), acotados a .agp-menu-usuario para no tocar el resto de la aplicación.
+   Usan las variables del desarrollo si existen (--surface, --text, --border, --brand) y tienen valor de respaldo. */
+.agp-menu-usuario { position: relative; font-family: 'Segoe UI', system-ui, sans-serif; color: var(--text, #1f2937); }
+.agp-menu-usuario *, .agp-menu-usuario *::before, .agp-menu-usuario *::after { box-sizing: border-box; }
+.agp-menu-usuario > button { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 4px 8px; border: 0; border-radius: 12px; background: transparent; color: inherit; font: inherit; cursor: pointer; text-align: left; }
+.agp-menu-usuario > button:hover, .agp-menu-usuario > button:focus-visible { background: color-mix(in srgb, var(--brand, #8FC5CF) 20%, transparent); outline: 2px solid transparent; }
+.agp-menu-usuario__iniciales { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--brand, #8FC5CF); color: var(--text-on-brand, #0B2F36); font-size: 11px; font-weight: 700; }
+.agp-menu-usuario__texto { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
+.agp-menu-usuario__nombre, .agp-menu-usuario__rol { max-width: 12rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.agp-menu-usuario__nombre { font-size: 12px; font-weight: 700; }
+.agp-menu-usuario__rol { font-size: 10px; opacity: .75; }
+@media (max-width: 639px) { .agp-menu-usuario__texto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
+.agp-menu-usuario [role="menu"] { position: absolute; right: 0; top: calc(100% + 8px); z-index: 50; width: 18rem; max-width: calc(100vw - 24px); max-height: calc(100vh - 6rem); overflow-y: auto; padding: 8px; border: 1px solid var(--border, #d1d5db); border-radius: 12px; background: var(--surface, #fff); box-shadow: 0 10px 30px rgba(0, 0, 0, .18); }
+.agp-menu-usuario [role="menu"][hidden], .agp-menu-usuario [role="group"][hidden] { display: none; }
+.agp-menu-usuario__cabecera { padding: 8px 12px; margin-bottom: 4px; border-bottom: 1px solid var(--border, #d1d5db); }
+.agp-menu-usuario__cabecera p { margin: 0; font-size: 11px; opacity: .75; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.agp-menu-usuario__cabecera p:first-child { font-size: 12px; font-weight: 600; opacity: 1; }
+.agp-menu-usuario [role="menuitem"] { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 44px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: inherit; font: inherit; font-size: 14px; text-align: left; text-decoration: none; cursor: pointer; }
+.agp-menu-usuario [role="menuitem"]:hover, .agp-menu-usuario [role="menuitem"]:focus-visible { background: color-mix(in srgb, var(--brand, #8FC5CF) 20%, transparent); outline: 2px solid transparent; }
+.agp-menu-usuario [role="menuitem"]:disabled { opacity: .5; cursor: default; }
+.agp-menu-usuario [data-agp-menu="cerrar-sesion"]:hover { background: color-mix(in srgb, #dc2626 12%, transparent); color: #dc2626; }
+.agp-menu-usuario__grupo { margin: 4px 0 4px 12px; padding-left: 8px; border-left: 1px solid var(--border, #d1d5db); }
+.agp-menu-usuario__grupo p { margin: 0; padding: 4px 12px; font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; opacity: .75; }
+.agp-menu-usuario [role="separator"] { margin: 8px 0; border-top: 1px solid var(--border, #d1d5db); }

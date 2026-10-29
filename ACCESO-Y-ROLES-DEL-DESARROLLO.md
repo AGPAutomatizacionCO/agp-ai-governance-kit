@@ -61,9 +61,14 @@ administrativo y cómo se valida en la API. Si el expediente dice una cosa y `.a
 **La Mesa.** Valida la forma (falla si `organizacion` no cumple las reglas), muestra **«Acceso de usuarios»** en la página del plan y en el popup que IT aprueba (con o sin permisos de datos), y en el modo abierto
 lo ata a la aprobación (entra al hash del plan). Un cambio de `acceso` toca `.agp/entra.yaml`, un archivo de contrato: exige la aprobación completa, no el redespliegue rápido.
 
-## 4. Lista de verificación
+## 4. El menú de usuario estándar: dónde se configura el acceso
+
+Todo desarrollo trae el **mismo menú de usuario** (`UserMenu`, paquete `templates/auth-estandar/`): el botón con el nombre y el rol de quien entró y, al hacer clic, «Configuración» → «Administración» (la pantalla «Configuración del desarrollo», `/configuracion`, y los demás accesos administrativos) y «Cerrar sesión». Es el que RPC ya usa en producción y es **obligatorio**: ahí se llega a la gestión de quién entra y con qué rol, y es lo que el Agente de Despliegue y la Mesa verifican. El contrato (marcas `data-agp-menu`, «Menú de usuario», «Configuración», «Cerrar sesión») está en el README del paquete; un desarrollo con su propio componente lo cumple igual si lo respeta. «Configuración» solo se muestra a quien administra: el rol `Admin` o quien tenga enlaces administrativos propios.
+
+## 5. Lista de verificación
 
 1. `.agp/entra.yaml` declara `acceso` (`organizacion` o `asignado`) y su `justificacion` o `publico`.
 2. `ROLES.md` describe roles, áreas y, si aplica, `sinAcceso.mensaje`, coherentes con `acceso`.
 3. La API exige el rol `Admin` en todo lo administrativo; lo demás solo exige un token válido del tenant.
 4. El expediente tiene la sección «Acceso y roles» y no contradice al manifiesto.
+5. El encabezado monta el menú de usuario estándar (§4) y su «Configuración» solo la ve quien administra.
