@@ -15,6 +15,9 @@ sin cambiar lo existente.
 | `src/contexts/AuthContext.jsx` | `src/contexts/AuthContext.jsx` | Sesión: restauración silenciosa, `login`, `logout`, `getAuthToken`, `roles`, `isAdmin`. |
 | `src/screens/LoginScreen.jsx` | `src/screens/LoginScreen.jsx` | La pantalla de login aprobada, con el nombre del desarrollo. |
 | `src/styles/login-estandar.css` | `src/styles/login-estandar.css` | Los estilos que la pantalla toma del CSS global de la Mesa (color de marca, fuente, reinicio de márgenes). Va acotado a `#login-screen` y hace que la pantalla se vea **igual** en cualquier desarrollo. |
+| `src/components/UserMenu.jsx` | `src/components/UserMenu.jsx` | **Menú de usuario estándar**: nombre y rol de quien entró; al hacer clic, «Configuración» → «Administración» y «Cerrar sesión». Probado en producción con RPC. Ver abajo. |
+| `src/styles/menu-usuario-estandar.css` | `src/styles/menu-usuario-estandar.css` | Sus estilos, acotados a `.agp-menu-usuario`. |
+| `src/components/UserMenu.test.jsx` | `src/components/UserMenu.test.jsx` | La prueba del contrato (vitest): nombre, rol, «Configuración» solo con permiso y «Cerrar sesión». Corre en el CI del desarrollo. |
 | `src/components/AgpLogo.jsx`, `Icon.jsx` | `src/components/` | Piezas que usa la pantalla (si el desarrollo ya las tiene, no se pisan). |
 | `backend/src/helpers/auth.py` | `backend/src/helpers/auth.py` | `require_auth`: valida el `id_token` de Entra ID. |
 | `backend/src/flask_config/bp_base.py` | ídem (o agregar solo la ruta) | `GET /api/config` (público: tenant, cliente y nombre) y `/api/health`. |
@@ -31,6 +34,20 @@ Dependencias: frontend `@azure/msal-browser`; backend `PyJWT[crypto]` y `request
 4. `.agp/entra.yaml`: declara **al menos un administrador** (desarrollador funcional) con el nombre como aparece en Teams y su correo
    @agpglass.com, y **cómo se controla el acceso**: `acceso: organizacion` (toda cuenta de AGP entra como Usuario; exige `justificacion`) o
    `acceso: asignado` (solo personas asignadas; describe el `publico`). Ver `ACCESO-Y-ROLES-DEL-DESARROLLO.md`. **No hay secreto de cliente** (`secrets: []`).
+
+## El menú de usuario estándar
+
+El elemento que muestra el **nombre y el rol** de quien entró y, al hacer clic, despliega **«Configuración» → «Administración»** y **«Cerrar sesión»** es el mismo en todo desarrollo. Se llama **`UserMenu`** («Menú de usuario»); RPC lo resolvió primero y es la referencia. Se monta una vez en el encabezado de la aplicación: `<UserMenu />` (con react-router, `<UserMenu onNavegar={navigate} />`).
+
+Lo que se exige es el **contrato**, no el archivo: un desarrollo con otro framework de UI (por ejemplo RPC en TypeScript con Tailwind, o SAC con MUI) lo cumple igual si respeta:
+
+| Marca | Qué es |
+|---|---|
+| `data-agp-menu="usuario"` + `aria-label="Menú de usuario"` | El botón con el nombre y el rol visibles. |
+| `data-agp-menu="configuracion"` | La entrada «Configuración», que despliega «Administración» con «Configuración del desarrollo» (`/configuracion`) y los accesos administrativos propios. Solo aparece para quien administra. |
+| `data-agp-menu="cerrar-sesion"` | «Cerrar sesión». |
+
+El rol sale del token (`Admin` → «Administrador», si no «Usuario»); un desarrollo con perfiles propios pasa `rolEtiqueta`. Los enlaces administrativos propios se pasan en `enlaces`. La Mesa **bloquea** el despliegue si falta (pieza «menú de usuario» de `auth_estandar`).
 
 ## Qué hace la Mesa al desplegar (el desarrollo no necesita acceso a Azure)
 

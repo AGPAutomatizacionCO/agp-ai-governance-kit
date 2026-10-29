@@ -312,6 +312,15 @@ auth_estandar       el desarrollo trae el login estándar de AGP (paquete de
                     @azure/msal-browser. Si falta algo, falta: nombra cada
                     archivo o dependencia ausente. Otros perfiles: no_aplica
                     por ahora (el paquete se define por perfil).
+menu_usuario        el desarrollo monta el menú de usuario estándar de AGP
+                    (templates/auth-estandar/src/components/UserMenu.jsx; RPC lo
+                    resolvió primero). Se cumple con el componente del paquete o con
+                    uno propio que respete el contrato: un botón con
+                    data-agp-menu="usuario" y aria-label "Menú de usuario" (nombre y
+                    rol visibles), una entrada con data-agp-menu="configuracion"
+                    (Configuración → Administración, solo para quien administra) y
+                    "Cerrar sesión". Búscalo en src/components/ (UserMenu, Header o
+                    MenuAvatar). Si falta, falta: nombra el archivo del paquete.
 entra               ver regla de login más abajo.
 ```
 
