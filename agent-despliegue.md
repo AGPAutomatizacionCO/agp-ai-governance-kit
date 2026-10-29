@@ -130,6 +130,11 @@ El Agente de Despliegue puede:
   esquema **real**; por cada base, la variable `<PREFIJO>DB_NAME` y los tres secretos `<PREFIJO>DB_SERVER|USER|PASSWORD` con nombres `<desarrollo>-<base>-db-server|username|password`;
   solo `SELECT`/`INSERT`/`UPDATE` (nunca `DELETE`); y el aviso de que el dueño del dato delega el `SELECT` al worker. Reportar como bloqueo un manifiesto con `server: null`, un
   esquema inventado o una base sin su conexión declarada: la Mesa los rechaza al generar el plan.
+* **Comprobar con la herramienta, no a ojo.** Si el repositorio tiene `ai/outputs/data-access-manifest.json`, ejecutar `python -m agpctl datos check --repo <repo>`
+  (aplica las mismas reglas con las que la Mesa valida el plan: esquema del manifiesto, lista cerrada de tipos —`datetime2` y no `datetime2(0)`—, valores por defecto
+  válidos para su tipo, nombres de la norma y conexión declarada en `.agp/runtime.yaml`). Copiar la salida literal en el informe. Con `valid: false`, el requisito de manifiesto de datos y
+  el de contrato de ejecución **no pueden ir como `ok`**: se reportan como `falta` con cada `issue`, que el desarrollador corrige antes de pedir el despliegue. No se interpreta, no se
+  resume y no se da por bueno lo que la herramienta rechaza. Si no se puede ejecutar, el requisito es `no_verificable`, nunca `ok`.
 * Marcar como `null` cualquier campo sin evidencia (`MapeoAccesoBD` queda
   `null`, no una lista vacía, si no se pudo construir).
 

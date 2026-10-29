@@ -38,3 +38,14 @@ python -m agpctl runtime check --repo <proyecto>
 ```
 
 Solo lectura. Nunca lee un `.env` real: usa los NOMBRES de `.env.example`, del código (`os.getenv`, `os.environ`, `process.env`, `import.meta.env`) y de los `docker-compose*.yml`; no copia valores secretos ni crea nada en un vault. `plan` clasifica cada variable (secreto, env, fuente de solo lectura del catálogo IED, build, reservada, o «decidir» por una persona), propone el contrato y avisa de valores que no se alcanzan desde Azure (IP privadas, SQLite local). `check` falla si el código usa una variable que `runtime.yaml` no declara, o al revés. Los nombres de secreto propuestos usan `<prefijo>-<variable>`; el vault y los valores los gestiona IT. Lee el código por patrones: las variables construidas dinámicamente no aparecen.
+
+## `agpctl datos check` — las reglas de datos de la Mesa, antes de pedir el despliegue
+
+```text
+python -m agpctl datos check --repo <proyecto>
+```
+
+Solo lectura. Revisa `ai/outputs/data-access-manifest.json` con el esquema del kit y con las reglas que la Mesa aplica al plan (tablas a crear, lecturas de tablas preexistentes,
+permisos) y comprueba que `.agp/runtime.yaml` declare la conexión de cada base que el manifiesto toca. Devuelve JSON con `valid` e `issues` y código de salida 1 si hay problemas:
+lo que aquí pasa no aparece luego como «Revisar pendientes» al aprobar. Las reglas son un espejo sin cambios de la Mesa (`agpctl/mesa_datos_*.py`, copiados de
+`backend/src/helpers/datos_*.py` de la Mesa): si la Mesa cambia una regla, se vuelve a copiar el archivo, no se edita a mano.
