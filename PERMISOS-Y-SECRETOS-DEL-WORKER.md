@@ -4,6 +4,8 @@ Norma para todo desarrollo que se despliega con la Mesa de Requerimientos y toca
 desarrollo declare lo correcto desde el principio y no se entere en el despliegue. Lo que no está declarado **no se concede**. Complementa a `NOMENCLATURA-DATOS.md` (nombres de lo que el desarrollo
 crea) y a `ARQUITECTURA-DESPLIEGUE.md` (un contenedor, un recurso).
 
+> Las cuentas de la plataforma que crean y reparten estos permisos (`mesa_aprovisionador`, `worker_datos_user`, `<servidor>_sql`) y dónde viven sus secretos están en [NORMA-CUENTAS-SQL.md](NORMA-CUENTAS-SQL.md). El desarrollo no las crea ni las declara.
+
 ## 1. Una sola declaración, dos archivos
 
 | Archivo | Qué declara | Quién lo lee |

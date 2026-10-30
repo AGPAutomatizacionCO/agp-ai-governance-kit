@@ -58,3 +58,7 @@ Nada de SQL escrito por el desarrollador se ejecuta con permisos de creación.
 ## Compatibilidad
 
 Los manifiestos existentes siguen siendo válidos: las reglas de esta norma solo se exigen cuando `crear_en_despliegue` es `true`.
+
+## Cuentas de la plataforma
+
+Las cuentas que crean las tablas y reparten permisos (`mesa_aprovisionador`, `worker_datos_user`) y la cuenta de consulta de IED (`<servidor>_sql`) siguen su propia norma: [NORMA-CUENTAS-SQL.md](NORMA-CUENTAS-SQL.md).
