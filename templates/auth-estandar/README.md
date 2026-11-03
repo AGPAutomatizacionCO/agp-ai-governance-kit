@@ -76,7 +76,8 @@ Todo desarrollo se ve como la Mesa de Ayuda: la misma barra superior y los mismo
 | `data-agp-idioma` | El grupo ES / PT; cada botón con `aria-pressed`. |
 | `data-agp-tema` + aria-label «Modo claro» / «Modo oscuro» | El botón de modo; dice a qué modo cambia. |
 
-Al desplegar, la Mesa compara `src/styles/agp-tema.css`, `src/styles/encabezado-estandar.css` y `src/screens/LoginScreen.jsx` **byte a
+Al desplegar, la Mesa compara `src/styles/agp-tema.css`, `src/styles/encabezado-estandar.css`, `src/styles/login-estandar.css`,
+`src/styles/menu-usuario-estandar.css` y `src/screens/LoginScreen.jsx` **byte a
 byte** (sin contar los finales de línea) con los del kit en la versión fijada en `.agp/governance.yaml`, y revisa que estén las marcas. Si
 hay que cambiar el diseño, se cambia aquí, en el kit. El contenido de cada pantalla, debajo del encabezado, es libre.
 
