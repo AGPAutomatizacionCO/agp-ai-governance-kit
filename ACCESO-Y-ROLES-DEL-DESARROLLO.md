@@ -1,7 +1,8 @@
 # Acceso y roles de un desarrollo: quién entra, con qué rol y cómo se declara
 
-Norma para todo desarrollo con login de Microsoft Entra ID (todos los que se despliegan con la Mesa de Requerimientos). Cierra una ambigüedad: **«¿se despliega exigiendo asignar a cada persona un rol, o puede entrar
-cualquiera de AGP?»** Lo decide y lo declara el desarrollo, la Mesa lo muestra en el plan que aprueba IT, y los agentes lo documentan y lo verifican. Complementa `templates/auth-estandar/README.md` (el login) y
+Norma para todo desarrollo con login de Microsoft Entra ID (todos los que se despliegan con la Mesa de Requerimientos). **Norma de IT del 2026-11-04: todo desarrollo funciona como la Mesa de Ayuda.**
+Cualquier persona de AGP entra y ve la vista general; los roles específicos los da el administrador **dentro** de la app, desde su panel «Configuración» (como RPC), por persona o a toda un área de Microsoft. La Mesa los guarda y valida por detrás (túnel de roles). Restringir el
+ingreso a personas asignadas es la excepción y se justifica. La Mesa lo muestra en el plan que aprueba IT, y los agentes lo documentan y lo verifican. Complementa `templates/auth-estandar/README.md` (el login) y
 `PERMISOS-Y-SECRETOS-DEL-WORKER.md` (los datos).
 
 ## 1. La pregunta que todo desarrollo responde
@@ -12,30 +13,30 @@ La respuesta decide `acceso` en `.agp/entra.yaml`:
 
 | `acceso` | Público | Qué pasa en Entra ID | Cómo se dan los roles |
 |---|---|---|---|
-| `organizacion` | Toda la organización AGP (portales de autoservicio: p. ej. SOLPED Smart Suite, donde cualquier colaborador monta una solicitud) | La app **no exige asignación**: cualquier cuenta de AGP (un solo tenant) inicia sesión con el rol básico de **Usuario** | `Admin` (y los roles que el desarrollo defina) se asignan desde el Gestor de roles. Quien no tiene rol opera como Usuario |
-| `asignado` (valor por defecto) | Un área, varias áreas o personas concretas | La app **exige asignación**: solo entran las personas asignadas | Gestor de roles: el Responsable asigna a personas **del área del desarrollo** (motivo de la lista) y a personas **de otra área** (justificación propia de al menos 30 letras) |
+| `organizacion` (**valor por defecto**) | Toda la organización AGP | La app **no exige asignación**: cualquier cuenta de AGP (un solo tenant) inicia sesión y ve la **vista general** | El administrador asigna los roles dentro de la app, en su panel «Configuración» (por persona o a toda un área de Microsoft). Quien no tiene rol ve la vista general (el perfil marcado como vista general) |
+| `asignado` (excepción, con `justificacion`) | Un área, varias áreas o personas concretas, cuando la información no puede verla nadie más | La app **exige asignación**: solo entran las personas asignadas | Gestor de roles: el Responsable asigna a personas **del área del desarrollo** (motivo de la lista) y a personas **de otra área** (justificación propia de al menos 30 letras) |
 
 Reglas:
 
-- **Siempre se declara.** Sin `acceso` la Mesa asume `asignado` y lo avisa; declararlo evita que un desarrollo abierto a toda la organización quede con restricción de rol por omisión.
-- `acceso: organizacion` exige `justificacion` (al menos 40 caracteres: por qué el público es toda la organización y qué sigue protegido), un solo tenant (`signInAudience: AzureADMyOrg`) y no se combina con `assignmentRequired: true`.
-- `acceso: asignado` describe el público en `publico` (hasta 300 caracteres: «personal de Supply Chain; otras áreas con justificación»).
-- `assignmentRequired: false` a secas es una **excepción temporal de pruebas**, no una forma de abrir el acceso.
+- **Sin `acceso`, la app queda abierta a toda la organización.** `assignmentRequired: true` a secas ya no la cierra (era el valor de la plantilla, no una decisión): la Mesa lo avisa y la abre. Quita `assignmentRequired`.
+- `acceso: organizacion` exige un solo tenant (`signInAudience: AzureADMyOrg`) y no se combina con `assignmentRequired: true`. La `justificacion` es opcional.
+- `acceso: asignado` es la excepción: lleva `justificacion` (al menos 40 caracteres: por qué nadie más puede entrar) y describe el público en `publico` (hasta 300 caracteres). La Mesa avisa si faltan.
+- **Vista general:** lo que ve quien no tiene rol. Con `ROLES.md` v2 es el perfil que el administrador marca como «vista general» en el panel «Configuración» de la app; nunca incluye funciones administrativas ni datos sensibles.
 - **La autenticación corporativa no sustituye a la autorización.** Que cualquiera de AGP entre no abre lo administrativo: el módulo Administrador y toda función sensible siguen condicionados al rol (`Admin`) que valida
   la API con el token, y los permisos sobre datos siguen siendo los aprobados (ver `PERMISOS-Y-SECRETOS-DEL-WORKER.md`).
 
 ```yaml
-# .agp/entra.yaml (abierto a toda la organización)
+# .agp/entra.yaml (norma: abierto a toda la organización)
 acceso: organizacion
-justificacion: "Portal de autoservicio: cualquier colaborador de AGP puede montar una SOLPED; el módulo Administrador sigue exigiendo el rol Admin."
 administradores:
   - correo: responsable@agpglass.com
 ```
 
 ```yaml
-# .agp/entra.yaml (por asignación)
+# .agp/entra.yaml (excepción: solo personas asignadas)
 acceso: asignado
-publico: "Personal del área de Supply Chain; personas de otras áreas con justificación del Responsable"
+justificacion: "Nómina individual: solo Compensaciones puede ver los salarios; ni la vista general puede mostrarse a otras áreas."
+publico: "Personal de Compensaciones"
 administradores:
   - correo: responsable@agpglass.com
 ```
@@ -46,8 +47,9 @@ El archivo `ROLES.md` (contrato `roles.agp/v1` o `v2`, lo valida la Mesa) es la 
 
 - **Roles:** `Admin` y `Usuario` (básicos) y los personalizados, con qué puede hacer cada uno.
 - **Áreas y dominios** (`dominios` → `areas`): qué áreas existen en la app y quién pertenece a cada una. Es lo que permite distinguir «del área del desarrollo» de «de otra área» al asignar.
+- **Vista general:** qué ve quien entra sin rol (con `acceso: organizacion`, toda persona de AGP).
 - **`sinAcceso.mensaje`:** qué ve quien entra sin tener acceso (solo tiene sentido con `acceso: asignado`).
-- **Coherencia con el manifiesto:** si `acceso: organizacion`, el texto dice que cualquier cuenta de AGP es Usuario; si `asignado`, dice quién puede pedir acceso y a quién.
+- **Coherencia con el manifiesto:** si `acceso: organizacion`, el texto dice que cualquier cuenta de AGP entra con la vista general; si `asignado`, dice quién puede pedir acceso y a quién.
 
 ## 3. Qué hace cada agente
 
@@ -55,10 +57,10 @@ El archivo `ROLES.md` (contrato `roles.agp/v1` o `v2`, lo valida la Mesa) es la 
 administrativo y cómo se valida en la API. Si el expediente dice una cosa y `.agp/entra.yaml` otra (por ejemplo, «lo usa toda la organización» y `acceso: asignado`), lo registra como contradicción y no elige por su cuenta.
 
 **Agente de despliegue.** Lee `.agp/entra.yaml` y `ROLES.md` y reporta, en `PreparacionDespliegue`, el requisito «acceso de usuarios»: el valor de `acceso`, si hay `justificacion` o `publico`, y si coinciden con
-`ROLES.md` y con el código (`require_auth` para usuarios, `require_admin` o equivalente para lo administrativo). Reporta como hallazgo: `acceso` sin declarar; `organizacion` sin justificación o junto a
-`assignmentRequired: true`; `asignado` sin `publico`; y un módulo administrativo que no exige rol.
+`ROLES.md` y con el código (`require_auth` para usuarios, `require_admin` o equivalente para lo administrativo). Reporta como hallazgo: `assignmentRequired: true` sin `acceso` (ya no cierra la app);
+`organizacion` junto a `assignmentRequired: true`; `asignado` sin `justificacion` o sin `publico`; una vista general que muestra funciones administrativas; y un módulo administrativo que no exige rol.
 
-**La Mesa.** Valida la forma (falla si `organizacion` no cumple las reglas), muestra **«Acceso de usuarios»** en la página del plan y en el popup que IT aprueba (con o sin permisos de datos), y en el modo abierto
+**La Mesa.** Valida la forma, abre a la organización todo desarrollo que no declare `acceso: asignado`, muestra **«Acceso de usuarios»** en la página del plan y en el popup que IT aprueba (con o sin permisos de datos), y en el modo abierto
 lo ata a la aprobación (entra al hash del plan). Un cambio de `acceso` toca `.agp/entra.yaml`, un archivo de contrato: exige la aprobación completa, no el redespliegue rápido.
 
 ## 4. El menú de usuario estándar: dónde se configura el acceso

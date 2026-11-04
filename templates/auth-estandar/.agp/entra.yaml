@@ -8,7 +8,7 @@ signInAudience: AzureADMyOrg            # un solo tenant (AGP)
 graphPermissions:                       # delegados, mínimos
   - User.Read
   - offline_access
-assignmentRequired: true                # false solo como prueba temporal, con el comentario TEMPORAL
+acceso: organizacion                    # norma de IT: toda la organización entra (vista general); los roles se dan en la app (Configuración)
 administradores:                        # desarrollador funcional = administrador de la app (al menos uno, máximo cinco)
   - nombre: Nombre Apellido             # como aparece en Teams
     correo: usuario@agpglass.com        # correo corporativo @agpglass.com
