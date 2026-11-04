@@ -57,7 +57,7 @@ def _nombre_objeto(prefijo, tabla, columnas=()):
     nombre = "_".join([prefijo, tabla, *columnas])
     if len(nombre) <= 128:
         return nombre
-    return nombre[:119] + "_" + hashlib.sha1(nombre.encode("utf-8")).hexdigest()[:8]
+    return nombre[:119] + "_" + hashlib.sha1(nombre.encode("utf-8"), usedforsecurity=False).hexdigest()[:8]
 
 
 def _literal(valor, tipo):
