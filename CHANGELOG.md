@@ -4,6 +4,10 @@ Este historial registra únicamente versiones publicadas o cambios preparados pa
 
 ## [Sin publicar]
 
+## [v4.0.0-rc.2] - 2026-11-04
+
+Segundo candidato para el piloto dev. Mismo alcance que `v4.0.0-rc.1` (`python-api` v1, `agpctl 0.1.0`). No autoriza producción.
+
 ### Cambios
 
 - Acceso de usuarios, norma de IT del 2026-11-04: todo desarrollo funciona como la Mesa de Ayuda. `acceso: organizacion` pasa a ser el valor por defecto (cualquier persona de AGP entra y ve la vista general; los roles los da el administrador dentro de la app, en su panel «Configuración», por persona o a toda un área de Microsoft). `acceso: asignado` es la excepción, con `justificacion` y `publico`. `assignmentRequired: true` a secas ya no cierra la app. Plantilla `templates/auth-estandar/.agp/entra.yaml` con `acceso: organizacion`.
@@ -11,12 +15,6 @@ Este historial registra únicamente versiones publicadas o cambios preparados pa
 ### Preparación
 
 - Norma `DESPLIEGUE-A-MAIN.md`: IT gestiona cómo se publica `main` mediante la política de CD por desarrollo de la Mesa (apagado, automático o limitado a N publicaciones por día). El CD solo publica la imagen, nunca concede permisos y no publica nada cuando cambian los archivos de contrato. Define qué ve el responsable (contador de publicaciones y tope), los requisitos por desarrollo, las reglas para personas y agentes del equipo de desarrollo y la operación del webhook. Enlazada desde `AGENTS.md`, `START-HERE.md` y `agent-despliegue.md`.
-
-## [v4.0.0-rc.2] - 2026-11-04
-
-Segundo candidato para el piloto dev. Mismo alcance que `v4.0.0-rc.1` (`python-api` v1, `agpctl 0.1.0`). No autoriza producción.
-
-### Preparación
 
 - Visual estándar de la Mesa en `templates/auth-estandar/`: encabezado (`EncabezadoAgp.jsx`: nombre, ES/PT, tema claro/oscuro y menú de usuario), colores y letra (`src/styles/agp-tema.css`, `src/styles/encabezado-estandar.css`) y la marca `data-agp-login="estandar"` en la pantalla de login. La Mesa compara estas piezas con las de la versión del kit fijada en `.agp/governance.yaml`; por eso un desarrollo debe fijar esta versión o una posterior.
 - Acceso y roles del desarrollo (`ACCESO-Y-ROLES-DEL-DESARROLLO.md`): cierra la ambigüedad de «¿se despliega exigiendo asignar un rol a cada persona?». `.agp/entra.yaml` declara `acceso: organizacion` (toda cuenta de AGP entra como Usuario; exige `justificacion`) o `acceso: asignado` (solo personas asignadas; describe el `publico`: área, otras áreas, personas), y `ROLES.md` documenta roles y áreas. El agente documental documenta la sección «Acceso y roles» y el de despliegue verifica el requisito «acceso de usuarios»; la Mesa lo muestra en el plan que aprueba IT. Caso SOLPED, 27/10/2026.
