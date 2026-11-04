@@ -929,6 +929,7 @@ constitution.md
 harness-policy.md
 agent-context-package.md
 ARQUITECTURA-DESPLIEGUE.md
+DESPLIEGUE-A-MAIN.md
 agent-documental.md
 agent-specification.md
 agent-technical-review.md

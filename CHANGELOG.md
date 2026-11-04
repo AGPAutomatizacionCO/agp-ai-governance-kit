@@ -4,6 +4,10 @@ Este historial registra únicamente versiones publicadas o cambios preparados pa
 
 ## [Sin publicar]
 
+### Preparación
+
+- Norma `DESPLIEGUE-A-MAIN.md`: IT gestiona cómo se publica `main` mediante la política de CD por desarrollo de la Mesa (apagado, automático o limitado a N publicaciones por día). El CD solo publica la imagen, nunca concede permisos y no publica nada cuando cambian los archivos de contrato. Define qué ve el responsable (contador de publicaciones y tope), los requisitos por desarrollo, las reglas para personas y agentes del equipo de desarrollo y la operación del webhook. Enlazada desde `AGENTS.md`, `START-HERE.md` y `agent-despliegue.md`.
+
 ## [v4.0.0-rc.2] - 2026-11-04
 
 Segundo candidato para el piloto dev. Mismo alcance que `v4.0.0-rc.1` (`python-api` v1, `agpctl 0.1.0`). No autoriza producción.
