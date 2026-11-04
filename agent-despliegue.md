@@ -205,10 +205,11 @@ build vs `.dockerignore`, estructura del login estándar y login MSAL con
 El requisito «menú de usuario» (norma `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §4, paquete `templates/auth-estandar/`) se reporta como `ok` solo si el encabezado trae el menú estándar: el botón con `data-agp-menu="usuario"` y `aria-label` «Menú de usuario» (nombre y rol visibles), la entrada `data-agp-menu="configuracion"` («Configuración» → «Administración») y «Cerrar sesión»; si falta, `falta` y se nombra el archivo del paquete que hay que copiar. La Mesa lo bloquea igual que el login estándar.
 Quién decide cómo se publica `main` lo fija la norma `DESPLIEGUE-A-MAIN.md`: IT, con la política de CD por desarrollo en la Mesa. El agente no despliega ni configura el CD, y tampoco
 asume que un cambio de contrato (`.agp/*`, manifiesto de datos) se publicará solo: el CD no lo publica y exige la aprobación completa de IT.
-El requisito «acceso de usuarios» (norma `ACCESO-Y-ROLES-DEL-DESARROLLO.md`) reporta el valor de `acceso` en `.agp/entra.yaml` (`organizacion` o `asignado`, o «sin declarar»), si trae `justificacion`
-(organización) o `publico` (asignado), y si coincide con `ROLES.md` y con el código (`require_auth` para usuarios; el rol `Admin` en lo administrativo). Se reportan como hallazgo: `acceso` sin declarar
-(la Mesa asume `asignado` y lo avisa: un desarrollo abierto a toda la organización quedaría con restricción de rol por omisión), `organizacion` sin justificación o junto a `assignmentRequired: true`,
-`asignado` sin `publico`, y un módulo administrativo que no exige rol. La Mesa muestra ese acceso en el plan que aprueba IT.
+El requisito «acceso de usuarios» (norma `ACCESO-Y-ROLES-DEL-DESARROLLO.md`, IT 2026-11-04: todo desarrollo abierto a la organización, como la Mesa de Ayuda) reporta el valor de `acceso` en
+`.agp/entra.yaml` (`organizacion`, el valor por defecto, o `asignado`, la excepción), si `asignado` trae `justificacion` y `publico`, y si coincide con `ROLES.md` y con el código (`require_auth` para
+usuarios; el rol `Admin` en lo administrativo; quien no tiene rol ve la vista general). Se reportan como hallazgo: `assignmentRequired: true` sin `acceso` (ya no cierra la app: quitarlo),
+`organizacion` junto a `assignmentRequired: true`, `asignado` sin `justificacion` o sin `publico`, una vista general con funciones administrativas, y un módulo administrativo que no exige rol.
+La Mesa muestra ese acceso en el plan que aprueba IT.
 `WebAppName`, `ResourceGroup` y `UrlDespliegue` los asigna la Mesa al aprobar
 el plan; si el repositorio no los declara quedan en `null` y se listan en
 `campos_que_asigna_la_mesa`, no como carencia.

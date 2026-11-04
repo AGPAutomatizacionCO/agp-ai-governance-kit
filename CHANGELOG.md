@@ -4,6 +4,10 @@ Este historial registra únicamente versiones publicadas o cambios preparados pa
 
 ## [Sin publicar]
 
+### Cambios
+
+- Acceso de usuarios, norma de IT del 2026-11-04: todo desarrollo funciona como la Mesa de Ayuda. `acceso: organizacion` pasa a ser el valor por defecto (cualquier persona de AGP entra y ve la vista general; los roles los da el administrador dentro de la app, en su panel «Configuración», por persona o a toda un área de Microsoft). `acceso: asignado` es la excepción, con `justificacion` y `publico`. `assignmentRequired: true` a secas ya no cierra la app. Plantilla `templates/auth-estandar/.agp/entra.yaml` con `acceso: organizacion`.
+
 ### Preparación
 
 - Norma `DESPLIEGUE-A-MAIN.md`: IT gestiona cómo se publica `main` mediante la política de CD por desarrollo de la Mesa (apagado, automático o limitado a N publicaciones por día). El CD solo publica la imagen, nunca concede permisos y no publica nada cuando cambian los archivos de contrato. Define qué ve el responsable (contador de publicaciones y tope), los requisitos por desarrollo, las reglas para personas y agentes del equipo de desarrollo y la operación del webhook. Enlazada desde `AGENTS.md`, `START-HERE.md` y `agent-despliegue.md`.

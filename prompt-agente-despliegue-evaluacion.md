@@ -354,8 +354,10 @@ Reporta solo la estructura:
           correo: usuario@agpglass.com
 - login distinto de required, o status "definido-sin-implementar": entra =
   falta. El login debe estar implementado para desplegar.
-- assignmentRequired: true por defecto. false solo se admite como prueba
-  temporal con el comentario TEMPORAL en el propio manifiesto.
+- Acceso: abierto a toda la organización por defecto (norma de IT del
+  2026-11-04). assignmentRequired: true sin `acceso` es hallazgo (ya no
+  cierra la app). Restringir exige `acceso: asignado` con justificacion y
+  publico.
 - Nunca pidas ni muestres valores de secretos, client ID reales ni tokens.
 ```
 
