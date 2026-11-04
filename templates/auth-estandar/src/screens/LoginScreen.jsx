@@ -51,7 +51,7 @@ export default function LoginScreen() {
   }, []);
 
   return (
-    <div id="login-screen" className="screen active" style={{
+    <div id="login-screen" className="screen active" data-agp-login="estandar" style={{
       position: "relative", alignItems: "center", justifyContent: "center",
       minHeight: "100vh", height: "100vh", padding: "32px", overflow: "hidden",
       background: "radial-gradient(circle at 78% 22%, rgba(143,197,207,.22) 0, transparent 28%), radial-gradient(circle at 18% 82%, rgba(143,197,207,.12) 0, transparent 30%), linear-gradient(135deg,#06101d 0%,#071a2c 45%,#02070d 100%)",

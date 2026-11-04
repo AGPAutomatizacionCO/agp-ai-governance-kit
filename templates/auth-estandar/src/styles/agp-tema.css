@@ -1,0 +1,60 @@
+/* Tema estándar de AGP: los colores, la fuente y los modos oscuro/claro de la Mesa de Ayuda IT, para que todo desarrollo se vea como la Mesa.
+   Se importa UNA vez en src/main.jsx (import "./styles/agp-tema.css"). Solo define variables y la base de html/body: no trae reglas de
+   componentes. El oscuro es el modo por omisión; el claro se activa con la clase `theme-light` en <body> (la pone hooks/useTemaAgp.js).
+   Los valores son los que la Mesa MUESTRA (src/styles/global.css): allí el oscuro real vive en body.user-ui / body.it-ui y su :root es solo
+   un respaldo; aquí va directo en :root. Si cambia la paleta aprobada, se cambia aquí y en templates/auth-estandar del kit. */
+:root {
+  /* Marca. --brand es relleno (igual en los dos modos); --brand-text es la marca como texto o borde sobre una superficie. */
+  --brand:#8CCBD5; --brand-dark:#ADE0E7; --brand-light:rgba(140,203,213,.16); --brand-deep:#0F6D7C;
+  --brand-text:#8FC5CF; --text-on-brand:#0B2F36;
+
+  /* Fondo, superficies, bordes y texto */
+  --bg:#080808; --surface:#181818; --border:#383838;
+  --text:#F5F5F5; --text-soft:#BDBDBD; --radius:12px;
+  --shadow:0 18px 50px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.16);
+  --bg-secondary:#222222; --surface-hover:#2C2C2C; --border-strong:#737373;
+  --text-tertiary:#A3A3A3; --focus:#3894E0;
+
+  /* Estados */
+  --ok:#78BE8C; --warn:#e0a030; --danger:#DC5353; --neutral:#C8C8C8;
+  --c-ok:#4A9E6A; --c-ok-bg:#EAF7EF;
+  --c-warn:#b45309; --c-warn-bg:#fef9c3;
+  --c-danger:#DC5353; --c-danger-bg:#FDECEA;
+  --c-info:#8FC5CF; --c-info-bg:#E8F5F7;
+  --c-teal:#1a6b7a; --c-violet:#7c3aed; --c-muted:#A0A0A0;
+  --c-title:#07234f;
+  --c-report-bg:rgba(140,203,213,.10); --c-report-border:rgba(140,203,213,.28);
+
+  /* Semáforo: color pleno (-), fondo de fila (-soft), fondo de chip (-bg) y texto (-fg). En oscuro, tintes de baja opacidad. */
+  --sem-verde:#4ade80;    --sem-verde-soft:rgba(74,222,128,.08);    --sem-verde-bg:rgba(74,222,128,.20);    --sem-verde-fg:#86efac;
+  --sem-amarillo:#fbbf24; --sem-amarillo-soft:rgba(251,191,36,.08); --sem-amarillo-bg:rgba(251,191,36,.20); --sem-amarillo-fg:#fcd34d;
+  --sem-naranja:#fb923c;  --sem-naranja-soft:rgba(251,146,60,.08);  --sem-naranja-bg:rgba(251,146,60,.20);  --sem-naranja-fg:#fdba74;
+  --sem-azure:#2899f5;    --sem-azure-soft:rgba(0,120,212,.10);     --sem-azure-bg:rgba(0,120,212,.30);     --sem-azure-fg:#7cc4ff;
+  --sem-rojo:#f87171;     --sem-rojo-soft:rgba(248,113,113,.08);    --sem-rojo-bg:rgba(248,113,113,.20);    --sem-rojo-fg:#fca5a5;
+  --sem-gris:#9ca3af;     --sem-gris-soft:rgba(156,163,175,.06);    --sem-gris-bg:rgba(156,163,175,.16);    --sem-gris-fg:#d1d5db;
+  --sem-pista:rgba(255,255,255,.10);
+
+  --scrollbar-thumb:rgba(143,197,207,.32); --scrollbar-thumb-hover:rgba(143,197,207,.55); --scrollbar-track:rgba(255,255,255,.05);
+  color-scheme:dark;
+}
+
+/* Modo claro. Lo que no se redefine aquí (--brand, --brand-light, --shadow, --c-*) queda igual que en oscuro, como en la Mesa. */
+body.theme-light {
+  --bg:#f0f6f8; --surface:#fff; --border:#DCDCDC;
+  --text:#07234f; --text-soft:#5e7a8a; --brand-dark:#07234f;
+  --brand-text:#1a6b7a;
+  --sem-verde:#16a34a;    --sem-verde-soft:#f0fdf4;    --sem-verde-bg:#dcfce7;    --sem-verde-fg:#166534;
+  --sem-amarillo:#d97706; --sem-amarillo-soft:#fffbeb; --sem-amarillo-bg:#fef3c7; --sem-amarillo-fg:#854d0e;
+  --sem-naranja:#ea580c;  --sem-naranja-soft:#fff7ed;  --sem-naranja-bg:#ffedd5;  --sem-naranja-fg:#9a3412;
+  --sem-azure:#0078d4;    --sem-azure-soft:#eff6fc;    --sem-azure-bg:#cfe4fa;    --sem-azure-fg:#004578;
+  --sem-rojo:#dc2626;     --sem-rojo-soft:#fef2f2;     --sem-rojo-bg:#fee2e2;     --sem-rojo-fg:#991b1b;
+  --sem-gris:#6b7280;     --sem-gris-soft:#f9fafb;     --sem-gris-bg:#e5e7eb;     --sem-gris-fg:#374151;
+  --sem-pista:rgba(7,35,79,.10);
+  --scrollbar-thumb:rgba(7,35,79,.22); --scrollbar-thumb-hover:rgba(7,35,79,.38); --scrollbar-track:rgba(7,35,79,.05);
+  color-scheme:light;
+}
+
+/* Base. El fondo va solo en <body>: así el navegador lo extiende a toda la ventana y sigue al modo claro (que vive en body.theme-light).
+   Si <html> también tuviera fondo, tomaría siempre el oscuro de :root y se vería en los bordes al desplazar la página. */
+html, body { font-family:'Segoe UI', system-ui, sans-serif; color:var(--text); }
+body { margin:0; background:var(--bg); }

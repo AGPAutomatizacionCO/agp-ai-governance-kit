@@ -13,12 +13,17 @@ sin cambiar lo existente.
 |---|---|---|
 | `src/config/msal.js` | `src/config/msal.js` | Configura MSAL con lo que entrega la API (`cargarConfigMsal`) y guarda el nombre (`appInfo`). |
 | `src/contexts/AuthContext.jsx` | `src/contexts/AuthContext.jsx` | Sesión: restauración silenciosa, `login`, `logout`, `getAuthToken`, `roles`, `isAdmin`. |
-| `src/screens/LoginScreen.jsx` | `src/screens/LoginScreen.jsx` | La pantalla de login aprobada, con el nombre del desarrollo. |
+| `src/screens/LoginScreen.jsx` | `src/screens/LoginScreen.jsx` | La pantalla de login aprobada, con el nombre del desarrollo. Su raíz lleva `data-agp-login="estandar"`. Se copia sin cambios. |
 | `src/styles/login-estandar.css` | `src/styles/login-estandar.css` | Los estilos que la pantalla toma del CSS global de la Mesa (color de marca, fuente, reinicio de márgenes). Va acotado a `#login-screen` y hace que la pantalla se vea **igual** en cualquier desarrollo. |
 | `src/components/UserMenu.jsx` | `src/components/UserMenu.jsx` | **Menú de usuario estándar**: nombre y rol de quien entró; al hacer clic, «Configuración» → «Administración» y «Cerrar sesión». Probado en producción con RPC. Ver abajo. |
 | `src/styles/menu-usuario-estandar.css` | `src/styles/menu-usuario-estandar.css` | Sus estilos, acotados a `.agp-menu-usuario`. |
 | `src/components/UserMenu.test.jsx` | `src/components/UserMenu.test.jsx` | La prueba del contrato (vitest): nombre, rol, «Configuración» solo con permiso y «Cerrar sesión». Corre en el CI del desarrollo. |
-| `src/components/AgpLogo.jsx`, `Icon.jsx` | `src/components/` | Piezas que usa la pantalla (si el desarrollo ya las tiene, no se pisan). |
+| `src/styles/agp-tema.css` | `src/styles/agp-tema.css` | **Colores y fuente de la Mesa**: las variables (`--bg`, `--surface`, `--border`, `--text`, `--brand`, `--c-*`, `--sem-*`…) en oscuro y en claro (`body.theme-light`) y la base de `html, body`. Se importa una vez en `src/main.jsx`. Ver abajo. |
+| `src/components/EncabezadoAgp.jsx` | `src/components/EncabezadoAgp.jsx` | **Encabezado estándar**: nombre del desarrollo, ES / PT, modo claro / oscuro y el menú de usuario. Ver abajo. |
+| `src/styles/encabezado-estandar.css` | `src/styles/encabezado-estandar.css` | Sus estilos, acotados a `.agp-encabezado`. |
+| `src/hooks/useTemaAgp.js`, `useIdiomaAgp.js` | `src/hooks/` | El modo claro / oscuro y el idioma ES / PT que usa el encabezado; quedan guardados en el navegador. |
+| `src/components/EncabezadoAgp.test.jsx` | `src/components/EncabezadoAgp.test.jsx` | La prueba del contrato del encabezado (vitest): marcas, nombre y menú de usuario. Corre en el CI del desarrollo. |
+| `src/components/AgpLogo.jsx`, `Icon.jsx` | `src/components/` | Piezas que usan la pantalla y el encabezado (si el desarrollo ya las tiene, no se pisan; el encabezado necesita los iconos `sun` y `moon`). |
 | `backend/src/helpers/auth.py` | `backend/src/helpers/auth.py` | `require_auth`: valida el `id_token` de Entra ID. |
 | `backend/src/flask_config/bp_base.py` | ídem (o agregar solo la ruta) | `GET /api/config` (público: tenant, cliente y nombre) y `/api/health`. |
 | `.agp/entra.yaml` | `.agp/entra.yaml` | Manifiesto del login: `administradores` y permisos mínimos. |
@@ -48,6 +53,33 @@ Lo que se exige es el **contrato**, no el archivo: un desarrollo con otro framew
 | `data-agp-menu="cerrar-sesion"` | «Cerrar sesión». |
 
 El rol sale del token (`Admin` → «Administrador», si no «Usuario»); un desarrollo con perfiles propios pasa `rolEtiqueta`. Los enlaces administrativos propios se pasan en `enlaces`. La Mesa **bloquea** el despliegue si falta (pieza «menú de usuario» de `auth_estandar`).
+
+## Encabezado y colores estándar
+
+Todo desarrollo se ve como la Mesa de Ayuda: la misma barra superior y los mismos colores, fuente y modos claro / oscuro.
+
+1. Copiar **sin cambios** `src/styles/agp-tema.css`, `src/styles/encabezado-estandar.css`, `src/components/EncabezadoAgp.jsx` y los dos
+   archivos de `src/hooks/`.
+2. En `src/main.jsx`, una sola vez: `import "./styles/agp-tema.css";` (ver `main.jsx.example`). Los estilos propios del desarrollo usan esas
+   variables (`var(--surface)`, `var(--text)`, `var(--border)`, `var(--brand)`…) en vez de colores fijos; así cambian solos con el modo claro.
+3. Arriba de la aplicación: `<EncabezadoAgp nombre="Mi desarrollo" />`. Sin `nombre` usa el que entrega la API (`appInfo`, el mismo de la
+   pantalla de login). Ya trae el `UserMenu`: no se monta otro. Lo que necesita el menú va en `menuProps`
+   (`<EncabezadoAgp menuProps={{ onNavegar: navigate }} />`) y las acciones propias del desarrollo van dentro, junto al nombre
+   (`<EncabezadoAgp><button>Exportar</button></EncabezadoAgp>`).
+4. Idioma: el encabezado solo guarda la elección ES / PT; cada desarrollo traduce **sus** textos leyendo `const { idioma } = useIdiomaAgp()`.
+   El modo activo se lee con `useTemaAgp()`.
+
+| Marca | Qué es |
+|---|---|
+| `data-agp-login="estandar"` | La raíz de la pantalla de login (`LoginScreen.jsx`). |
+| `data-agp-encabezado="estandar"` | La raíz del encabezado. |
+| `data-agp-idioma` | El grupo ES / PT; cada botón con `aria-pressed`. |
+| `data-agp-tema` + aria-label «Modo claro» / «Modo oscuro» | El botón de modo; dice a qué modo cambia. |
+
+Al desplegar, la Mesa compara `src/styles/agp-tema.css`, `src/styles/encabezado-estandar.css`, `src/styles/login-estandar.css`,
+`src/styles/menu-usuario-estandar.css` y `src/screens/LoginScreen.jsx` **byte a
+byte** (sin contar los finales de línea) con los del kit en la versión fijada en `.agp/governance.yaml`, y revisa que estén las marcas. Si
+hay que cambiar el diseño, se cambia aquí, en el kit. El contenido de cada pantalla, debajo del encabezado, es libre.
 
 ## Qué hace la Mesa al desplegar (el desarrollo no necesita acceso a Azure)
 
