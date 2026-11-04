@@ -1,5 +1,5 @@
 {
-  "kitVersion": "v4.0.0-rc.1",
+  "kitVersion": "v4.0.0-rc.2",
   "kitCommit": "<sha completo de 40 caracteres>",
   "status": "candidate",
   "schemaVersions": {
