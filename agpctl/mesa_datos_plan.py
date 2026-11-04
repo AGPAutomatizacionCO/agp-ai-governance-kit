@@ -56,9 +56,9 @@ def plan_de_datos(mapeo, servidor, base, habilitado):
     if not datos_ddl.tablas_a_crear(mapeo):
         return None, []
     if not habilitado:
-        return None, ["Datos: el manifiesto pide crear tablas en el despliegue (crear_en_despliegue) pero la creación automática de tablas "
-                      "no está habilitada (AGP_DATOS_ENABLED=true): la variable debe estar en la Mesa (App Service) Y en el Job del worker, que repite esta "
-                      "validación con su propio entorno"]
+        return None, [("Datos: el manifiesto pide crear tablas en el despliegue (crear_en_despliegue) pero la creación automática de tablas "
+                       "no está habilitada (AGP_DATOS_ENABLED=true): la variable debe estar en la Mesa (App Service) Y en el Job del worker, que repite esta "
+                       "validación con su propio entorno")]
     bloqueos = []
     if not _SERVIDOR.fullmatch(str(servidor or "")) or not _BASE.fullmatch(str(base or "")):
         bloqueos.append("Datos: falta o es inválida la configuración del destino de las tablas (AGP_DATOS_SQL_SERVER / AGP_DATOS_SQL_DATABASE)")

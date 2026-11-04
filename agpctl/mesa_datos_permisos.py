@@ -80,7 +80,7 @@ def motivo_de_destino_no_habilitado(d, restrictivos=(), faltan_secretos=None):
         return None if restrictivos else _mensaje_de_cuentas(d, nombres)
     try:
         faltan = list(faltan_secretos(nombres))
-    except Exception:
+    except Exception:  # noqa: BLE001 - cualquier fallo al consultar el vault bloquea; nunca se da por habilitado
         return (f"no se pudo comprobar en el vault de desarrollos si existen las cuentas de plataforma de {d['base']}: por seguridad el destino "
                 f"{d['servidor']}/{d['base']} no se da por habilitado")
     return _mensaje_de_cuentas(d, faltan) if faltan else None
