@@ -4,8 +4,13 @@ Este historial registra únicamente versiones publicadas o cambios preparados pa
 
 ## [Sin publicar]
 
+## [v4.0.0-rc.2] - 2026-11-04
+
+Segundo candidato para el piloto dev. Mismo alcance que `v4.0.0-rc.1` (`python-api` v1, `agpctl 0.1.0`). No autoriza producción.
+
 ### Preparación
 
+- Visual estándar de la Mesa en `templates/auth-estandar/`: encabezado (`EncabezadoAgp.jsx`: nombre, ES/PT, tema claro/oscuro y menú de usuario), colores y letra (`src/styles/agp-tema.css`, `src/styles/encabezado-estandar.css`) y la marca `data-agp-login="estandar"` en la pantalla de login. La Mesa compara estas piezas con las de la versión del kit fijada en `.agp/governance.yaml`; por eso un desarrollo debe fijar esta versión o una posterior.
 - Acceso y roles del desarrollo (`ACCESO-Y-ROLES-DEL-DESARROLLO.md`): cierra la ambigüedad de «¿se despliega exigiendo asignar un rol a cada persona?». `.agp/entra.yaml` declara `acceso: organizacion` (toda cuenta de AGP entra como Usuario; exige `justificacion`) o `acceso: asignado` (solo personas asignadas; describe el `publico`: área, otras áreas, personas), y `ROLES.md` documenta roles y áreas. El agente documental documenta la sección «Acceso y roles» y el de despliegue verifica el requisito «acceso de usuarios»; la Mesa lo muestra en el plan que aprueba IT. Caso SOLPED, 27/10/2026.
 - Agente de despliegue: indica la librería de conexión a SQL Server según el framework del backend (`PERMISOS-Y-SECRETOS-DEL-WORKER.md`, sección 5.1): `pyodbc` + driver ODBC + `libgssapi-krb5-2` en Python, `mssql` en Node.js, `Microsoft.Data.SqlClient` en .NET, `mssql-jdbc` en Java. El frontend (React, Vite) nunca lleva librería ni credenciales de base de datos: es un bloqueo si las trae.
 - Permisos y secretos del worker (`PERMISOS-Y-SECRETOS-DEL-WORKER.md`): quién hace qué (la Mesa crea la cuenta acotada del desarrollo y guarda su clave; el worker otorga los `GRANT` del manifiesto aprobado; IT crea una vez las cuentas de plataforma por base; el dueño del dato delega el `SELECT`), qué se concede y qué no, cómo se declara la conexión en `.agp/runtime.yaml` por prefijo (`<PREFIJO>DB_NAME` y los tres secretos), lo que valida la Mesa antes de aprobar (server, esquema real, conexión declarada, ODBC completo), el estado local sin persistencia y una lista de verificación. El agente de despliegue lo aplica al armar `MapeoAccesoBD` (caso SAC, 27/10/2026).
@@ -22,4 +27,4 @@ Este historial registra únicamente versiones publicadas o cambios preparados pa
 - Definición inicial de la política de releases y del contrato de compatibilidad.
 - Esquemas versionados para gobierno, despliegue v2 y perfiles; el identificador lógico del esquema de acceso a datos ya no apunta a `main`.
 
-> Todavía no existe un tag o release oficial del kit. `v4.0.0-rc.1` es la primera versión candidata propuesta, no una versión publicada.
+> `v4.0.0-rc.1` y `v4.0.0-rc.2` son versiones candidatas para el piloto dev; todavía no hay versión estable.

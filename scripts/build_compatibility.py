@@ -13,6 +13,7 @@ from agpctl import __version__
 ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / "release" / "compatibility.template.json"
 SHA = re.compile(r"[0-9a-f]{40}\Z")
+RC = re.compile(r"v\d+\.\d+\.\d+-rc\.[1-9]\d*\Z")
 
 
 def build(commit: str, *, template: Path = TEMPLATE) -> dict:
@@ -21,8 +22,8 @@ def build(commit: str, *, template: Path = TEMPLATE) -> dict:
     data = json.loads(template.read_text(encoding="utf-8"))
     if data.get("status") != "candidate":
         raise ValueError("El manifiesto del RC debe tener status=candidate")
-    if data.get("kitVersion") != "v4.0.0-rc.1":
-        raise ValueError("Versión del kit inesperada")
+    if not RC.fullmatch(str(data.get("kitVersion") or "")):
+        raise ValueError("Versión del kit inesperada: un candidato es vMAJOR.MINOR.PATCH-rc.N")
     if data.get("agpctl") != {"minInclusive": __version__, "maxExclusive": "0.1.1"}:
         raise ValueError("Intervalo de agpctl incompatible con el CLI probado")
     if data.get("profiles") != {"python-api": "1"}:
