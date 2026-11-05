@@ -40,7 +40,7 @@ del servidor con el valor `pendiente-de-configurar` y asigna «Key Vault Secrets
 5. **Una acción por servidor:** «Configurar accesos» crea, con la misma credencial, las cuentas del worker de cada base elegida y la de consulta. Cada parte es independiente: si una falla, las
    demás se hacen igual y el resultado dice qué salió. Repetir el botón repara.
 6. **El worker siempre delega** (`SELECT, INSERT, UPDATE` con `WITH GRANT OPTION`): reparte permisos a los desarrollos sobre cualquier tabla de la base, sin pedirle al DBA tabla por tabla. Lo
-   que se concede a cada desarrollo lo fija el plan que IT aprueba (script cerrado por hash); las tablas de sensibilidad media o alta las aprueba el dueño del dato.
+   que se concede a cada desarrollo lo fija el plan que IT aprueba (script cerrado por hash); la sensibilidad de las tablas es informativa y no pide una aprobación aparte (IT aprueba el contrato completo una sola vez).
    El precio: el worker puede leer toda esa base.
 
 ## 4. Qué no cubre

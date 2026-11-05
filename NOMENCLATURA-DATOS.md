@@ -55,6 +55,16 @@ Una tabla propia que debe crearse en el despliegue lleva `"crear_en_despliegue":
 La Mesa genera el T-SQL a partir de este JSON; el worker ejecuta ese script tal cual y su hash forma parte del plan que IT aprueba.
 Nada de SQL escrito por el desarrollador se ejecuta con permisos de creación.
 
+## Lo que hoy vive en SQLite (o en cualquier archivo local)
+
+SQLite sirve para desarrollar en local, pero **no es un origen de despliegue**: el archivo del contenedor se pierde al reiniciar. Todo dato propio que hoy vive en SQLite se declara
+como **tabla propia nueva** (`origen: propia_del_desarrollo`, `crear_en_despliegue: true`), en el esquema `app_<área>_<desarrollo>` y con el nombre `App_<Área>_<Desarrollo>_<tabla>` de
+esta norma. Para recordar de dónde venía se agrega `migracion_desde: {"motor": "sqlite", "tabla": "<nombre local>"}` (informativo; IT lo ve en el documento que aprueba).
+
+- **Las tablas nacen vacías.** La Mesa no copia datos: el desarrollador migra los suyos después, por su cuenta.
+- Declarar una fuente con `motor` que empiece por `sqlite` **bloquea** el plan, con el mensaje de cómo declararla.
+- El código puede seguir usando SQLite en local: la misma base con otra cadena de conexión (Azure SQL con los secretos del despliegue en producción).
+
 ## Compatibilidad
 
 Los manifiestos existentes siguen siendo válidos: las reglas de esta norma solo se exigen cuando `crear_en_despliegue` es `true`.

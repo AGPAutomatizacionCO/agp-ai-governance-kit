@@ -52,7 +52,7 @@
         },
         "motor": {
           "type": "string",
-          "description": "Motor + driver detectado, en una frase (ej. \"Azure SQL (mssql+pyodbc)\", \"PostgreSQL vía SQLAlchemy 2.0\")."
+          "description": "Motor + driver detectado, en una frase (ej. \"Azure SQL (mssql+pyodbc)\", \"PostgreSQL vía SQLAlchemy 2.0\"). No puede empezar por sqlite: SQLite solo sirve en local y no es un origen de despliegue (declare la tabla propia con migracion_desde)."
         },
         "esquemas": {
           "type": "array",
@@ -164,6 +164,16 @@
           "items": {
             "$ref": "#/$defs/columna"
           }
+        },
+        "migracion_desde": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["motor", "tabla"],
+          "properties": {
+            "motor": {"const": "sqlite"},
+            "tabla": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]{0,127}$"}
+          },
+          "description": "Informativo. De dónde venía esta tabla propia cuando el desarrollo trabajaba en local con SQLite (ej. {\"motor\": \"sqlite\", \"tabla\": \"config_local\"}). SQLite no es un origen de despliegue: la tabla se declara aquí como propia (esquema app_<área>_<desarrollo>, nombre App_<Área>_<Desarrollo>_<tabla>) y nace VACÍA; el desarrollador migra sus datos después, por su cuenta. IT lo ve en el documento que aprueba."
         },
         "crear_en_despliegue": {
           "type": "boolean",

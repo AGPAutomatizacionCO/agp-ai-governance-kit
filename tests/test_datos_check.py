@@ -47,10 +47,10 @@ secrets:
 
 
 def _repo(tmp_path, manifiesto, runtime=RUNTIME):
-    (tmp_path / "ai" / "outputs").mkdir(parents=True)
+    (tmp_path / "ai" / "outputs").mkdir(parents=True, exist_ok=True)
     (tmp_path / "ai" / "outputs" / "data-access-manifest.json").write_text(json.dumps(manifiesto), encoding="utf-8")
     if runtime is not None:
-        (tmp_path / ".agp").mkdir()
+        (tmp_path / ".agp").mkdir(exist_ok=True)
         (tmp_path / ".agp" / "runtime.yaml").write_text(runtime, encoding="utf-8")
     return tmp_path
 
@@ -84,3 +84,39 @@ def test_secretos_de_conexion_de_las_tablas_propias_sin_declarar(tmp_path):
     runtime = RUNTIME.replace("demo-db-pwd", "otro-nombre")
     resultado = check(_repo(tmp_path, _manifiesto(), runtime=runtime))
     assert any("secretos de conexión de las tablas propias" in i and "demo-db-pwd" in i for i in resultado["issues"])
+
+
+def _con_sqlite(manifiesto):
+    manifiesto["fuentes_datos"].append({
+        "database_id": "local", "server": "archivo-local", "database": "app.db", "motor": "SQLite local",
+        "esquemas": [{"schema": "main", "tablas": [{"table": "config_local", "origen": "preexistente", "sensibilidad": "baja", "descripcion": "Parámetros",
+                                                    "operaciones_permitidas": ["SELECT", "INSERT"], "columnas": [{"name": "Id", "sensible": False}]}]}]})
+    return manifiesto
+
+
+def test_sqlite_como_origen_de_despliegue_se_rechaza(tmp_path):
+    resultado = check(_repo(tmp_path, _con_sqlite(_manifiesto())))
+    assert resultado["valid"] is False
+    assert any("SQLite" in i or "sqlite" in i for i in resultado["issues"])
+
+
+def test_la_tabla_propia_que_viene_de_sqlite_con_migracion_desde_pasa(tmp_path):
+    manifiesto = _manifiesto()
+    manifiesto["fuentes_datos"][0]["esquemas"][0]["tablas"][0]["migracion_desde"] = {"motor": "sqlite", "tabla": "alarma_local"}
+    assert check(_repo(tmp_path, manifiesto))["issues"] == []
+
+
+def test_migracion_desde_mal_formada_se_rechaza(tmp_path):
+    manifiesto = _manifiesto()
+    manifiesto["fuentes_datos"][0]["esquemas"][0]["tablas"][0]["migracion_desde"] = {"motor": "oracle", "tabla": "x"}
+    assert check(_repo(tmp_path, manifiesto))["valid"] is False
+
+
+def test_la_sensibilidad_media_o_alta_no_bloquea_y_las_columnas_sensibles_tampoco(tmp_path):
+    manifiesto = _manifiesto()
+    tabla = manifiesto["fuentes_datos"][0]["esquemas"][1]["tablas"][0]   # dbo.ODATA_MB52, preexistente
+    for nivel in ("media", "alta"):
+        tabla["sensibilidad"] = nivel
+        tabla["columnas"] = [{"name": "Material", "sensible": False}, {"name": "Correo", "sensible": True}]
+        resultado = check(_repo(tmp_path / nivel, manifiesto))
+        assert not any("dueño del dato" in i or "sensibilidad" in i for i in resultado["issues"]), resultado

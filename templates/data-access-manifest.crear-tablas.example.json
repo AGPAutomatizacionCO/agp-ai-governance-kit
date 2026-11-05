@@ -15,6 +15,7 @@
               "table": "App_Manufacturing_GestorSolicitudes_solicitudes",
               "origen": "propia_del_desarrollo",
               "crear_en_despliegue": true,
+              "migracion_desde": {"motor": "sqlite", "tabla": "solicitudes"},
               "descripcion": "Solicitudes registradas por el personal de planta",
               "sensibilidad": "media",
               "operaciones_permitidas": [

@@ -82,13 +82,48 @@ def _q(identificador):
     return "[" + identificador.replace("]", "]]") + "]"
 
 
+# Regla SQLite 2026-11-05 aplicada a mano (resto del espejo con desfases previos respecto de la Mesa; la resincronización completa queda pendiente).
+ORIGEN_DATO_LOCAL = "dato_local_propio"
+
+
+def es_dato_local(fuente, tabla=None):
+    """True si la fuente (motor SQLite) o la tabla (origen dato_local_propio) es un archivo local del código.
+
+    SQLite sirve para desarrollar en local, pero NO existe en producción (el archivo del contenedor se pierde al reiniciar). Por eso nunca es un origen de despliegue:
+    estos datos se excluyen de los permisos y de la creación de tablas, y `revisar_datos_locales` pide declarar su tabla propia (esquema y nombre de la norma)."""
+    if str((fuente or {}).get("motor") or "").strip().lower().startswith("sqlite"):
+        return True
+    return tabla is not None and tabla.get("origen") == ORIGEN_DATO_LOCAL
+
+
+def datos_locales(mapeo):
+    """[(fuente, esquema, tabla)] declarados como dato local propio (SQLite), para mostrarlos; no se crean ni se conceden."""
+    return [(str(f.get("database_id") or f.get("database") or ""), str(e.get("schema") or ""), str(t.get("table") or ""))
+            for f in (mapeo or {}).get("fuentes_datos") or [] for e in f.get("esquemas") or [] for t in e.get("tablas") or [] if es_dato_local(f, t)]
+
+
+def revisar_datos_locales(mapeo):
+    """Problemas de las fuentes o tablas SQLite declaradas como origen. Vacía si no hay. Una por fuente.
+
+    Regla (2026-11-05): todo lo local pasa a tablas propias del desarrollo, en su esquema y con el nombre de la norma. Las tablas nacen VACÍAS; el desarrollador migra
+    después sus datos por su cuenta. `migracion_desde: {motor: sqlite, tabla: <nombre>}` en la tabla propia recuerda de dónde viene (informativo)."""
+    problemas = []
+    for fuente in (mapeo or {}).get("fuentes_datos") or []:
+        tablas = [t for e in fuente.get("esquemas") or [] for t in e.get("tablas") or []]
+        if es_dato_local(fuente) or any(es_dato_local(fuente, t) for t in tablas):
+            problemas.append(f"{fuente.get('database_id') or fuente.get('database') or '?'!s}: SQLite solo sirve en local y no existe en producción (el archivo se pierde al reiniciar). "
+                             "Declare esas tablas como propias del desarrollo (origen propia_del_desarrollo, crear_en_despliegue true y nombre App_<Área>_<Desarrollo>_<tabla> en el "
+                             "esquema app_<área>_<desarrollo>), con migracion_desde para recordar su origen. Nacen vacías: el desarrollador migra sus datos después")
+    return problemas
+
+
 def tablas_a_crear(mapeo):
     """[(esquema, tabla_dict)] de las tablas con crear_en_despliegue=true, en el orden del manifiesto."""
     resultado = []
     for fuente in (mapeo or {}).get("fuentes_datos") or []:
         for esquema in fuente.get("esquemas") or []:
             for tabla in esquema.get("tablas") or []:
-                if tabla.get("crear_en_despliegue") is True:
+                if tabla.get("crear_en_despliegue") is True and not es_dato_local(fuente, tabla):
                     resultado.append((str(esquema.get("schema") or ""), tabla))
     return resultado
 
@@ -96,10 +131,9 @@ def tablas_a_crear(mapeo):
 # ---- Lectura de tablas PREEXISTENTES (mismo script, misma aprobación de IT) ------------------------------------------------------------
 # Un desarrollo con esquema propio también lee tablas que ya existen en esa misma base (p. ej. dbo.ODATA_MB52_IM03). Las declara en el manifiesto con
 # origen «preexistente» y operaciones_permitidas = [SELECT]; el script suma un GRANT SELECT por tabla al rol del desarrollo y IT lo ve en el plan
-# (datosLecturas) antes de aprobar. Solo SELECT, solo en la base donde se crean las tablas propias y solo de sensibilidad baja: lo demás lo decide el dueño del dato.
+# (datosLecturas) antes de aprobar. Solo SELECT y solo en la base donde se crean las tablas propias; la sensibilidad es informativa (no bloquea).
 # El LÍMITE REAL lo pone la base: el GRANT solo prospera si el DBA delegó SELECT ... WITH GRANT OPTION sobre esa tabla a la cuenta del worker.
 _ESQUEMAS_NO_COMPARTIBLES = {"sys", "information_schema", "guest"}
-_SENSIBILIDAD_AUTOMATICA = ("ninguna", "baja")
 _ESQUEMA_SIN_CALIFICAR = "sin_calificar_en_el_codigo"   # marcador de los manifiestos cuando el código no califica el esquema: no es un esquema real
 _IDENTIFICADOR = re.compile(r"^[A-Za-z][A-Za-z0-9_]{0,127}$")
 
@@ -115,7 +149,7 @@ def tablas_a_leer(mapeo, servidor, base):
             continue
         for esquema in fuente.get("esquemas") or []:
             for tabla in esquema.get("tablas") or []:
-                if tabla.get("origen") == "preexistente":
+                if tabla.get("origen") == "preexistente" and not es_dato_local(fuente, tabla):
                     resultado.append((str(esquema.get("schema") or ""), tabla))
     return resultado
 
@@ -139,10 +173,6 @@ def revisar_lecturas(mapeo, servidor, base):
         if operaciones != {"SELECT"}:
             problemas.append(f"{etiqueta}: sobre tablas preexistentes solo se otorga SELECT; {', '.join(sorted(operaciones - {'SELECT'})) or 'sin operaciones'} "
                              "requiere una excepción aprobada por IT")
-        sensibles = [c.get("name") for c in tabla.get("columnas") or [] if c.get("sensible") is True]
-        if str(tabla.get("sensibilidad") or "") not in _SENSIBILIDAD_AUTOMATICA or sensibles:
-            problemas.append(f"{etiqueta}: sensibilidad «{tabla.get('sensibilidad')}»" + (f" o columnas sensibles ({', '.join(sensibles[:3])})" if sensibles else "")
-                             + ": no se otorga por la ruta automática; lo aprueba el dueño del dato")
     return problemas
 
 
@@ -176,6 +206,10 @@ def revisar_tablas_a_crear(mapeo):
         nombres[nombre.lower()] = tabla
         if tabla.get("origen") != "propia_del_desarrollo":
             problemas.append(f"{etiqueta}: solo se crean tablas con origen propia_del_desarrollo")
+        desde = tabla.get("migracion_desde")
+        if desde is not None and (not isinstance(desde, dict) or set(desde) - {"motor", "tabla"} or str(desde.get("motor") or "").lower() != "sqlite"
+                                  or not _IDENTIFICADOR.fullmatch(str(desde.get("tabla") or ""))):
+            problemas.append(f"{etiqueta}: migracion_desde debe ser {{motor: sqlite, tabla: <nombre de la tabla local>}}")
     for esquema, tabla in tablas:
         nombre = str(tabla.get("table") or "")
         etiqueta = f"{esquema}.{nombre}"

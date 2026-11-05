@@ -28,7 +28,7 @@ El manifiesto y el código deben coincidir. Si el código usa una tabla u operac
 
 - Por tabla: `SELECT`, `INSERT` y `UPDATE`. `INSERT` y `UPDATE` sobre tablas **preexistentes** son una excepción que IT ve resaltada y exige explicar el motivo en la descripción de la tabla.
 - **Nunca** `DELETE` ni permisos de esquema (`ALTER`, `CONTROL`, `CREATE`...).
-- Sensibilidad **media o alta** sobre tablas preexistentes no se concede por esta vía: la aprueba el dueño del dato.
+- La sensibilidad de la tabla y de sus columnas es **informativa**: no bloquea ni exige una aprobación aparte del dueño del dato (decisión del 2026-11-05). La delegación del `SELECT` al worker sigue siendo una configuración de la base.
 - Las columnas marcadas como sensibles (p. ej. correos) no bloquean, pero IT las ve resaltadas: aprobar el documento es aprobar esa excepción.
 - Una cuenta de solo lectura general del catálogo del IED (`fuentes: [...]` en `runtime.yaml`) existe para casos de consulta amplia y está limitada a una **lista cerrada**; para un desarrollo concreto
   se prefiere la cuenta acotada a sus tablas.
@@ -60,7 +60,7 @@ secrets:
 
 Falla (no apto) y dice qué corregir:
 
-- `server` ausente o que no sea Azure SQL; esquema de una tabla sin calificar; sensibilidad media/alta sobre una tabla preexistente.
+- `server` ausente o que no sea Azure SQL; esquema de una tabla sin calificar.
 - Una base del manifiesto sin su conexión declarada en `runtime.yaml` (variable `<PREFIJO>DB_NAME` y los tres secretos).
 - El Dockerfile instala `msodbcsql*` sin `libgssapi-krb5-2` (el contenedor arranca y `/api/health` responde 200, pero toda ruta con SQL responde 503). Referencia:
   `templates/Dockerfile-odbc-sqlserver.snippet`.
