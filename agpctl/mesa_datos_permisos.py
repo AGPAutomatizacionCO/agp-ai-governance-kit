@@ -15,7 +15,7 @@ lo que no está declarado no se concede.
 
 Qué se concede y qué no:
   - SELECT, INSERT y UPDATE por tabla. INSERT/UPDATE son una excepción (se marca como escritura y exige explicar el motivo en la descripción de la tabla).
-  - Nunca DELETE ni permisos de esquema. Sensibilidad media o alta: no se concede por esta vía (la aprueba el dueño del dato).
+  - Nunca DELETE ni permisos de esquema. La sensibilidad es INFORMATIVA: no bloquea ni pide una aprobación aparte (2026-11-05: IT aprueba una sola vez el contrato completo).
   - Las columnas marcadas como sensibles (p. ej. correos) no bloquean pero IT las ve resaltadas en el documento: aprobarlo es aprobar esa excepción.
   - Las tablas propias a crear (`crear_en_despliegue`) las cubre `datos_plan`; aquí solo las tablas `preexistente`.
 
@@ -157,8 +157,6 @@ def leer_destinos(mapeo, excluir=None):
             if not operaciones or fuera:
                 problemas.append(f"{etiqueta}: " + (f"{', '.join(fuera)} no se otorga por esta vía (solo {', '.join(OPERACIONES)})" if fuera
                                                      else "no declara operaciones_permitidas"))
-            if str(tabla.get("sensibilidad") or "") not in datos_ddl._SENSIBILIDAD_AUTOMATICA:
-                problemas.append(f"{etiqueta}: sensibilidad «{tabla.get('sensibilidad')}»: no se otorga por esta vía; lo aprueba el dueño del dato")
             permisos = [o for o in OPERACIONES if o in operaciones]
             escritura = any(o in permisos for o in ("INSERT", "UPDATE"))
             if escritura and not _texto_corto(tabla.get("descripcion")):

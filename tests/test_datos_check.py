@@ -47,10 +47,10 @@ secrets:
 
 
 def _repo(tmp_path, manifiesto, runtime=RUNTIME):
-    (tmp_path / "ai" / "outputs").mkdir(parents=True)
+    (tmp_path / "ai" / "outputs").mkdir(parents=True, exist_ok=True)
     (tmp_path / "ai" / "outputs" / "data-access-manifest.json").write_text(json.dumps(manifiesto), encoding="utf-8")
     if runtime is not None:
-        (tmp_path / ".agp").mkdir()
+        (tmp_path / ".agp").mkdir(exist_ok=True)
         (tmp_path / ".agp" / "runtime.yaml").write_text(runtime, encoding="utf-8")
     return tmp_path
 
@@ -110,3 +110,13 @@ def test_migracion_desde_mal_formada_se_rechaza(tmp_path):
     manifiesto = _manifiesto()
     manifiesto["fuentes_datos"][0]["esquemas"][0]["tablas"][0]["migracion_desde"] = {"motor": "oracle", "tabla": "x"}
     assert check(_repo(tmp_path, manifiesto))["valid"] is False
+
+
+def test_la_sensibilidad_media_o_alta_no_bloquea_y_las_columnas_sensibles_tampoco(tmp_path):
+    manifiesto = _manifiesto()
+    tabla = manifiesto["fuentes_datos"][0]["esquemas"][1]["tablas"][0]   # dbo.ODATA_MB52, preexistente
+    for nivel in ("media", "alta"):
+        tabla["sensibilidad"] = nivel
+        tabla["columnas"] = [{"name": "Material", "sensible": False}, {"name": "Correo", "sensible": True}]
+        resultado = check(_repo(tmp_path / nivel, manifiesto))
+        assert not any("dueño del dato" in i or "sensibilidad" in i for i in resultado["issues"]), resultado

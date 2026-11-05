@@ -131,10 +131,9 @@ def tablas_a_crear(mapeo):
 # ---- Lectura de tablas PREEXISTENTES (mismo script, misma aprobación de IT) ------------------------------------------------------------
 # Un desarrollo con esquema propio también lee tablas que ya existen en esa misma base (p. ej. dbo.ODATA_MB52_IM03). Las declara en el manifiesto con
 # origen «preexistente» y operaciones_permitidas = [SELECT]; el script suma un GRANT SELECT por tabla al rol del desarrollo y IT lo ve en el plan
-# (datosLecturas) antes de aprobar. Solo SELECT, solo en la base donde se crean las tablas propias y solo de sensibilidad baja: lo demás lo decide el dueño del dato.
+# (datosLecturas) antes de aprobar. Solo SELECT y solo en la base donde se crean las tablas propias; la sensibilidad es informativa (no bloquea).
 # El LÍMITE REAL lo pone la base: el GRANT solo prospera si el DBA delegó SELECT ... WITH GRANT OPTION sobre esa tabla a la cuenta del worker.
 _ESQUEMAS_NO_COMPARTIBLES = {"sys", "information_schema", "guest"}
-_SENSIBILIDAD_AUTOMATICA = ("ninguna", "baja")
 _ESQUEMA_SIN_CALIFICAR = "sin_calificar_en_el_codigo"   # marcador de los manifiestos cuando el código no califica el esquema: no es un esquema real
 _IDENTIFICADOR = re.compile(r"^[A-Za-z][A-Za-z0-9_]{0,127}$")
 
@@ -174,10 +173,6 @@ def revisar_lecturas(mapeo, servidor, base):
         if operaciones != {"SELECT"}:
             problemas.append(f"{etiqueta}: sobre tablas preexistentes solo se otorga SELECT; {', '.join(sorted(operaciones - {'SELECT'})) or 'sin operaciones'} "
                              "requiere una excepción aprobada por IT")
-        sensibles = [c.get("name") for c in tabla.get("columnas") or [] if c.get("sensible") is True]
-        if str(tabla.get("sensibilidad") or "") not in _SENSIBILIDAD_AUTOMATICA or sensibles:
-            problemas.append(f"{etiqueta}: sensibilidad «{tabla.get('sensibilidad')}»" + (f" o columnas sensibles ({', '.join(sensibles[:3])})" if sensibles else "")
-                             + ": no se otorga por la ruta automática; lo aprueba el dueño del dato")
     return problemas
 
 
