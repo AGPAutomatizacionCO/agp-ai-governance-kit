@@ -111,7 +111,7 @@ def revisar_datos_locales(mapeo):
     for fuente in (mapeo or {}).get("fuentes_datos") or []:
         tablas = [t for e in fuente.get("esquemas") or [] for t in e.get("tablas") or []]
         if es_dato_local(fuente) or any(es_dato_local(fuente, t) for t in tablas):
-            problemas.append(f"{str(fuente.get('database_id') or fuente.get('database') or '?')}: SQLite solo sirve en local y no existe en producción (el archivo se pierde al reiniciar). "
+            problemas.append(f"{fuente.get('database_id') or fuente.get('database') or '?'!s}: SQLite solo sirve en local y no existe en producción (el archivo se pierde al reiniciar). "
                              "Declare esas tablas como propias del desarrollo (origen propia_del_desarrollo, crear_en_despliegue true y nombre App_<Área>_<Desarrollo>_<tabla> en el "
                              "esquema app_<área>_<desarrollo>), con migracion_desde para recordar su origen. Nacen vacías: el desarrollador migra sus datos después")
     return problemas
