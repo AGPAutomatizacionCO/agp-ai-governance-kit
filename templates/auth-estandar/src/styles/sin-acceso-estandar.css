@@ -1,0 +1,18 @@
+/* Estilos de la pantalla estándar sin acceso (screens/SinAcceso.jsx), acotados a .agp-sin-acceso. Usan los tokens de agp-tema.css (oscuro por omisión;
+   el claro lo activa body.theme-light) con valor de respaldo. Se copia sin cambios: la Mesa lo compara con el del kit. */
+.agp-sin-acceso { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; background: var(--bg, #080808); color: var(--text, #F5F5F5); font-family: 'Segoe UI', system-ui, sans-serif; }
+.agp-sin-acceso *, .agp-sin-acceso *::before, .agp-sin-acceso *::after { box-sizing: border-box; }
+.agp-sin-acceso__tarjeta { width: min(520px, 100%); padding: 32px 28px; text-align: center; background: var(--surface, #181818); border: 1px solid var(--border, #383838); border-radius: 16px; }
+.agp-sin-acceso h1 { margin: 16px 0 8px; font-size: 24px; font-weight: 800; text-wrap: balance; }
+.agp-sin-acceso p { margin: 0 0 14px; color: var(--text-soft, #BDBDBD); }
+.agp-sin-acceso__contacto { display: flex; flex-direction: column; gap: 2px; margin: 18px 0; padding: 14px; border: 1px solid var(--border, #383838); border-radius: var(--radius, 12px); background: var(--bg-secondary, #222222); }
+.agp-sin-acceso__contacto small { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--text-soft, #BDBDBD); }
+.agp-sin-acceso__contacto b { font-size: 16px; }
+.agp-sin-acceso__contacto span { font-family: Consolas, "Courier New", monospace; font-size: 13px; word-break: break-all; color: var(--brand-text, #8FC5CF); user-select: all; }
+.agp-sin-acceso__acciones { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 16px; }
+.agp-sin-acceso__acciones button { min-height: 44px; padding: 8px 18px; border: 1px solid var(--border, #383838); border-radius: var(--radius, 12px); background: var(--surface, #181818); color: inherit; font: inherit; font-weight: 700; cursor: pointer; }
+.agp-sin-acceso__acciones button:hover { background: var(--surface-hover, #2C2C2C); }
+.agp-sin-acceso__acciones .agp-sin-acceso__principal { background: var(--brand, #8CCBD5); border-color: var(--brand, #8CCBD5); color: var(--text-on-brand, #0B2F36); }
+.agp-sin-acceso__acciones button:focus-visible { outline: 2px solid var(--brand, #8CCBD5); outline-offset: 2px; }
+.agp-sin-acceso__sesion { margin: 18px 0 0; font-size: 12px; }
+@media (prefers-reduced-motion: reduce) { .agp-sin-acceso * { animation: none !important; transition: none !important; } }

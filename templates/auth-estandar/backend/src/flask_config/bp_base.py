@@ -1,9 +1,30 @@
 import os
+import re
 
 from flask import Blueprint
 from flask_jsonpify import jsonify
 
 bp_base = Blueprint("base", __name__, url_prefix="/api")
+
+_CORREO = re.compile(r"^[A-Za-z0-9._%+-]+@agpglass\.com$")
+
+
+def _contacto():
+    """(nombre, correo) del desarrollador funcional para la pantalla estándar sin acceso: administradores[0] de .agp/entra.yaml. Sin archivo o sin
+    administrador, CONTACTO_NOMBRE / CONTACTO_CORREO del entorno (la Mesa los puede fijar al desplegar). Solo se acepta un correo @agpglass.com."""
+    nombre, correo = "", ""
+    try:
+        import yaml
+
+        ruta = os.path.join(os.path.dirname(__file__), "..", "..", "..", ".agp", "entra.yaml")
+        with open(ruta, encoding="utf-8") as f:
+            admin = ((yaml.safe_load(f) or {}).get("administradores") or [{}])[0]
+        nombre, correo = str(admin.get("nombre") or ""), str(admin.get("correo") or "")
+    except Exception:
+        pass
+    nombre = (nombre or os.environ.get("CONTACTO_NOMBRE") or "").strip()[:80]
+    correo = (correo or os.environ.get("CONTACTO_CORREO") or "").strip()
+    return nombre or None, correo if _CORREO.fullmatch(correo) else None
 
 
 @bp_base.get("/config")
@@ -14,7 +35,9 @@ def config_publica():
 
     cliente, tenant = _client_id(), _tenant_id()
     nombre = (os.environ.get("APP_NAME") or "").strip()[:80] or None   # lo fija la Mesa al desplegar; la pantalla de login lo muestra
-    return jsonify({"msal": {"clientId": cliente, "tenantId": tenant} if cliente and tenant else None, "appName": nombre}), 200
+    contacto_nombre, contacto_correo = _contacto()
+    return jsonify({"msal": {"clientId": cliente, "tenantId": tenant} if cliente and tenant else None, "appName": nombre,
+                    "contactoNombre": contacto_nombre, "contactoCorreo": contacto_correo}), 200
 
 
 @bp_base.get("/health")
