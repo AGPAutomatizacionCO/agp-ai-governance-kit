@@ -17,6 +17,12 @@ const pintar = (props) => renderToStaticMarkup(<EncabezadoAgp {...props} />);
 describe("encabezado estándar de AGP", () => {
     afterEach(() => { fijarTema("dark"); fijarIdioma("es"); });
 
+    it("muestra el logo de AGP a la izquierda del nombre del desarrollo", () => {
+        const html = pintar({ nombre: "Gestor de Turnos" });
+        expect(html.indexOf('aria-label="AGP"')).toBeGreaterThan(-1);
+        expect(html.indexOf('aria-label="AGP"')).toBeLessThan(html.indexOf("Gestor de Turnos"));
+    });
+
     it("cumple el contrato que verifica la Mesa: encabezado, selector ES / PT y botón de tema", () => {
         const html = pintar({ nombre: "Gestor de Turnos" });
         expect(html).toContain('data-agp-encabezado="estandar"');

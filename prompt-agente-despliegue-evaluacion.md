@@ -318,9 +318,25 @@ menu_usuario        el desarrollo monta el menú de usuario estándar de AGP
                     uno propio que respete el contrato: un botón con
                     data-agp-menu="usuario" y aria-label "Menú de usuario" (nombre y
                     rol visibles), una entrada con data-agp-menu="configuracion"
-                    (Configuración → Administración, solo para quien administra) y
-                    "Cerrar sesión". Búscalo en src/components/ (UserMenu, Header o
+                    (Configuración: enlace directo a /configuracion, solo para quien
+                    administra; con varios enlaces propios despliega Administración)
+                    y "Cerrar sesión". Búscalo en src/components/ (UserMenu, Header o
                     MenuAvatar). Si falta, falta: nombra el archivo del paquete.
+configuracion_roles el desarrollo monta la pantalla estándar de configuración de
+                    roles y secretos (templates/auth-estandar/src/screens/
+                    ConfiguracionDesarrollo.jsx) en /configuracion: raíz con
+                    data-agp-configuracion="estandar", pestañas con data-agp-pestana
+                    (roles, usuarios, secretos, actividad) y modal con role="dialog"
+                    y aria-modal="true"; y se conecta a la Mesa (ROLES_DESDE_MESA en
+                    .agp/runtime.yaml, roles en /api/config, ROLES.md v2). Se cumple
+                    con el componente del paquete o con uno propio que respete el
+                    contrato. Si falta, falta: nombra el archivo del paquete.
+mecanismo_propio_acceso  reporta si el desarrollo trae un login que no es el del kit o un
+                    gestor de usuarios y roles propio (tabla de usuarios, rutas de
+                    administración de usuarios o roles, pantalla de administración de
+                    usuarios). ok = ninguno; falta = lo hay: nombra los archivos y dice
+                    que debe pasar a la pantalla estándar (norma ACCESO-Y-ROLES-DEL-
+                    DESARROLLO.md §7). No corrige ni elige.
 entra               ver regla de login más abajo.
 ```
 

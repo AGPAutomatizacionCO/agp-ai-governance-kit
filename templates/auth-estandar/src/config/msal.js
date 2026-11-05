@@ -17,7 +17,8 @@ export const loginRequest = { scopes: ["User.Read"], prompt: "select_account" };
 
 // Nombre propio del desarrollo: lo entrega la API (appName de /api/config, que la Mesa fija al desplegar). null = sin nombre.
 // El contacto de la pantalla sin acceso (administradores[0] de .agp/entra.yaml) llega igual: contactoNombre y contactoCorreo.
-export const appInfo = { nombre: null, contactoNombre: null, contactoCorreo: null };
+// `roles`: { mesaUrl, idProyecto } cuando la gestión de roles desde la Mesa está activa (ROLES_DESDE_MESA); null si no.
+export const appInfo = { nombre: null, contactoNombre: null, contactoCorreo: null, roles: null };
 
 // Carga la configuración del login que entrega la API. Devuelve true si quedó configurado. Si la API no responde o no la trae, la pantalla de
 // login lo informa (no hay valores de respaldo: un desarrollo sin registro de login no debe iniciar sesión contra otra aplicación).
@@ -31,6 +32,8 @@ export async function cargarConfigMsal(apiUrl, enviar = (typeof fetch === "funct
     if (nombre) appInfo.nombre = nombre.slice(0, 80);
     if (typeof cuerpo?.contactoNombre === "string" && cuerpo.contactoNombre.trim()) appInfo.contactoNombre = cuerpo.contactoNombre.trim().slice(0, 80);
     if (typeof cuerpo?.contactoCorreo === "string" && cuerpo.contactoCorreo.trim()) appInfo.contactoCorreo = cuerpo.contactoCorreo.trim().slice(0, 120);
+    const roles = cuerpo?.roles;
+    if (typeof roles?.mesaUrl === "string" && typeof roles?.idProyecto === "string" && roles.mesaUrl && roles.idProyecto) appInfo.roles = { mesaUrl: roles.mesaUrl, idProyecto: roles.idProyecto };
     const msal = cuerpo?.msal;
     if (!msal?.clientId || !msal?.tenantId) return false;
     msalConfig.auth.clientId = msal.clientId;
