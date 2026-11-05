@@ -15,6 +15,9 @@ sin cambiar lo existente.
 | `src/contexts/AuthContext.jsx` | `src/contexts/AuthContext.jsx` | Sesión: restauración silenciosa, `login`, `logout`, `getAuthToken`, `roles`, `isAdmin`. |
 | `src/screens/LoginScreen.jsx` | `src/screens/LoginScreen.jsx` | La pantalla de login aprobada, con el nombre del desarrollo. Su raíz lleva `data-agp-login="estandar"`. Se copia sin cambios. |
 | `src/styles/login-estandar.css` | `src/styles/login-estandar.css` | Los estilos que la pantalla toma del CSS global de la Mesa (color de marca, fuente, reinicio de márgenes). Va acotado a `#login-screen` y hace que la pantalla se vea **igual** en cualquier desarrollo. |
+| `src/screens/SinAcceso.jsx` | `src/screens/SinAcceso.jsx` | **Pantalla estándar sin acceso**: la ve quien inicia sesión pero no tiene acceso. Sin texto libre: nombre de la app, contacto (desarrollador funcional, `administradores[0]` de `.agp/entra.yaml`) y persona con sesión; ES / PT; botones Copiar correo, Reintentar y Cerrar sesión. Su raíz lleva `data-agp-sin-acceso="estandar"`. Se copia sin cambios. |
+| `src/styles/sin-acceso-estandar.css` | `src/styles/sin-acceso-estandar.css` | Sus estilos, acotados a `.agp-sin-acceso`, con los tokens de `agp-tema.css`. |
+| `src/screens/SinAcceso.test.jsx` | `src/screens/SinAcceso.test.jsx` | La prueba del contrato (vitest): marca, contacto, botones y que no inventa un contacto. |
 | `src/components/UserMenu.jsx` | `src/components/UserMenu.jsx` | **Menú de usuario estándar**: nombre y rol de quien entró; al hacer clic, «Configuración» → «Administración» y «Cerrar sesión». Probado en producción con RPC. Ver abajo. |
 | `src/styles/menu-usuario-estandar.css` | `src/styles/menu-usuario-estandar.css` | Sus estilos, acotados a `.agp-menu-usuario`. |
 | `src/components/UserMenu.test.jsx` | `src/components/UserMenu.test.jsx` | La prueba del contrato (vitest): nombre, rol, «Configuración» solo con permiso y «Cerrar sesión». Corre en el CI del desarrollo. |
@@ -72,12 +75,13 @@ Todo desarrollo se ve como la Mesa de Ayuda: la misma barra superior y los mismo
 | Marca | Qué es |
 |---|---|
 | `data-agp-login="estandar"` | La raíz de la pantalla de login (`LoginScreen.jsx`). |
+| `data-agp-sin-acceso="estandar"` | La raíz de la pantalla sin acceso (`SinAcceso.jsx`). |
 | `data-agp-encabezado="estandar"` | La raíz del encabezado. |
 | `data-agp-idioma` | El grupo ES / PT; cada botón con `aria-pressed`. |
 | `data-agp-tema` + aria-label «Modo claro» / «Modo oscuro» | El botón de modo; dice a qué modo cambia. |
 
 Al desplegar, la Mesa compara `src/styles/agp-tema.css`, `src/styles/encabezado-estandar.css`, `src/styles/login-estandar.css`,
-`src/styles/menu-usuario-estandar.css` y `src/screens/LoginScreen.jsx` **byte a
+`src/styles/menu-usuario-estandar.css`, `src/styles/sin-acceso-estandar.css` y `src/screens/LoginScreen.jsx` **byte a
 byte** (sin contar los finales de línea) con los del kit en la versión fijada en `.agp/governance.yaml`, y revisa que estén las marcas. Si
 hay que cambiar el diseño, se cambia aquí, en el kit. El contenido de cada pantalla, debajo del encabezado, es libre.
 
@@ -92,3 +96,9 @@ con `asignado`, IT y el Responsable asignan además a quién puede entrar.
 - En Azure el nombre lo fija la Mesa (`APP_NAME` → `/api/config` → `appName`). En local, defínelo con `APP_NAME=Mi desarrollo` al arrancar la API.
 - `DISABLE_AUTH=true` y `DEV_USER_EMAIL` permiten correr la API sin login **solo en tu equipo**; dentro de Azure se ignoran.
 - Si cambias el diseño de la pantalla, no es el login estándar: pide a IT una excepción por escrito.
+
+## Pantalla sin acceso: cómo se conecta
+
+1. `GET /api/config` entrega, además de `appName`, `contactoNombre` y `contactoCorreo`: salen de `administradores[0]` de `.agp/entra.yaml` (o de `CONTACTO_NOMBRE` / `CONTACTO_CORREO` si el archivo no está en la imagen). Solo se acepta un correo `@agpglass.com`. `cargarConfigMsal` los guarda en `appInfo`.
+2. En la app: con sesión iniciada y **sin rol ni vista general** (la API de roles responde sin acceso), se monta `<SinAcceso />` en lugar de la aplicación.
+3. No hay texto libre: el antiguo `sinAcceso.mensaje` de `ROLES.md` queda **obsoleto** y la Mesa ya no lo muestra.

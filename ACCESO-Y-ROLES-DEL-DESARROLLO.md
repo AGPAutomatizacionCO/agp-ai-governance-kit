@@ -48,7 +48,7 @@ El archivo `ROLES.md` (contrato `roles.agp/v1` o `v2`, lo valida la Mesa) es la 
 - **Roles:** `Admin` y `Usuario` (básicos) y los personalizados, con qué puede hacer cada uno.
 - **Áreas y dominios** (`dominios` → `areas`): qué áreas existen en la app y quién pertenece a cada una. Es lo que permite distinguir «del área del desarrollo» de «de otra área» al asignar.
 - **Vista general:** qué ve quien entra sin rol (con `acceso: organizacion`, toda persona de AGP).
-- **`sinAcceso.mensaje`:** qué ve quien entra sin tener acceso (solo tiene sentido con `acceso: asignado`).
+- **`sinAcceso.mensaje` (obsoleto):** ya no se escribe un mensaje propio. Quien entra sin acceso ve la **pantalla estándar de AGP** (`SinAcceso`, paquete `templates/auth-estandar/`), que le dice que se comunique con el desarrollador funcional (`administradores[0]` de `.agp/entra.yaml`, con su correo @agpglass.com). Un `sinAcceso.mensaje` existente se ignora.
 - **Coherencia con el manifiesto:** si `acceso: organizacion`, el texto dice que cualquier cuenta de AGP entra con la vista general; si `asignado`, dice quién puede pedir acceso y a quién.
 
 ## 3. Qué hace cada agente
@@ -70,7 +70,8 @@ Todo desarrollo trae el **mismo menú de usuario** (`UserMenu`, paquete `templat
 ## 5. Lista de verificación
 
 1. `.agp/entra.yaml` declara `acceso` (`organizacion` o `asignado`) y su `justificacion` o `publico`.
-2. `ROLES.md` describe roles, áreas y, si aplica, `sinAcceso.mensaje`, coherentes con `acceso`.
+2. `ROLES.md` describe roles y áreas, coherentes con `acceso` (sin `sinAcceso.mensaje`: lo reemplaza la pantalla estándar).
 3. La API exige el rol `Admin` en todo lo administrativo; lo demás solo exige un token válido del tenant.
 4. El expediente tiene la sección «Acceso y roles» y no contradice al manifiesto.
 5. El encabezado monta el menú de usuario estándar (§4) y su «Configuración» solo la ve quien administra.
+6. Monta la pantalla estándar `SinAcceso` (§2, marca `data-agp-sin-acceso="estandar"`) para quien inicia sesión sin acceso; el contacto es el primer administrador de `.agp/entra.yaml` con correo @agpglass.com. El agente de despliegue lo reporta como hallazgo si falta (aviso, igual que el visual estándar).
