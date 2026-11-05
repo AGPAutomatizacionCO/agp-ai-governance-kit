@@ -21,6 +21,7 @@ from agpctl.mesa_datos_permisos import OPERACIONES, _texto_corto
 RUTA_MANIFIESTO = "ai/outputs/data-access-manifest.json"
 _SERVIDOR = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}\.database\.windows\.net$")
 _BASE = re.compile(r"^[A-Za-z0-9_-]{1,128}$")
+# Regla SQLite 2026-11-05 aplicada a mano (resto del espejo con desfases previos respecto de la Mesa; la resincronización completa queda pendiente).
 CAMPOS_DEL_PLAN = ("datosServidor", "datosBase", "datosEsquema", "datosTablas", "datosLecturas", "datosRol", "datosUsuario", "datosScriptSha256")
 
 
@@ -37,9 +38,13 @@ def nombres(esquema):
 def _fila_de_tabla(esquema, tabla, origen):
     """Una fila del documento que ve IT (mismo formato que las tablas de bases existentes): objeto, permisos, sensibilidad, motivo y columnas sensibles."""
     operaciones = set(tabla.get("operaciones_permitidas") or [])
-    return {"objeto": f"{esquema}.{tabla.get('table')}", "origen": origen, "permisos": [o for o in OPERACIONES if o in operaciones],
+    fila = {"objeto": f"{esquema}.{tabla.get('table')}", "origen": origen, "permisos": [o for o in OPERACIONES if o in operaciones],
             "sensibilidad": str(tabla.get("sensibilidad") or ""), "motivo": _texto_corto(tabla.get("descripcion")),
             "columnasSensibles": sorted(str(c.get("name")) for c in tabla.get("columnas") or [] if c.get("sensible") is True)}
+    desde = tabla.get("migracion_desde")
+    if isinstance(desde, dict) and desde.get("tabla"):
+        fila["desde"] = f"SQLite · {desde['tabla']}"   # informativo: de dónde venía; la tabla nace vacía
+    return fila
 
 
 def detalle_de_tablas(mapeo, servidor, base):
@@ -53,6 +58,9 @@ def plan_de_datos(mapeo, servidor, base, habilitado):
     """(info, bloqueos). `info` es None si el manifiesto no crea tablas; si las crea, trae los campos del plan.
 
     `servidor` y `base` salen de la configuración de la Mesa (AGP_DATOS_SQL_SERVER / AGP_DATOS_SQL_DATABASE)."""
+    locales = datos_ddl.revisar_datos_locales(mapeo)
+    if locales:
+        return None, [f"Datos: {p}" for p in locales]   # SQLite como origen de despliegue: se declara su tabla propia (bloquea con o sin AGP_DATOS_ENABLED)
     if not datos_ddl.tablas_a_crear(mapeo):
         return None, []
     if not habilitado:
@@ -81,7 +89,8 @@ def documento_de_datos_propios(info):
               "| Tabla | Permisos | Sensibilidad | Motivo |", "|---|---|---|---|"]
     for t in info.get("datosTablasDetalle") or []:
         marca = "" if t["origen"] == "propia" else " (tabla existente, solo lectura)"
-        lineas.append(f"| {t['objeto']} | {', '.join(t['permisos'])}{marca} | {t['sensibilidad']} | {t['motivo'] or '—'} |")
+        origen = f" ← {t['desde']} (nace vacía)" if t.get("desde") else ""
+        lineas.append(f"| {t['objeto']}{origen} | {', '.join(t['permisos'])}{marca} | {t['sensibilidad']} | {t['motivo'] or '—'} |")
     return "\n".join(lineas + ["", f"Hash del script: `{info['datosScriptSha256']}`", ""]) + "\n"
 
 

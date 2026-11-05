@@ -50,6 +50,7 @@ def check(repo: Path) -> dict:
     ]
     servidor, base = _base_propia(mapeo)
     issues += ddl.revisar_tablas_a_crear(mapeo)
+    issues += ddl.revisar_datos_locales(mapeo)   # SQLite no es un origen de despliegue: se declara como tabla propia (regla del 2026-11-05)
     if base:
         issues += ddl.revisar_lecturas(mapeo, servidor, base)
 

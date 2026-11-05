@@ -4,6 +4,10 @@ Este historial registra únicamente versiones publicadas o cambios preparados pa
 
 ## [Sin publicar]
 
+### Cambios
+
+- Datos locales (2026-11-05): SQLite deja de ser un origen de despliegue. Lo que hoy vive en SQLite se declara como tabla propia nueva (`origen: propia_del_desarrollo`, `crear_en_despliegue: true`, esquema `app_<área>_<desarrollo>`, nombre `App_<Área>_<Desarrollo>_<tabla>`) con `migracion_desde` informativo; nace vacía y el desarrollador migra sus datos después. Una fuente `motor: sqlite…` bloquea en `agpctl datos check` y en la Mesa. Cambios: esquema `data-access-manifest` (`migracion_desde`, nota en `motor`), ejemplo `crear-tablas`, `NOMENCLATURA-DATOS.md`, `agent-despliegue.md` y la regla en `agpctl/mesa_datos_*.py`. Los espejos de `agpctl` tienen desfases previos respecto de la Mesa (p. ej. aprobaciones del dueño del dato); aquí solo se aplicó la regla de SQLite y la resincronización completa queda pendiente.
+
 ## [v4.0.0-rc.2] - 2026-11-04
 
 Segundo candidato para el piloto dev. Mismo alcance que `v4.0.0-rc.1` (`python-api` v1, `agpctl 0.1.0`). No autoriza producción.

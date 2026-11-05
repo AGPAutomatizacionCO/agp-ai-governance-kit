@@ -84,3 +84,29 @@ def test_secretos_de_conexion_de_las_tablas_propias_sin_declarar(tmp_path):
     runtime = RUNTIME.replace("demo-db-pwd", "otro-nombre")
     resultado = check(_repo(tmp_path, _manifiesto(), runtime=runtime))
     assert any("secretos de conexión de las tablas propias" in i and "demo-db-pwd" in i for i in resultado["issues"])
+
+
+def _con_sqlite(manifiesto):
+    manifiesto["fuentes_datos"].append({
+        "database_id": "local", "server": "archivo-local", "database": "app.db", "motor": "SQLite local",
+        "esquemas": [{"schema": "main", "tablas": [{"table": "config_local", "origen": "preexistente", "sensibilidad": "baja", "descripcion": "Parámetros",
+                                                    "operaciones_permitidas": ["SELECT", "INSERT"], "columnas": [{"name": "Id", "sensible": False}]}]}]})
+    return manifiesto
+
+
+def test_sqlite_como_origen_de_despliegue_se_rechaza(tmp_path):
+    resultado = check(_repo(tmp_path, _con_sqlite(_manifiesto())))
+    assert resultado["valid"] is False
+    assert any("SQLite" in i or "sqlite" in i for i in resultado["issues"])
+
+
+def test_la_tabla_propia_que_viene_de_sqlite_con_migracion_desde_pasa(tmp_path):
+    manifiesto = _manifiesto()
+    manifiesto["fuentes_datos"][0]["esquemas"][0]["tablas"][0]["migracion_desde"] = {"motor": "sqlite", "tabla": "alarma_local"}
+    assert check(_repo(tmp_path, manifiesto))["issues"] == []
+
+
+def test_migracion_desde_mal_formada_se_rechaza(tmp_path):
+    manifiesto = _manifiesto()
+    manifiesto["fuentes_datos"][0]["esquemas"][0]["tablas"][0]["migracion_desde"] = {"motor": "oracle", "tabla": "x"}
+    assert check(_repo(tmp_path, manifiesto))["valid"] is False

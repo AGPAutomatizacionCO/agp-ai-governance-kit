@@ -130,6 +130,10 @@ El Agente de Despliegue puede:
   esquema **real**; por cada base, la variable `<PREFIJO>DB_NAME` y los tres secretos `<PREFIJO>DB_SERVER|USER|PASSWORD` con nombres `<desarrollo>-<base>-db-server|username|password`;
   solo `SELECT`/`INSERT`/`UPDATE` (nunca `DELETE`); y el aviso de que el dueño del dato delega el `SELECT` al worker. Reportar como bloqueo un manifiesto con `server: null`, un
   esquema inventado o una base sin su conexión declarada: la Mesa los rechaza al generar el plan.
+* **SQLite no es un origen de despliegue.** Si el código usa SQLite (o cualquier archivo local) para datos propios, no se declara como fuente: se declara como **tabla propia nueva** en el
+  esquema `app_<área>_<desarrollo>` con el nombre `App_<Área>_<Desarrollo>_<tabla>`, con `crear_en_despliegue: true`, los tipos de columna de SQL Server y `migracion_desde: {motor: sqlite, tabla: ...}`
+  como referencia (`NOMENCLATURA-DATOS.md`). Las tablas nacen vacías y el desarrollador migra sus datos después. Una fuente `motor: sqlite…` se reporta como bloqueo. Se avisa también si el
+  código de producción sigue conectándose a SQLite (el archivo se pierde al reiniciar).
 * **Comprobar con la herramienta, no a ojo.** Si el repositorio tiene `ai/outputs/data-access-manifest.json`, ejecutar `python -m agpctl datos check --repo <repo>`
   (aplica las mismas reglas con las que la Mesa valida el plan: esquema del manifiesto, lista cerrada de tipos —`datetime2` y no `datetime2(0)`—, valores por defecto
   válidos para su tipo, nombres de la norma y conexión declarada en `.agp/runtime.yaml`). Copiar la salida literal en el informe. Con `valid: false`, el requisito de manifiesto de datos y

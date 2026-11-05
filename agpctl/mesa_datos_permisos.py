@@ -130,7 +130,7 @@ def leer_destinos(mapeo, excluir=None):
     problemas, grupos = [], {}
     for fuente in (mapeo or {}).get("fuentes_datos") or []:
         servidor, base = str(fuente.get("server") or "").lower(), str(fuente.get("database") or "")
-        tablas = [(str(e.get("schema") or ""), t) for e in fuente.get("esquemas") or [] for t in e.get("tablas") or [] if t.get("origen") == "preexistente"]
+        tablas = [(str(e.get("schema") or ""), t) for e in fuente.get("esquemas") or [] for t in e.get("tablas") or [] if t.get("origen") == "preexistente" and not datos_ddl.es_dato_local(fuente, t)]
         if not tablas:
             continue
         if excluir and base.lower() == str(excluir[1] or "").lower() and (not servidor or servidor == str(excluir[0] or "").lower()):
