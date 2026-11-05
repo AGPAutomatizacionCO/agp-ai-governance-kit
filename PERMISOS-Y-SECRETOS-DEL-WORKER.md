@@ -100,3 +100,7 @@ migra o respalda esos archivos (el despliegue de la Mesa sobre una Web App exist
 4. Si lee tablas de otra persona o área, el dueño del dato sabe que debe delegar el `SELECT` al worker.
 5. La librería de conexión corresponde al stack del backend (sección 5.1); en Python, el Dockerfile instala el driver ODBC completo (`msodbcsql*`, `unixodbc` y `libgssapi-krb5-2`). El frontend no lleva ninguna.
 6. Si la Web App ya existe, IT la adopta primero («Adoptar recursos existentes») y el publicador propio se retira: el único camino de publicación es el que dispara la Mesa.
+
+## 8. Cargar los secretos manuales
+
+Los secretos que el desarrollo declara en `.agp/runtime.yaml` y que **no** crea la Mesa (una firma de sesión, la URL de un servicio externo, una clave compartida) los carga el administrador principal desde la pestaña **Secretos** de la pantalla estándar «Configuración de roles y secretos» (`ACCESO-Y-ROLES-DEL-DESARROLLO.md` §6): el valor viaja una vez a la Mesa, que lo guarda en el vault; nunca se muestra, ni se registra. Los de conexión a bases (`…-db-server|user|username|pwd|password`) los crea la Mesa al aprobar el plan y se listan como «la crea la Mesa», sin edición. Nadie corre comandos a mano para cargarlos.

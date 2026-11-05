@@ -27,6 +27,14 @@ def _contacto():
     return nombre or None, correo if _CORREO.fullmatch(correo) else None
 
 
+def _roles_de_la_mesa():
+    """A qué Mesa y a qué desarrollo habla la pantalla de «Configuración» (no son secretos). Solo con ROLES_DESDE_MESA=true, MESA_API_URL y MESA_ID_PROYECTO."""
+    url, id_proyecto = (os.environ.get("MESA_API_URL") or "").strip().rstrip("/"), (os.environ.get("MESA_ID_PROYECTO") or "").strip()
+    if os.environ.get("ROLES_DESDE_MESA", "false").lower() == "true" and url.startswith("https://") and id_proyecto:
+        return {"mesaUrl": url, "idProyecto": id_proyecto}
+    return None
+
+
 @bp_base.get("/config")
 def config_publica():
     """Configuración PÚBLICA del login para el frontend (tenant y aplicación de Entra). Sin secretos: son los mismos identificadores que
@@ -37,7 +45,8 @@ def config_publica():
     nombre = (os.environ.get("APP_NAME") or "").strip()[:80] or None   # lo fija la Mesa al desplegar; la pantalla de login lo muestra
     contacto_nombre, contacto_correo = _contacto()
     return jsonify({"msal": {"clientId": cliente, "tenantId": tenant} if cliente and tenant else None, "appName": nombre,
-                    "contactoNombre": contacto_nombre, "contactoCorreo": contacto_correo}), 200
+                    "contactoNombre": contacto_nombre, "contactoCorreo": contacto_correo,
+                    "roles": _roles_de_la_mesa()}), 200
 
 
 @bp_base.get("/health")

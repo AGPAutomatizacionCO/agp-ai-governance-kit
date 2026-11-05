@@ -20,6 +20,10 @@ sin cambiar lo existente.
 | `src/screens/SinAcceso.test.jsx` | `src/screens/SinAcceso.test.jsx` | La prueba del contrato (vitest): marca, contacto, botones y que no inventa un contacto. |
 | `src/components/UserMenu.jsx` | `src/components/UserMenu.jsx` | **Menú de usuario estándar**: nombre y rol de quien entró; al hacer clic, «Configuración» → «Administración» y «Cerrar sesión». Probado en producción con RPC. Ver abajo. |
 | `src/styles/menu-usuario-estandar.css` | `src/styles/menu-usuario-estandar.css` | Sus estilos, acotados a `.agp-menu-usuario`. |
+| `src/screens/ConfiguracionDesarrollo.jsx` | `src/screens/ConfiguracionDesarrollo.jsx` | **Pantalla estándar «Configuración de roles y secretos»** (`/configuracion`): pestañas Roles, Usuarios, Secretos y Actividad contra el túnel de la Mesa. Ver «La pantalla de configuración». |
+| `src/styles/configuracion-estandar.css` | `src/styles/configuracion-estandar.css` | Sus estilos, acotados a `.agp-config` (usan las variables de `agp-tema.css`). |
+| `src/services/rolesMesa.js` | `src/services/rolesMesa.js` | Cliente del túnel de roles y secretos de la Mesa (usa el `id_token` de `AuthContext`). |
+| `src/screens/ConfiguracionDesarrollo.test.jsx`, `src/services/rolesMesa.test.js` | ídem | Las pruebas (vitest) de la pantalla y del cliente. Corren en el CI del desarrollo. |
 | `src/components/UserMenu.test.jsx` | `src/components/UserMenu.test.jsx` | La prueba del contrato (vitest): nombre, rol, «Configuración» solo con permiso y «Cerrar sesión». Corre en el CI del desarrollo. |
 | `src/styles/agp-tema.css` | `src/styles/agp-tema.css` | **Colores y fuente de la Mesa**: las variables (`--bg`, `--surface`, `--border`, `--text`, `--brand`, `--c-*`, `--sem-*`…) en oscuro y en claro (`body.theme-light`) y la base de `html, body`. Se importa una vez en `src/main.jsx`. Ver abajo. |
 | `src/components/EncabezadoAgp.jsx` | `src/components/EncabezadoAgp.jsx` | **Encabezado estándar**: nombre del desarrollo, ES / PT, modo claro / oscuro y el menú de usuario. Ver abajo. |
@@ -45,17 +49,26 @@ Dependencias: frontend `@azure/msal-browser`; backend `PyJWT[crypto]` y `request
 
 ## El menú de usuario estándar
 
-El elemento que muestra el **nombre y el rol** de quien entró y, al hacer clic, despliega **«Configuración» → «Administración»** y **«Cerrar sesión»** es el mismo en todo desarrollo. Se llama **`UserMenu`** («Menú de usuario»); RPC lo resolvió primero y es la referencia. Se monta una vez en el encabezado de la aplicación: `<UserMenu />` (con react-router, `<UserMenu onNavegar={navigate} />`).
+El elemento que muestra el **nombre y el rol** de quien entró y, al hacer clic, despliega **«Configuración»** (directo a `/configuracion`) y **«Cerrar sesión»** es el mismo en todo desarrollo. Se llama **`UserMenu`** («Menú de usuario»); RPC lo resolvió primero y es la referencia. Se monta una vez en el encabezado de la aplicación: `<UserMenu />` (con react-router, `<UserMenu onNavegar={navigate} />`).
 
 Lo que se exige es el **contrato**, no el archivo: un desarrollo con otro framework de UI (por ejemplo RPC en TypeScript con Tailwind, o SAC con MUI) lo cumple igual si respeta:
 
 | Marca | Qué es |
 |---|---|
 | `data-agp-menu="usuario"` + `aria-label="Menú de usuario"` | El botón con el nombre y el rol visibles. |
-| `data-agp-menu="configuracion"` | La entrada «Configuración», que despliega «Administración» con «Configuración del desarrollo» (`/configuracion`) y los accesos administrativos propios. Solo aparece para quien administra. |
+| `data-agp-menu="configuracion"` | La entrada «Configuración»: un enlace directo a `/configuracion` (la pantalla estándar). Solo aparece para quien administra. Con más de un enlace administrativo propio despliega «Administración». |
 | `data-agp-menu="cerrar-sesion"` | «Cerrar sesión». |
 
-El rol sale del token (`Admin` → «Administrador», si no «Usuario»); un desarrollo con perfiles propios pasa `rolEtiqueta`. Los enlaces administrativos propios se pasan en `enlaces`. La Mesa **bloquea** el despliegue si falta (pieza «menú de usuario» de `auth_estandar`).
+El rol sale del token (`Admin` → «Administrador», si no «Usuario»); un desarrollo con perfiles propios pasa `rolEtiqueta`. Los enlaces administrativos propios, además de «Configuración», se pasan en `enlaces`. La Mesa **bloquea** el despliegue si falta (pieza «menú de usuario» de `auth_estandar`).
+
+## La pantalla de configuración
+
+`ConfiguracionDesarrollo` es la pantalla estándar de roles y secretos (norma `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §6). Se monta en la ruta `/configuracion`, dentro de la sesión (con react-router: `<Route path="/configuracion" element={<ConfiguracionDesarrollo onVolver={() => navigate("/")} />} />`).
+
+1. **Backend:** `GET /api/config` entrega `roles: { mesaUrl, idProyecto }` cuando están `ROLES_DESDE_MESA=true`, `MESA_API_URL` (https) y `MESA_ID_PROYECTO` (`bp_base.py` del paquete; el frontend lo guarda en `appInfo.roles`). Sin eso la pantalla dice que la conexión con la Mesa no está activa.
+2. **Autorización:** con `ROLES_DESDE_MESA=true` el backend le pregunta a la Mesa por la persona (`GET /api/roles-app/<id>/mios` con el mismo `id_token`) y autoriza con lo que responde. `ROLES.md` v2 declara los permisos y los perfiles iniciales.
+3. **Quién puede qué** lo decide la Mesa por persona (`estado.yo`): el principal asigna y carga secretos; el secundario solo ve y edita la definición de los roles.
+4. **Marcas que verifican la Mesa y los agentes:** `data-agp-configuracion="estandar"` (raíz), `data-agp-pestana="roles|usuarios|secretos|actividad"` (pestañas) y `role="dialog"` con `aria-modal="true"` (modal de asignar).
 
 ## Encabezado y colores estándar
 

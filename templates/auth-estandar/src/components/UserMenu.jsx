@@ -7,7 +7,9 @@ import { useEffect, useId, useRef, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import "../styles/menu-usuario-estandar.css";
 
-export const ENLACE_CONFIGURACION = { nombre: "Configuración del desarrollo", href: "/configuracion" };
+// «Configuración» va DIRECTO a la pantalla estándar de roles y secretos (norma ACCESO-Y-ROLES-DEL-DESARROLLO.md §4). Solo si el desarrollo declara más de un
+// enlace administrativo propio, «Configuración» despliega la lista «Administración».
+export const ENLACE_CONFIGURACION = { nombre: "Configuración", href: "/configuracion" };
 
 const iniciales = (nombre) => nombre.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0].toUpperCase()).join("") || "·";
 
@@ -25,7 +27,15 @@ export function enlacesAdministrativos({ isAdmin, enlaces }) {
 export function ContenidoDelMenu({ enlaces, idConfiguracion, configuracionAbierta, saliendo, onAlternar, onNavegar, onSalir }) {
   return (
     <>
-      {enlaces.length > 0 && (
+      {enlaces.length === 1 && (
+        <>
+          <a href={enlaces[0].href} role="menuitem" data-agp-menu="configuracion" onClick={(e) => onNavegar(e, enlaces[0].href)}>
+            <span>{enlaces[0].nombre}</span>
+          </a>
+          <div role="separator" />
+        </>
+      )}
+      {enlaces.length > 1 && (
         <>
           <button type="button" role="menuitem" data-agp-menu="configuracion" aria-expanded={configuracionAbierta} aria-controls={idConfiguracion} onClick={onAlternar}>
             <span>Configuración</span>

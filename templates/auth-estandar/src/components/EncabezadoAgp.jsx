@@ -2,6 +2,7 @@
 // si el desarrollo las pasa como children, sus propias acciones; a la derecha, ES / PT, modo claro / oscuro y el menú de usuario estándar.
 // Se copia sin cambios. Lo que la Mesa verifica es el CONTRATO: la raíz con `data-agp-encabezado="estandar"`, el grupo ES / PT con
 // `data-agp-idioma` (botones con aria-pressed) y el botón de tema con `data-agp-tema` (aria-label «Modo claro» / «Modo oscuro»).
+import AgpLogo from "./AgpLogo";
 import Icon from "./Icon";
 import UserMenu from "./UserMenu";
 import { appInfo } from "../config/msal";
@@ -26,6 +27,7 @@ export default function EncabezadoAgp({ nombre, children, menuProps }) {
   return (
     <header className="agp-encabezado" data-agp-encabezado="estandar">
       <div className="agp-encabezado__info">
+        <AgpLogo width={64} height={26} className="agp-encabezado__logo" />
         <p className="agp-encabezado__titulo" title={titulo}>{titulo}</p>
         {children && <div className="agp-encabezado__acciones">{children}</div>}
       </div>

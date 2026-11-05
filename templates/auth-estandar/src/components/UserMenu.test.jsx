@@ -25,19 +25,31 @@ describe("menú de usuario estándar de AGP", () => {
         expect(pintar()).not.toContain('data-agp-menu="configuracion"');
     });
 
-    it("el administrador ve «Configuración» → «Configuración del desarrollo» y su rol dice Administrador", () => {
+    it("el administrador ve «Configuración» como una entrada directa a /configuracion (sin submenú «Administración») y su rol dice Administrador", () => {
         sesion.isAdmin = true;
         const html = pintar();
         sesion.isAdmin = false;
         expect(html).toContain('data-agp-menu="configuracion"');
-        expect(html).toContain("Configuración del desarrollo");
         expect(html).toContain('href="/configuracion"');
+        expect(html).toContain("Configuración");
+        expect(html).not.toContain("Configuración del desarrollo");
+        expect(html).not.toContain("Administración");
+        expect(html).toMatch(/<a href="\/configuracion"[^>]*data-agp-menu="configuracion"/);
         expect(html).toContain("Administrador");
+    });
+
+    it("con varios enlaces administrativos propios, «Configuración» despliega «Administración»", () => {
+        const html = pintar({ enlaces: [{ nombre: "Usuarios", href: "/usuarios" }, { nombre: "Alarmas", href: "/alarmas" }] });
+        expect(html).toContain('data-agp-menu="configuracion"');
+        expect(html).toContain("Administración");
+        expect(html).toContain('href="/usuarios"');
+        expect(html).toContain('href="/alarmas"');
     });
 
     it("el desarrollo puede declarar sus propios enlaces administrativos y su propio rol", () => {
         const html = pintar({ enlaces: [{ nombre: "Usuarios", href: "/usuarios" }], rolEtiqueta: "Líder de mejora" });
         expect(html).toContain('href="/usuarios"');
+        expect(html).toContain('data-agp-menu="configuracion"');
         expect(html).toContain("Líder de mejora");
         expect(enlacesAdministrativos({ isAdmin: true, enlaces: [] })).toEqual([]);
         expect(etiquetaDeRol({ isAdmin: true })).toBe("Administrador");

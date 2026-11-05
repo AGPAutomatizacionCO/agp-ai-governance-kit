@@ -65,7 +65,7 @@ lo ata a la aprobación (entra al hash del plan). Un cambio de `acceso` toca `.a
 
 ## 4. El menú de usuario estándar: dónde se configura el acceso
 
-Todo desarrollo trae el **mismo menú de usuario** (`UserMenu`, paquete `templates/auth-estandar/`): el botón con el nombre y el rol de quien entró y, al hacer clic, «Configuración» → «Administración» (la pantalla «Configuración del desarrollo», `/configuracion`, y los demás accesos administrativos) y «Cerrar sesión». Es el que RPC ya usa en producción y es **obligatorio**: ahí se llega a la gestión de quién entra y con qué rol, y es lo que el Agente de Despliegue y la Mesa verifican. El contrato (marcas `data-agp-menu`, «Menú de usuario», «Configuración», «Cerrar sesión») está en el README del paquete; un desarrollo con su propio componente lo cumple igual si lo respeta. «Configuración» solo se muestra a quien administra: el rol `Admin` o quien tenga enlaces administrativos propios.
+Todo desarrollo trae el **mismo menú de usuario** (`UserMenu`, paquete `templates/auth-estandar/`): el botón con el nombre y el rol de quien entró y, al hacer clic, **«Configuración»** (va **directo** a la pantalla estándar `/configuracion`, §6) y **«Cerrar sesión»**. Es el que RPC ya usa en producción y es **obligatorio**: ahí se llega a la gestión de quién entra y con qué rol, y es lo que el Agente de Despliegue y la Mesa verifican. El contrato (marcas `data-agp-menu`, «Menú de usuario», «Configuración», «Cerrar sesión») está en el README del paquete; un desarrollo con su propio componente lo cumple igual si lo respeta. «Configuración» solo se muestra a quien administra: el rol `Admin` o quien tenga enlaces administrativos propios. Solo si el desarrollo declara **más de un** enlace administrativo propio, «Configuración» despliega la lista «Administración»; con uno solo (la norma) no hay submenú.
 
 ## 5. Lista de verificación
 
@@ -73,5 +73,29 @@ Todo desarrollo trae el **mismo menú de usuario** (`UserMenu`, paquete `templat
 2. `ROLES.md` describe roles y áreas, coherentes con `acceso` (sin `sinAcceso.mensaje`: lo reemplaza la pantalla estándar).
 3. La API exige el rol `Admin` en todo lo administrativo; lo demás solo exige un token válido del tenant.
 4. El expediente tiene la sección «Acceso y roles» y no contradice al manifiesto.
-5. El encabezado monta el menú de usuario estándar (§4) y su «Configuración» solo la ve quien administra.
+5. El encabezado monta el menú de usuario estándar (§4) y su «Configuración» va directo a la pantalla estándar y solo la ve quien administra.
+6. `/configuracion` monta la pantalla estándar (§6) conectada a la Mesa (`ROLES_DESDE_MESA`), y `ROLES.md` es v2.
+7. No queda un login ni un gestor de usuarios y roles propios (§7): la fuente de verdad de los roles es la Mesa.
 6. Monta la pantalla estándar `SinAcceso` (§2, marca `data-agp-sin-acceso="estandar"`) para quien inicia sesión sin acceso; el contacto es el primer administrador de `.agp/entra.yaml` con correo @agpglass.com. El agente de despliegue lo reporta como hallazgo si falta (aviso, igual que el visual estándar).
+
+## 6. La pantalla estándar «Configuración de roles y secretos»
+
+Norma de IT del 2026-11-05 (spec 023 de la Mesa; prototipo aprobado). Todo desarrollo monta la **misma pantalla** (`ConfiguracionDesarrollo`, paquete `templates/auth-estandar/`) en `/configuracion`. Habla con la Mesa por el túnel de roles y secretos: la pantalla **pide** y la Mesa valida, aplica y audita.
+
+- **Rol** es el único concepto que ve quien administra: nombre + **vistas** que puede abrir (cada una con sus acciones) + **datos** que consulta + la marca opcional «vista general» (lo que ve quien entra sin rol; nunca administrativo). «Perfil» es el nombre histórico del mismo concepto y no se muestra; en `ROLES.md` v2 las vistas son los `permisos` (módulos), las acciones son sus funciones y los datos son las áreas.
+- **Dónde viven:** `Admin` y `Usuario` en Entra ID. Los roles personalizados en **tablas del propio desarrollo** (`App_<Área>_<Desarrollo>_Roles`, `…_RolesDatos`, `…_RolesPersonas`), que crea el worker desde una plantilla estándar y que la app solo lee; solo escribe la Mesa (spec 018 §5.1). Mientras esas tablas no estén, la Mesa guarda los roles en sus tablas centrales y la pantalla funciona igual.
+- **Cuatro pestañas:** **Roles** (crear, editar, duplicar y eliminar; vista previa «así lo ve quien tenga este rol»), **Usuarios** (lista con filtros por nombre, rol y origen; asignar en un **modal de tres pasos**: usuario → rol → confirmar; si la persona es de otra área la Mesa exige dos textos de al menos 20 letras; reglas por área de Microsoft de `ROLES.md`), **Secretos** y **Actividad** (peticiones en curso e historial).
+- **Quién puede qué:** el administrador **principal** hace todo; el **secundario** ve todo y edita la definición de los roles, pero no asigna usuarios ni carga secretos; quien no administra no ve «Configuración». El servidor lo impone siempre: lo que la pantalla deshabilita, la Mesa igual lo rechaza.
+- **Secretos:** solo los que declara `.agp/runtime.yaml` y que no crea la Mesa. El valor viaja una vez, se guarda y **nunca** se muestra ni se registra. «Cargar valor» y «Reiniciar app» son del administrador principal.
+- **Contrato que verifican la Mesa y los agentes:** la raíz con `data-agp-configuracion="estandar"`, las pestañas con `data-agp-pestana="roles|usuarios|secretos|actividad"`, el modal con `role="dialog"` y `aria-modal="true"`, y el menú de usuario con `data-agp-menu="configuracion"`. Un frontend que no pueda traer el mismo archivo (otro framework de UI) lo cumple por marcas.
+- **Conexión:** `ROLES_DESDE_MESA=true`, `MESA_API_URL` y `MESA_ID_PROYECTO` (no son secretos; la API los entrega a la pantalla en `GET /api/config` → `roles`) y un `ROLES.md` v2 con los permisos (módulos y funciones) y los perfiles iniciales.
+
+## 7. Si el desarrollo ya tiene su propio login o su propio gestor de roles
+
+La norma es una sola. Un desarrollo que traiga **su propio mecanismo** (pantalla de login que no es la del kit, o una administración de usuarios y roles propia con su tabla de usuarios, sus rutas de administración y su propia pantalla) **debe pasar al de la norma**:
+
+1. **Login:** el del kit sin cambios (`LoginScreen.jsx`, `login-estandar.css`).
+2. **Roles:** la fuente de verdad pasa a la Mesa (`ROLES_DESDE_MESA=true`): el backend le pregunta por la persona con el mismo `id_token` y autoriza con lo que responde. Los roles que hoy tenga el desarrollo se declaran como `perfilesIniciales` en `ROLES.md` (con sus módulos y funciones) y las asignaciones actuales se cargan una vez a través de la Mesa.
+3. **Pantalla:** la de §6 reemplaza a la administración propia de usuarios y roles; lo demás de esa administración (por ejemplo, reportes de actividad del desarrollo) puede quedar como enlace administrativo propio.
+
+El Agente de Despliegue lo **detecta y lo reporta** (requisitos `configuracion_roles` y `mecanismo_propio_acceso`): no corrige ni elige; nombra qué mecanismo propio encontró y qué archivo del paquete debe adoptarse. La Mesa lo trata como aviso mientras IT no active el bloqueo, igual que el visual estándar.
