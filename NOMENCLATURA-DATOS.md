@@ -15,7 +15,9 @@ preexistentes conservan su nombre.
 | Tabla | `App_<Área>_<Desarrollo>_<tabla>` | `App_Manufacturing_RPC_users` |
 | Usuario de la aplicación | `<esquema>_app` | `app_manufacturing_rpc_app` |
 | Rol de la aplicación | `<esquema>_crud` | `app_manufacturing_rpc_crud` |
-| Secretos en el vault de desarrollos | `<desarrollo>-db-user`, `<desarrollo>-db-pwd`, `<desarrollo>-db-server` | `rpc-db-user` |
+| Secretos de conexión en el vault de desarrollos (una base) | `<desarrollo>-db-user`, `<desarrollo>-db-pwd`, `<desarrollo>-db-server` | `rpc-db-user` |
+| Secretos de conexión (varias bases) | `<desarrollo>-<base>-db-server`, `-db-username`, `-db-password` | `rpc-calendario-db-username` |
+| Cualquier otro secreto del desarrollo | `<desarrollo>-<dato>` (minúsculas, dígitos y guiones) | `rpc-api-reportes` |
 
 - `<Área>` y `<Desarrollo>` son una sola palabra de letras y dígitos (sin guiones ni guiones bajos). `<Área>` es el departamento del
   responsable en Entra ID, el mismo que usa la Mesa para nombrar los recursos de Azure.
@@ -64,6 +66,8 @@ esta norma. Para recordar de dónde venía se agrega `migracion_desde: {"motor":
 - **Las tablas nacen vacías.** La Mesa no copia datos: el desarrollador migra los suyos después, por su cuenta.
 - Declarar una fuente con `motor` que empiece por `sqlite` **bloquea** el plan, con el mensaje de cómo declararla.
 - El código puede seguir usando SQLite en local: la misma base con otra cadena de conexión (Azure SQL con los secretos del despliegue en producción).
+
+Los secretos de conexión los crea la Mesa al aprobar el plan; la Mesa reconoce los sufijos `-db-server`, `-db-user`, `-db-username`, `-db-pwd` y `-db-password`. Todos los demás secretos los declara el desarrollo en `.agp/runtime.yaml` y se llaman `<desarrollo>-<dato>` (`ACCESO-Y-ROLES-DEL-DESARROLLO.md` §6).
 
 ## Compatibilidad
 

@@ -63,6 +63,9 @@ docker-compose.yml / docker-compose.*.yml
 .github/workflows/*.yml
 .env.example (o equivalente — nunca un .env real)
 package.json / requirements.txt / pyproject.toml
+.agp/profile.yaml, .agp/governance.yaml, .agp/entra.yaml, .agp/runtime.yaml
+ROLES.md
+ai/outputs/data-access-manifest.json
 specs/007-deployment-notes.md
 README.md
 AGENTS.md
@@ -139,6 +142,12 @@ El Agente de Despliegue puede:
   válidos para su tipo, nombres de la norma y conexión declarada en `.agp/runtime.yaml`). Copiar la salida literal en el informe. Con `valid: false`, el requisito de manifiesto de datos y
   el de contrato de ejecución **no pueden ir como `ok`**: se reportan como `falta` con cada `issue`, que el desarrollador corrige antes de pedir el despliegue. No se interpreta, no se
   resume y no se da por bueno lo que la herramienta rechaza. Si no se puede ejecutar, el requisito es `no_verificable`, nunca `ok`.
+* **Secretos: nombre por norma, valor nunca.** `.agp/runtime.yaml` declara `desarrollo: <nombre>` y todo secreto se llama `<desarrollo>-<dato>` (minúsculas, dígitos y guiones); los valores no
+  entran al repositorio. Comprobar con `python -m agpctl runtime check --repo <repo>` y copiar su salida literal: un secreto que no empieza con el desarrollo, una clave no reconocida o un valor secreto
+  en `env` son `falta`; un `aviso` por falta de `desarrollo` se reporta también (la preparación a IT lo exige). Quién los carga y cómo: `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §6.
+* **Recursos externos.** Todo lo que el desarrollo usa fuera de su Web App (worker, máquina virtual, job programado, script externo, servicio de otro equipo) y que el código, el README o las notas de despliegue
+  mencionan debe estar en `recursos_externos` de `.agp/runtime.yaml` (tipo, nombre, descripción, ubicación sin credenciales, acceso por nombre de secreto o `ninguno`, `escribe_datos`, responsable @agpglass.com).
+  Declararlo no lo crea ni lo concede: IT lo revisa. El agente nombra lo que existe y no está declarado; no lo declara por su cuenta si no hay evidencia (`OBLIGATORIOS-DEL-DESARROLLO.md` §18).
 * Marcar como `null` cualquier campo sin evidencia (`MapeoAccesoBD` queda
   `null`, no una lista vacía, si no se pudo construir).
 
@@ -159,6 +168,7 @@ El Agente de Despliegue no puede:
   (eso es trabajo del Agente de Revisión Técnica).
 * Modificar el repositorio, crear archivos, ni ejecutar el código o los
   contenedores.
+* Confirmar la preparación a IT, firmar el contrato del desarrollador o decidir el despliegue continuo: lo hace el responsable en la Mesa (ver §7) y lo fija IT (`DESPLIEGUE-A-MAIN.md`).
 * Cambiar el estado del proyecto ni sus calificaciones — su JSON se aplica
   únicamente a los campos de "Datos técnicos", nunca a
   `EstadoDesarrollo`, `CalificacionDocumental`, `CalificacionPruebas` ni
@@ -207,8 +217,16 @@ del kit, `agp-deploy.json`, CI, workflow de publicación, Dockerfile, expediente
 build vs `.dockerignore`, estructura del login estándar y login MSAL con
 `.agp/entra.yaml` y sus `administradores`) y **acceso de usuarios**. MSAL es obligatorio para todo desarrollo a desplegar. Es informativo: el agente no califica ni bloquea.
 El requisito «menú de usuario» (norma `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §4, paquete `templates/auth-estandar/`) se reporta como `ok` solo si el encabezado trae el menú estándar: el botón con `data-agp-menu="usuario"` y `aria-label` «Menú de usuario» (nombre y rol visibles), la entrada `data-agp-menu="configuracion"` («Configuración», un enlace directo a `/configuracion`; solo con varios enlaces administrativos propios despliega «Administración») y «Cerrar sesión»; si falta, `falta` y se nombra el archivo del paquete que hay que copiar. La Mesa lo bloquea igual que el login estándar.
-El requisito «configuración de roles y secretos» (`configuracion_roles`; norma `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §6) se reporta como `ok` si la aplicación monta la pantalla estándar `ConfiguracionDesarrollo` en `/configuracion` (raíz con `data-agp-configuracion="estandar"`, pestañas con `data-agp-pestana`, modal con `role="dialog"` y `aria-modal="true"`) y se conecta a la Mesa (`ROLES_DESDE_MESA`, `/api/config` → `roles`, `ROLES.md` v2); si falta, `falta` y se nombra `src/screens/ConfiguracionDesarrollo.jsx`. El requisito «mecanismo propio de acceso» (`mecanismo_propio_acceso`; §7) reporta como hallazgo cualquier login que no sea el del kit o cualquier gestor de usuarios y roles propio (tabla de usuarios del desarrollo, rutas de administración de usuarios o roles, pantalla de administración de usuarios): nombra los archivos y dice que debe pasar a la pantalla estándar; el agente no corrige ni elige. La Mesa lo trata como aviso, igual que el visual estándar.
+El requisito «configuración de roles y secretos» (`configuracion_roles`; norma `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §6) se reporta como `ok` si la aplicación monta la pantalla estándar `ConfiguracionDesarrollo` en `/configuracion` (raíz con `data-agp-configuracion="estandar"`, pestañas con `data-agp-pestana`, modal con `role="dialog"` y `aria-modal="true"`) y se conecta a la Mesa (`ROLES_DESDE_MESA`, `/api/config` → `roles`, `ROLES.md` v2); si falta, `falta` y se nombra `src/screens/ConfiguracionDesarrollo.jsx`. Los roles personalizados viven en tres tablas del propio desarrollo (`App_<Área>_<Desarrollo>_Roles`, `…_RolesDatos`, `…_RolesPersonas`) que crea el worker y que solo escribe la Mesa; son de gestión continua, sin vigencia: el agente no reporta ni exige fechas de vencimiento de roles, y la API del túnel que usa la pantalla está en `CONTRATO-TUNEL-ROLES.md`. El requisito «mecanismo propio de acceso» (`mecanismo_propio_acceso`; §7) reporta como hallazgo cualquier login que no sea el del kit o cualquier gestor de usuarios y roles propio (tabla de usuarios del desarrollo, rutas de administración de usuarios o roles, pantalla de administración de usuarios): nombra los archivos y dice que debe pasar a la pantalla estándar; el agente no corrige ni elige. La Mesa lo trata como aviso, igual que el visual estándar.
 El requisito «pantalla sin acceso» (norma `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §2, paquete `templates/auth-estandar/`) se reporta como `ok` si la aplicación monta la pantalla estándar `SinAcceso` (raíz con `data-agp-sin-acceso="estandar"`, sin texto libre) para quien inicia sesión sin acceso, y `/api/config` entrega `contactoNombre` y `contactoCorreo` (`administradores[0]` de `.agp/entra.yaml`, correo @agpglass.com); si falta, `falta` y se nombra `src/screens/SinAcceso.jsx`. Un `sinAcceso.mensaje` en `ROLES.md` está obsoleto: se reporta como hallazgo informativo. La Mesa lo trata como aviso, igual que el visual estándar.
+Además de los anteriores, el agente reporta estos requisitos (ids en `prompt-agente-despliegue-evaluacion.md` PASO 2B; la regla, un ejemplo correcto y uno incorrecto de cada uno están en `OBLIGATORIOS-DEL-DESARROLLO.md`):
+`roles` (`ROLES.md` v2), `acceso_usuarios` (`acceso` de `.agp/entra.yaml`), `pantalla_sin_acceso`, `datos_locales` (SQLite → tabla propia, nace vacía), `secretos_norma` (`<desarrollo>-<dato>`) y `recursos_externos`.
+La API con la que habla la pantalla de configuración (rutas `/api/roles-app/<id>/…`, autenticación con el `id_token` de la app, cuerpos y errores) está en `CONTRATO-TUNEL-ROLES.md`: el agente no inventa llamadas y
+remite al cliente del paquete (`src/services/rolesMesa.js`).
+**Preparación a IT y contrato (lo hace el responsable, no el agente).** Después de que el agente de despliegue y el worker tester aprueban, y antes de que IT apruebe, el responsable confirma en la Mesa lo que el repositorio
+declara (origen de los datos, acceso público o privado, secretos, recursos externos) y firma el contrato del desarrollador con su sesión (`specs/024` de la Mesa). Todo sale del repositorio: lo que el agente no encuentre o el
+desarrollador no declare no aparece en esa pantalla, y cualquier cambio de commit o de un archivo de contrato deja la confirmación obsoleta. Por eso el agente reporta con rigor lo declarado. **Sin contrato firmado y vigente no hay
+despliegue continuo**; con él, el primer despliegue oficial exitoso deja el CD limitado a 3 publicaciones por día (`DESPLIEGUE-A-MAIN.md` §2).
 Quién decide cómo se publica `main` lo fija la norma `DESPLIEGUE-A-MAIN.md`: IT, con la política de CD por desarrollo en la Mesa. El agente no despliega ni configura el CD, y tampoco
 asume que un cambio de contrato (`.agp/*`, manifiesto de datos) se publicará solo: el CD no lo publica y exige la aprobación completa de IT.
 El requisito «acceso de usuarios» (norma `ACCESO-Y-ROLES-DEL-DESARROLLO.md`, IT 2026-11-04: todo desarrollo abierto a la organización, como la Mesa de Ayuda) reporta el valor de `acceso` en

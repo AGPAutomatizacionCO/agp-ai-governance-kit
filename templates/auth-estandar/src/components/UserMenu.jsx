@@ -1,5 +1,5 @@
-// Menú de usuario estándar de AGP: el botón con el nombre y el rol de quien entró, y al hacer clic el menú con «Configuración» → «Administración»
-// (los accesos administrativos del desarrollo) y «Cerrar sesión». Es el que RPC ya usa en producción; norma en ACCESO-Y-ROLES-DEL-DESARROLLO.md §4.
+// Menú de usuario estándar de AGP: el botón con el nombre y el rol de quien entró, y al hacer clic el menú con «Configuración» (directo a la pantalla
+// estándar) y «Cerrar sesión». Es el que RPC ya usa en producción; norma en ACCESO-Y-ROLES-DEL-DESARROLLO.md §4.
 // Lo que la Mesa y los agentes exigen es el CONTRATO, no este archivo: el botón con `data-agp-menu="usuario"` y aria-label «Menú de usuario», el nombre y
 // el rol visibles, la entrada «Configuración» con `data-agp-menu="configuracion"` y «Cerrar sesión». Un desarrollo con su propio componente (otro
 // framework de UI) lo cumple igual si respeta ese contrato.
@@ -57,7 +57,7 @@ export function ContenidoDelMenu({ enlaces, idConfiguracion, configuracionAbiert
   );
 }
 
-/** `enlaces`: [{nombre, href}] de administración (opcional; por omisión, «Configuración del desarrollo» para Admin). `onNavegar(href)`: para
+/** `enlaces`: [{nombre, href}] de administración (opcional; por omisión, «Configuración» → `/configuracion` para Admin). `onNavegar(href)`: para
  *  enrutar sin recargar (react-router: `navigate`); sin él, el enlace navega normal. `rolEtiqueta`: el rol a mostrar si no es el del token. */
 export default function UserMenu({ enlaces, onNavegar, rolEtiqueta }) {
   const { currentUser, isAdmin, logout } = useAuth();

@@ -51,7 +51,8 @@ secrets:
 ```
 
 - El secreto de usuario termina en `-db-username` (o `-db-user`): de él sale el nombre de la cuenta (`mi_desarrollo_calendario_app`) y su rol.
-- Los secretos se llaman `<desarrollo>-<base>-db-server|username|password`. La Mesa los crea al aprobar; no se cargan a mano.
+- Los secretos de conexión se llaman `<desarrollo>-<base>-db-server|username|password` (con una sola base también vale `<desarrollo>-db-server|user|pwd`, `NOMENCLATURA-DATOS.md`). La Mesa los crea al aprobar; no se cargan a mano.
+- Todos los demás secretos del desarrollo siguen `<desarrollo>-<dato>` y se declaran junto con `desarrollo:` en `.agp/runtime.yaml` (`ACCESO-Y-ROLES-DEL-DESARROLLO.md` §6; se comprueba con `python -m agpctl runtime check`).
 - El código lee esos nombres de variable de entorno (con valores por defecto para desarrollo local). Nunca lleva credenciales, ni hay `.env` real en el repositorio.
 - Las tablas **propias** del desarrollo (`crear_en_despliegue`) viven en su esquema `app_<area>_<desarrollo>` (ver `NOMENCLATURA-DATOS.md`); las preexistentes, en su esquema real (p. ej. `dbo`), nunca en
   uno inventado.

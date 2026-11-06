@@ -14,6 +14,8 @@ from pathlib import Path
 
 import yaml
 
+from agpctl import runtime_contrato
+
 API_VERSION = "runtime.agp/v1"
 _NOMBRE_ENV = re.compile(r"^[A-Z][A-Z0-9_]{1,63}$")
 _NOMBRE_SECRETO = re.compile(r"^[A-Za-z0-9-]{1,127}$")
@@ -133,15 +135,16 @@ def plan(repo: Path, prefijo: str | None = None) -> dict:
             avisos += _avisos(clave, dato["defecto"])
         variables.append(entrada)
     return {"readOnly": True, "apiVersion": API_VERSION, "prefijo": prefijo, "variables": variables, "avisos": avisos,
-            "yaml": _yaml(variables), "porDecidir": [v["name"] for v in variables if v["tipo"] == "decidir"]}
+            "yaml": _yaml(variables, prefijo), "porDecidir": [v["name"] for v in variables if v["tipo"] == "decidir"]}
 
 
-def _yaml(variables: list[dict]) -> str:
+def _yaml(variables: list[dict], desarrollo: str) -> str:
     env = [v for v in variables if v["tipo"] == "env"]
     secretos = [v for v in variables if v["tipo"] == "secreto"]
     fuentes = sorted({v["motivo"].rsplit(": ", 1)[-1] for v in variables if v["tipo"] == "fuente"})
     lineas = ["# Propuesto por `agpctl runtime plan`: solo NOMBRES, nunca valores secretos. Revisar antes de fusionar.",
-              f"apiVersion: {API_VERSION}", ""]
+              f"apiVersion: {API_VERSION}",
+              f"desarrollo: {desarrollo}                # el nombre que prefija sus secretos: <desarrollo>-<dato> (NOMENCLATURA-DATOS.md)", ""]
     if env:
         lineas.append("env:")
         for v in env:
@@ -165,27 +168,35 @@ def check(repo: Path) -> dict:
     usadas = {n: d for n, d in leer_variables(repo).items() if clasificar(n, d["defecto"])[0] not in ("omitir", "build")}
     if not ruta.exists():
         faltan = sorted(usadas)
-        return {"valid": not faltan, "issues": [f"falta .agp/runtime.yaml y el código usa: {', '.join(faltan)}"] if faltan else []}
+        return {"valid": not faltan, "issues": [f"falta .agp/runtime.yaml y el código usa: {', '.join(faltan)}"] if faltan else [], "avisos": []}
     try:
         contrato = yaml.safe_load(ruta.read_text(encoding="utf-8")) or {}
     except yaml.YAMLError as exc:
-        return {"valid": False, "issues": [f".agp/runtime.yaml no es YAML válido: {exc}"]}
+        return {"valid": False, "issues": [f".agp/runtime.yaml no es YAML válido: {exc}"], "avisos": []}
+    if not isinstance(contrato, dict):
+        return {"valid": False, "issues": [".agp/runtime.yaml debe ser un objeto YAML"], "avisos": []}
     issues, declaradas = [], set()
     if contrato.get("apiVersion") != API_VERSION:
         issues.append(f"apiVersion debe ser {API_VERSION}")
+    issues.extend(runtime_contrato.claves_no_reconocidas(contrato))
     for item in contrato.get("env") or []:
         declaradas.add(item.get("name"))
         if not _NOMBRE_ENV.fullmatch(str(item.get("name"))):
             issues.append(f"env: nombre inválido {item.get('name')!r}")
         if _PARECE_SECRETO.search(str(item.get("value", ""))):
             issues.append(f"env: el valor de {item.get('name')} parece un secreto; va en secrets")
+    secretos = []
     for item in contrato.get("secrets") or []:
         declaradas.add(item.get("name"))
         if not _NOMBRE_SECRETO.fullmatch(str(item.get("secret"))):
             issues.append(f"secrets: nombre de secreto inválido para {item.get('name')}")
+        else:
+            secretos.append({"name": item.get("name"), "secret": item.get("secret")})
+    issues.extend(runtime_contrato.prefijo_de_secretos(contrato.get("desarrollo"), secretos))
+    issues.extend(runtime_contrato.revisar_recursos_externos(contrato.get("recursos_externos"), secretos))
     de_fuentes = {n for n in usadas if clasificar(n, usadas[n]["defecto"])[0] == "fuente"} if contrato.get("fuentes") else set()
     for nombre in sorted(set(usadas) - declaradas - de_fuentes):
         issues.append(f"el código usa {nombre} ({', '.join(sorted(usadas[nombre]['fuentes']))}) y no está en runtime.yaml")
     for nombre in sorted(d for d in declaradas - set(usadas) if d):
         issues.append(f"runtime.yaml declara {nombre} pero el código no lo lee")
-    return {"valid": not issues, "issues": issues}
+    return {"valid": not issues, "issues": issues, "avisos": runtime_contrato.avisos_de_contrato(contrato)}
