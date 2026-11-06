@@ -16,7 +16,7 @@ permissions:
 jobs:
   validate:
     name: agp-project-validation
-    runs-on: [self-hosted, Linux, X64, agp-corp]
+    runs-on: ubuntu-24.04
     steps:
       - name: Comprobar referencia inmutable del kit
         shell: bash
