@@ -1,9 +1,9 @@
-"""ESPEJO de la Mesa de Requerimientos (backend/src/helpers/datos_ddl.py), copiado sin cambios de lógica.
-
-La Mesa es la fuente de verdad: son las mismas reglas con las que valida el plan antes de que IT apruebe. Copiado aquí para que el
-desarrollador y su agente las apliquen ANTES de pedir el despliegue (python -m agpctl datos check). Si la Mesa cambia una regla, se
-vuelve a copiar el archivo; no se edita a mano.
-"""
+# ESPEJO de la Mesa de Requerimientos (backend/src/helpers/datos_ddl.py), copiado sin cambios de lógica: solo se adaptan los imports.
+# La Mesa es la fuente de verdad: son las mismas reglas con las que valida el plan antes de que IT apruebe.
+# Si la Mesa cambia una regla, se regenera con `python scripts/sincronizar_espejos_mesa.py --mesa <repo de la Mesa>`; no se edita a mano.
+# ESPEJO-COMMIT: 3b311cdd4851b068973ea7bfb4ec04398075e16c
+# ESPEJO-SHA256: fa8ca2757f7d13cf7544ef85c522770ae95b54dc5dd3b7b72dc7c70cde4b2267
+# ===== ESPEJO DE LA MESA: inicio del código (no editar a mano; regenerar con scripts/sincronizar_espejos_mesa.py) =====
 """Tablas propias de un desarrollo: validar la norma de nombres y generar el T-SQL que las crea (sin ejecutar nada).
 
 Fuente de la norma: NOMENCLATURA-DATOS.md del kit de gobernanza. Entrada: `ai/outputs/data-access-manifest.json` ya validado contra el
@@ -17,7 +17,6 @@ Seguridad de los identificadores: los `GRANT`/`CREATE` son DDL y no admiten par�
 estricta ANTES de usarse y además se escapa entre corchetes; nada que no cumpla llega al script.
 """
 import hashlib
-import math
 import re
 
 _ESQUEMA = re.compile(r"^app_[a-z0-9]+_[a-z0-9]+$")
@@ -71,7 +70,7 @@ def _literal(valor, tipo):
             return str(int(valor)) if valor in (0, 1) else None
         numerico = tipo in _ENTEROS or tipo in ("float", "real") or tipo.startswith("decimal(")
         entero_ok = isinstance(valor, int) or tipo not in _ENTEROS
-        return repr(valor) if numerico and entero_ok and not math.isnan(valor) and abs(valor) < 1e15 else None
+        return repr(valor) if numerico and entero_ok and valor == valor and abs(valor) < 1e15 else None
     if isinstance(valor, str) and _TEXTO_SIMPLE.fullmatch(valor) and re.match(r"^(nvarchar|varchar)\(", tipo):
         return "N'" + valor.replace("'", "''") + "'"
     return None
@@ -82,7 +81,6 @@ def _q(identificador):
     return "[" + identificador.replace("]", "]]") + "]"
 
 
-# Regla SQLite 2026-11-05 aplicada a mano (resto del espejo con desfases previos respecto de la Mesa; la resincronización completa queda pendiente).
 ORIGEN_DATO_LOCAL = "dato_local_propio"
 
 
@@ -111,14 +109,14 @@ def revisar_datos_locales(mapeo):
     for fuente in (mapeo or {}).get("fuentes_datos") or []:
         tablas = [t for e in fuente.get("esquemas") or [] for t in e.get("tablas") or []]
         if es_dato_local(fuente) or any(es_dato_local(fuente, t) for t in tablas):
-            problemas.append(f"{fuente.get('database_id') or fuente.get('database') or '?'!s}: SQLite solo sirve en local y no existe en producción (el archivo se pierde al reiniciar). "
+            problemas.append(f"{str(fuente.get('database_id') or fuente.get('database') or '?')}: SQLite solo sirve en local y no existe en producción (el archivo se pierde al reiniciar). "
                              "Declare esas tablas como propias del desarrollo (origen propia_del_desarrollo, crear_en_despliegue true y nombre App_<Área>_<Desarrollo>_<tabla> en el "
                              "esquema app_<área>_<desarrollo>), con migracion_desde para recordar su origen. Nacen vacías: el desarrollador migra sus datos después")
     return problemas
 
 
 def tablas_a_crear(mapeo):
-    """[(esquema, tabla_dict)] de las tablas con crear_en_despliegue=true, en el orden del manifiesto."""
+    """[(esquema, tabla_dict)] de las tablas con crear_en_despliegue=true, en el orden del manifiesto. Los datos locales (SQLite) no se crean en Azure SQL."""
     resultado = []
     for fuente in (mapeo or {}).get("fuentes_datos") or []:
         for esquema in fuente.get("esquemas") or []:
@@ -339,8 +337,8 @@ def generar_script(mapeo, rol, servidor=None, base=None):
             destino = next(t["table"] for _, t in tablas if t["table"].lower() == destino.lower())
             fk = _nombre_objeto("FK", tabla["table"], [c["name"]])
             lineas += [f"IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'{fk}' AND parent_object_id = OBJECT_ID(N'{esquema}.{tabla['table']}'))",
-                       (f"    ALTER TABLE {_q(esquema)}.{_q(tabla['table'])} ADD CONSTRAINT {_q(fk)} FOREIGN KEY ({_q(c['name'])}) "
-                        f"REFERENCES {_q(esquema)}.{_q(destino)} ({_q(columna_destino)});"), ""]
+                       f"    ALTER TABLE {_q(esquema)}.{_q(tabla['table'])} ADD CONSTRAINT {_q(fk)} FOREIGN KEY ({_q(c['name'])}) "
+                       f"REFERENCES {_q(esquema)}.{_q(destino)} ({_q(columna_destino)});", ""]
     for _, tabla in tablas:
         operaciones = [o for o in _OPERACIONES if o in tabla["operaciones_permitidas"]]
         if operaciones:

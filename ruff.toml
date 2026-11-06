@@ -1,0 +1,4 @@
+# Los espejos de la Mesa (agpctl/mesa_datos_*.py) son su código SIN cambios de lógica: no se corrigen aquí, se corrigen en la Mesa y se regeneran
+# (scripts/sincronizar_espejos_mesa.py). Por eso estas reglas de estilo no se aplican solo a ellos.
+[lint.per-file-ignores]
+"agpctl/mesa_datos_*.py" = ["PLR0124", "RUF010", "ISC004", "BLE001"]

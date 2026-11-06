@@ -47,5 +47,5 @@ python -m agpctl datos check --repo <proyecto>
 
 Solo lectura. Revisa `ai/outputs/data-access-manifest.json` con el esquema del kit y con las reglas que la Mesa aplica al plan (tablas a crear, lecturas de tablas preexistentes,
 permisos) y comprueba que `.agp/runtime.yaml` declare la conexión de cada base que el manifiesto toca. Devuelve JSON con `valid` e `issues` y código de salida 1 si hay problemas:
-lo que aquí pasa no aparece luego como «Revisar pendientes» al aprobar. Las reglas son un espejo sin cambios de la Mesa (`agpctl/mesa_datos_*.py`, copiados de
-`backend/src/helpers/datos_*.py` de la Mesa): si la Mesa cambia una regla, se vuelve a copiar el archivo, no se edita a mano.
+lo que aquí pasa no aparece luego como «Revisar pendientes» al aprobar. Las reglas son un espejo sin cambios de la Mesa (`agpctl/mesa_datos_*.py`, generados de
+`backend/src/helpers/datos_*.py` de la Mesa): si la Mesa cambia una regla, se regeneran con `python scripts/sincronizar_espejos_mesa.py --mesa <clon de la Mesa>` (solo se adaptan los imports; cada espejo trae el commit de la Mesa y la huella de su cuerpo) y no se editan a mano. `tests/test_espejos_mesa.py` comprueba que nadie los editó y, con `AGP_MESA_PATH=<clon de la Mesa>`, que no hay deriva frente a su `main`.

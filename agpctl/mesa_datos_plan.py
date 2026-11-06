@@ -1,9 +1,9 @@
-"""ESPEJO de la Mesa de Requerimientos (backend/src/helpers/datos_plan.py), copiado sin cambios de lógica.
-
-La Mesa es la fuente de verdad: son las mismas reglas con las que valida el plan antes de que IT apruebe. Copiado aquí para que el
-desarrollador y su agente las apliquen ANTES de pedir el despliegue (python -m agpctl datos check). Si la Mesa cambia una regla, se
-vuelve a copiar el archivo; no se edita a mano.
-"""
+# ESPEJO de la Mesa de Requerimientos (backend/src/helpers/datos_plan.py), copiado sin cambios de lógica: solo se adaptan los imports.
+# La Mesa es la fuente de verdad: son las mismas reglas con las que valida el plan antes de que IT apruebe.
+# Si la Mesa cambia una regla, se regenera con `python scripts/sincronizar_espejos_mesa.py --mesa <repo de la Mesa>`; no se edita a mano.
+# ESPEJO-COMMIT: 3b311cdd4851b068973ea7bfb4ec04398075e16c
+# ESPEJO-SHA256: bb7db4e7c5f142c3eda15fdb0fca9869c1d1df50befffce753edd23d8bb91259
+# ===== ESPEJO DE LA MESA: inicio del código (no editar a mano; regenerar con scripts/sincronizar_espejos_mesa.py) =====
 """Parte de DATOS del plan de despliegue: qué esquema y tablas propias se crean, dónde, y con qué script (por hash).
 
 Es lógica pura (sin red ni base): la usan el preflight de la Mesa, que mete estos campos en el plan que aprueba IT, y el worker, que
@@ -21,7 +21,6 @@ from agpctl.mesa_datos_permisos import OPERACIONES, _texto_corto
 RUTA_MANIFIESTO = "ai/outputs/data-access-manifest.json"
 _SERVIDOR = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}\.database\.windows\.net$")
 _BASE = re.compile(r"^[A-Za-z0-9_-]{1,128}$")
-# Regla SQLite 2026-11-05 aplicada a mano (resto del espejo con desfases previos respecto de la Mesa; la resincronización completa queda pendiente).
 CAMPOS_DEL_PLAN = ("datosServidor", "datosBase", "datosEsquema", "datosTablas", "datosLecturas", "datosRol", "datosUsuario", "datosScriptSha256")
 
 
@@ -64,9 +63,9 @@ def plan_de_datos(mapeo, servidor, base, habilitado):
     if not datos_ddl.tablas_a_crear(mapeo):
         return None, []
     if not habilitado:
-        return None, [("Datos: el manifiesto pide crear tablas en el despliegue (crear_en_despliegue) pero la creación automática de tablas "
-                       "no está habilitada (AGP_DATOS_ENABLED=true): la variable debe estar en la Mesa (App Service) Y en el Job del worker, que repite esta "
-                       "validación con su propio entorno")]
+        return None, ["Datos: el manifiesto pide crear tablas en el despliegue (crear_en_despliegue) pero la creación automática de tablas "
+                      "no está habilitada (AGP_DATOS_ENABLED=true): la variable debe estar en la Mesa (App Service) Y en el Job del worker, que repite esta "
+                      "validación con su propio entorno"]
     bloqueos = []
     if not _SERVIDOR.fullmatch(str(servidor or "")) or not _BASE.fullmatch(str(base or "")):
         bloqueos.append("Datos: falta o es inválida la configuración del destino de las tablas (AGP_DATOS_SQL_SERVER / AGP_DATOS_SQL_DATABASE)")
