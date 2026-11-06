@@ -3,7 +3,7 @@
 Norma para todo desarrollo con login de Microsoft Entra ID (todos los que se despliegan con la Mesa de Requerimientos). **Norma de IT del 2026-11-04: todo desarrollo funciona como la Mesa de Ayuda.**
 Cualquier persona de AGP entra y ve la vista general; los roles específicos los da el administrador **dentro** de la app, desde su panel «Configuración» (como RPC), por persona o a toda un área de Microsoft. La Mesa los guarda y valida por detrás (túnel de roles). Restringir el
 ingreso a personas asignadas es la excepción y se justifica. La Mesa lo muestra en el plan que aprueba IT, y los agentes lo documentan y lo verifican. Complementa `templates/auth-estandar/README.md` (el login) y
-`PERMISOS-Y-SECRETOS-DEL-WORKER.md` (los datos).
+`PERMISOS-Y-SECRETOS-DEL-WORKER.md` (los datos). El contrato técnico de la API con la que habla la pantalla de configuración (rutas, cuerpos, autenticación y errores) está en `CONTRATO-TUNEL-ROLES.md`; la lista de todo lo obligatorio, con ejemplos, en `OBLIGATORIOS-DEL-DESARROLLO.md`.
 
 ## 1. La pregunta que todo desarrollo responde
 
@@ -76,19 +76,63 @@ Todo desarrollo trae el **mismo menú de usuario** (`UserMenu`, paquete `templat
 5. El encabezado monta el menú de usuario estándar (§4) y su «Configuración» va directo a la pantalla estándar y solo la ve quien administra.
 6. `/configuracion` monta la pantalla estándar (§6) conectada a la Mesa (`ROLES_DESDE_MESA`), y `ROLES.md` es v2.
 7. No queda un login ni un gestor de usuarios y roles propios (§7): la fuente de verdad de los roles es la Mesa.
-6. Monta la pantalla estándar `SinAcceso` (§2, marca `data-agp-sin-acceso="estandar"`) para quien inicia sesión sin acceso; el contacto es el primer administrador de `.agp/entra.yaml` con correo @agpglass.com. El agente de despliegue lo reporta como hallazgo si falta (aviso, igual que el visual estándar).
+8. Monta la pantalla estándar `SinAcceso` (§2, marca `data-agp-sin-acceso="estandar"`) para quien inicia sesión sin acceso; el contacto es el primer administrador de `.agp/entra.yaml` con correo @agpglass.com. El agente de despliegue lo reporta como hallazgo si falta (aviso, igual que el visual estándar).
 
 ## 6. La pantalla estándar «Configuración de roles y secretos»
 
 Norma de IT del 2026-11-05 (spec 023 de la Mesa; prototipo aprobado). Todo desarrollo monta la **misma pantalla** (`ConfiguracionDesarrollo`, paquete `templates/auth-estandar/`) en `/configuracion`. Habla con la Mesa por el túnel de roles y secretos: la pantalla **pide** y la Mesa valida, aplica y audita.
 
 - **Rol** es el único concepto que ve quien administra: nombre + **vistas** que puede abrir (cada una con sus acciones) + **datos** que consulta + la marca opcional «vista general» (lo que ve quien entra sin rol; nunca administrativo). «Perfil» es el nombre histórico del mismo concepto y no se muestra; en `ROLES.md` v2 las vistas son los `permisos` (módulos), las acciones son sus funciones y los datos son las áreas.
-- **Dónde viven:** `Admin` y `Usuario` en Entra ID. Los roles personalizados en **tablas del propio desarrollo** (`App_<Área>_<Desarrollo>_Roles`, `…_RolesDatos`, `…_RolesPersonas`), que crea el worker desde una plantilla estándar y que la app solo lee; solo escribe la Mesa (spec 018 §5.1). Mientras esas tablas no estén, la Mesa guarda los roles en sus tablas centrales y la pantalla funciona igual.
+- **Dónde viven:** `Admin` y `Usuario` en Entra ID. Los roles personalizados en **tablas del propio desarrollo** (`App_<Área>_<Desarrollo>_Roles`, `…_RolesDatos`, `…_RolesPersonas`), que crea el worker desde una plantilla estándar y que la app solo lee; solo escribe la Mesa (spec 018 §5.1). Son **tres** y solo tres: `…_Roles` (el rol y sus vistas), `…_RolesDatos` (los datos que consulta cada rol) y `…_RolesPersonas` (quién tiene cada rol). **Los roles son de gestión continua: no tienen vigencia ni fecha de vencimiento.** Una asignación dura hasta que quien administra la cambia o la quita; ni la pantalla, ni el túnel ni las tablas llevan una cláusula de tiempo. Mientras esas tablas no estén, la Mesa guarda los roles en sus tablas centrales y la pantalla funciona igual.
 - **Cuatro pestañas:** **Roles** (crear, editar, duplicar y eliminar; vista previa «así lo ve quien tenga este rol»), **Usuarios** (lista con filtros por nombre, rol y origen; asignar en un **modal de tres pasos**: usuario → rol → confirmar; si la persona es de otra área la Mesa exige dos textos de al menos 20 letras; reglas por área de Microsoft de `ROLES.md`), **Secretos** y **Actividad** (peticiones en curso e historial).
-- **Quién puede qué:** el administrador **principal** hace todo; el **secundario** ve todo y edita la definición de los roles, pero no asigna usuarios ni carga secretos; quien no administra no ve «Configuración». El servidor lo impone siempre: lo que la pantalla deshabilita, la Mesa igual lo rechaza.
-- **Secretos:** solo los que declara `.agp/runtime.yaml` y que no crea la Mesa. El valor viaja una vez, se guarda y **nunca** se muestra ni se registra. «Cargar valor» y «Reiniciar app» son del administrador principal.
+- **Quién puede qué:** el administrador **principal** hace todo; el **secundario** ve todo y edita la definición de los roles, pero no asigna usuarios ni carga secretos; quien no administra no ve «Configuración». El servidor lo impone siempre: lo que la pantalla deshabilita, la Mesa igual lo rechaza. En Entra ID el principal es el rol `Admin` (o una persona de IT) y el secundario el rol `AdminApp`; la tabla completa, por ruta, está en `CONTRATO-TUNEL-ROLES.md` §4.
+- **Secretos:** solo los que declara `.agp/runtime.yaml` y que no crea la Mesa (ver «Secretos del desarrollo» abajo). El valor viaja una vez, se guarda y **nunca** se muestra ni se registra. «Cargar valor» y «Reiniciar app» son del administrador principal.
 - **Contrato que verifican la Mesa y los agentes:** la raíz con `data-agp-configuracion="estandar"`, las pestañas con `data-agp-pestana="roles|usuarios|secretos|actividad"`, el modal con `role="dialog"` y `aria-modal="true"`, y el menú de usuario con `data-agp-menu="configuracion"`. Un frontend que no pueda traer el mismo archivo (otro framework de UI) lo cumple por marcas.
-- **Conexión:** `ROLES_DESDE_MESA=true`, `MESA_API_URL` y `MESA_ID_PROYECTO` (no son secretos; la API los entrega a la pantalla en `GET /api/config` → `roles`) y un `ROLES.md` v2 con los permisos (módulos y funciones) y los perfiles iniciales.
+- **Conexión:** `ROLES_DESDE_MESA=true`, `MESA_API_URL` y `MESA_ID_PROYECTO` (no son secretos; se declaran en `env` de `.agp/runtime.yaml` y la API los entrega a la pantalla en `GET /api/config` → `roles`) y un `ROLES.md` v2 con los permisos (módulos y funciones) y los perfiles iniciales. La API de la Mesa con la que habla (`/api/roles-app/<id>/…`), cómo se autentica con el `id_token` de la app y qué devuelve cada ruta están en `CONTRATO-TUNEL-ROLES.md`.
+
+### Qué ve cada persona
+
+| Quién | Menú de usuario | Pestañas de `/configuracion` | Puede |
+|---|---|---|---|
+| **Sin sesión o sin acceso** | — | — | Ve la pantalla estándar de login o la de «sin acceso» (§2) |
+| **Usuario** (con o sin rol; ve la vista general o los módulos de su rol) | Nombre y rol, «Cerrar sesión». **No** ve «Configuración» | Ninguna | Usar la app con lo que su rol le abre |
+| **Administrador secundario** (`AdminApp`) | «Configuración» | Roles, Usuarios, Secretos, Actividad, **en solo lectura salvo la definición de los roles** | Crear, editar, duplicar y eliminar roles; ver secretos (nombre y fecha) y actividad, y la lista de usuarios solo si `ROLES.md` declara `adminAppAsignaRoles: true`. **No** asigna usuarios ni carga secretos (aviso «solo lectura» visible) |
+| **Administrador principal** (`Admin`, o IT) | «Configuración» | Las cuatro, completas | Todo lo anterior, asignar usuarios (por persona o por área de Microsoft), cargar secretos y reiniciar la app |
+
+Un `AdminApp` con `adminAppAsignaRoles: true` en `ROLES.md` también asigna personas de menor nivel (no a IT ni a otro administrador global). Cambiar **sus propios** permisos no lo permite nadie, salvo IT.
+
+### Secretos del desarrollo: nombre, declaración y quién los carga
+
+Un secreto es un dato que la app necesita para funcionar y que no puede estar en el repositorio (la URL de un servicio externo, una clave compartida, la firma de la sesión). La norma es una sola:
+
+1. **Se declara por nombre, nunca por valor.** En `.agp/runtime.yaml`: `desarrollo: <nombre>` y, en `secrets`, `name` (la variable de entorno que verá la app) y `secret` (el nombre en el vault). El valor no entra al repositorio ni a un chat.
+2. **El nombre es `<desarrollo>-<dato>`**: el `desarrollo` que declara el `runtime.yaml`, un guion y el dato en minúsculas, dígitos y guiones (hasta 127 caracteres en total). Un secreto que no empieza con `<desarrollo>-` no pasa la revisión de la Mesa.
+3. **Vive en el vault de desarrollos** (`agp-desarrollos-secrets`); la app solo lo recibe como variable de entorno al arrancar. Nadie elige otro vault.
+4. **Lo carga una persona, desde la pantalla:** el administrador principal en la pestaña **Secretos** (túnel) o, antes del primer despliegue, el responsable del desarrollo en la ruta «Prepara tu solicitud a IT» de la Mesa (paso «Despliegue», `specs/024` de la Mesa) (`PUT` solo de escritura: el valor jamás se lee ni se devuelve). Declarar un nombre nuevo es un cambio de `runtime.yaml` (un commit) y, como toca el contrato, lo aprueba IT.
+5. **Los de conexión a bases de datos los crea la Mesa** al aprobar el plan (`…-db-server|user|username|pwd|password`): se listan como «creado por la Mesa» y no se cargan a mano (`PERMISOS-Y-SECRETOS-DEL-WORKER.md` §4).
+
+```yaml
+# .agp/runtime.yaml — correcto
+apiVersion: runtime.agp/v1
+desarrollo: portal-pedidos
+secrets:
+  - name: API_REPORTES                    # variable que lee el código
+    secret: portal-pedidos-api-reportes   # <desarrollo>-<dato>
+```
+
+```yaml
+# Incorrecto: no empieza con el desarrollo, tiene mayúsculas y un valor escrito en env
+apiVersion: runtime.agp/v1
+desarrollo: portal-pedidos
+secrets:
+  - name: API_REPORTES
+    secret: Reportes_API
+env:
+  - name: CLAVE_REPORTES
+    value: "valor-pegado-aqui"           # los valores secretos NO van aquí
+```
+
+`python -m agpctl runtime check --repo <ruta>` lo comprueba antes de pedir el despliegue (`agpctl/README.md`).
 
 ## 7. Si el desarrollo ya tiene su propio login o su propio gestor de roles
 

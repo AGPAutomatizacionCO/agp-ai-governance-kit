@@ -12,7 +12,6 @@ acceso: organizacion                    # norma de IT: toda la organización ent
 administradores:                        # desarrollador funcional = administrador de la app (al menos uno, máximo cinco)
   - nombre: Nombre Apellido             # como aparece en Teams
     correo: usuario@agpglass.com        # correo corporativo @agpglass.com
-accessGroup: pendiente-de-definir       # grupo de Entra ID con acceso; el resto de personas lo asigna IT
 secrets: []                             # MSAL del navegador (PKCE) no usa secreto de cliente
 env:
   - MSAL_CLIENT_ID

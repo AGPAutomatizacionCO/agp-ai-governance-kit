@@ -7,7 +7,7 @@ from unittest import mock
 import yaml
 
 from agpctl import __main__ as cli
-from agpctl import runtime
+from agpctl import runtime, runtime_contrato
 
 # Valores de prueba que PARECEN secretos (para comprobar que nunca se copian). Se arman por partes: escritos de corrido, el escáner de secretos del CI
 # (gitleaks, que revisa todas las ramas) los tomaría por credenciales reales y bloquearía todos los PR del kit.
@@ -142,6 +142,104 @@ class RuntimeTests(unittest.TestCase):
         self._write("backend/app/main.py", (self.repo / "backend/app/main.py").read_text(encoding="utf-8").replace('LIBRE = os.environ.get("MODO_RARO")\n', ""))
         resultado = runtime.check(self.repo)
         self.assertTrue(resultado["valid"], resultado["issues"])
+
+    # ── Norma de nombres de secretos y recursos externos (las reglas que la Mesa aplica a runtime.yaml) ──
+
+    _RECURSO_OK = (
+        "recursos_externos:\n"
+        "  - {tipo: worker, nombre: cola-reportes, descripcion: \"Genera reportes nocturnos de pedidos\", "
+        "ubicacion: \"Container App agp-reportes\", acceso: ninguno, escribe_datos: false, responsable: persona@agpglass.com}\n"
+    )
+
+    def _contrato(self, extra: str, codigo: str = 'import os\nos.getenv("API_KEY")\n'):
+        self._write("app.py", codigo)
+        self._write(".agp/runtime.yaml", "apiVersion: runtime.agp/v1\n" + extra)
+        return runtime.check(self.repo)
+
+    def test_el_plan_propone_desarrollo_y_sus_secretos_cumplen_la_norma(self):
+        self._python_app()
+        plan = runtime.plan(self.repo, "RPC")
+        contrato = yaml.safe_load(plan["yaml"])
+        self.assertEqual("rpc", contrato["desarrollo"])
+        self.assertTrue(all(s["secret"].startswith("rpc-") for s in contrato["secrets"]))
+        self.assertEqual([], runtime_contrato.prefijo_de_secretos(contrato["desarrollo"], contrato["secrets"]))
+
+    def test_check_exige_que_los_secretos_empiecen_con_el_desarrollo(self):
+        resultado = self._contrato("desarrollo: rpc\nsecrets:\n  - name: API_KEY\n    secret: otro-api-key\n")
+        texto = " | ".join(resultado["issues"])
+        self.assertFalse(resultado["valid"])
+        self.assertIn("deben llamarse <desarrollo>-<dato> y empezar con «rpc-»", texto)
+        self.assertIn("otro-api-key", texto)
+
+    def test_check_el_secreto_no_puede_ser_solo_el_prefijo(self):
+        resultado = self._contrato("desarrollo: rpc\nsecrets:\n  - name: API_KEY\n    secret: rpc-\n")
+        self.assertFalse(resultado["valid"])
+
+    def test_check_pasa_con_la_norma_cumplida(self):
+        resultado = self._contrato("desarrollo: rpc\nsecrets:\n  - name: API_KEY\n    secret: rpc-api-key\n")
+        self.assertTrue(resultado["valid"], resultado["issues"])
+        self.assertEqual([], resultado["avisos"])
+
+    def test_check_desarrollo_con_formato_invalido(self):
+        resultado = self._contrato("desarrollo: RPC_Nuevo\nsecrets:\n  - name: API_KEY\n    secret: rpc-api-key\n")
+        self.assertFalse(resultado["valid"])
+        self.assertIn("desarrollo: use minúsculas", " | ".join(resultado["issues"]))
+
+    def test_check_sin_desarrollo_no_bloquea_pero_avisa(self):
+        resultado = self._contrato("secrets:\n  - name: API_KEY\n    secret: lo-que-sea\n")
+        self.assertTrue(resultado["valid"], resultado["issues"])
+        self.assertEqual(1, len(resultado["avisos"]))
+        self.assertIn("falta `desarrollo`", resultado["avisos"][0])
+
+    def test_check_sin_secretos_ni_desarrollo_no_avisa(self):
+        resultado = self._contrato("env:\n  - name: MODO\n    value: x\n", 'import os\nos.getenv("MODO", "x")\n')
+        self.assertTrue(resultado["valid"], resultado["issues"])
+        self.assertEqual([], resultado["avisos"])
+
+    def test_check_rechaza_claves_desconocidas_y_el_vault_elegido(self):
+        resultado = self._contrato("desarrollo: rpc\nvault: https://otro.vault.azure.net\nrecursos: []\nenv:\n  - name: MODO\n    value: x\n",
+                                   'import os\nos.getenv("MODO", "x")\n')
+        texto = " | ".join(resultado["issues"])
+        self.assertFalse(resultado["valid"])
+        self.assertIn("no se permite elegir el vault", texto)
+        self.assertIn("claves no reconocidas: recursos", texto)
+
+    def test_check_acepta_un_recurso_externo_bien_declarado(self):
+        resultado = self._contrato("desarrollo: rpc\n" + self._RECURSO_OK, "x = 1\n")
+        self.assertTrue(resultado["valid"], resultado["issues"])
+
+    def test_check_recurso_externo_con_cada_error_de_la_mesa(self):
+        malo = (
+            "recursos_externos:\n"
+            "  - {tipo: robot, nombre: Cola_Reportes, descripcion: corto, ubicacion: \"https://u:clave@host/x\", "
+            "acceso: secreto-que-no-existe, escribe_datos: si, responsable: persona@gmail.com, extra: 1}\n"
+        )
+        resultado = self._contrato("desarrollo: rpc\n" + malo, "x = 1\n")
+        texto = " | ".join(resultado["issues"])
+        self.assertFalse(resultado["valid"])
+        for esperado in ("claves no reconocidas: extra", "nombre inválido", "tipo debe ser uno de", "la descripción debe decir",
+                         "no puede llevar usuario, clave ni tokens", "acceso debe ser «ninguno»", "escribe_datos debe ser true o false",
+                         "responsable debe ser un correo @agpglass.com"):
+            self.assertIn(esperado, texto)
+
+    def test_check_recurso_externo_repetido_y_acceso_por_secreto_declarado(self):
+        otro = self._RECURSO_OK.replace("acceso: ninguno", "acceso: rpc-token-reportes")
+        contrato = ("desarrollo: rpc\nsecrets:\n  - name: TOKEN_REPORTES\n    secret: rpc-token-reportes\n"
+                    + self._RECURSO_OK + otro.split("\n", 1)[1])
+        resultado = self._contrato(contrato, 'import os\nos.getenv("TOKEN_REPORTES")\n')
+        texto = " | ".join(resultado["issues"])
+        self.assertIn("nombre repetido (cola-reportes)", texto)
+        self.assertNotIn("acceso debe ser", texto)
+
+    def test_check_recursos_externos_que_no_es_lista(self):
+        resultado = self._contrato("desarrollo: rpc\nrecursos_externos: worker\n", "x = 1\n")
+        self.assertIn("recursos_externos debe ser una lista", resultado["issues"])
+
+    def test_check_un_runtime_que_no_es_un_objeto(self):
+        self._write(".agp/runtime.yaml", "- a\n- b\n")
+        resultado = runtime.check(self.repo)
+        self.assertFalse(resultado["valid"])
+        self.assertIn("debe ser un objeto YAML", resultado["issues"][0])
 
     def test_cli_plan_y_check_con_codigo_de_salida(self):
         self._python_app()

@@ -16,6 +16,8 @@ Norma para todo desarrollo que se despliega con la Mesa de Requerimientos. Cierr
 | **Automático** | Cada push a `main` que solo cambie código se construye y se despliega solo. |
 | **Limitado** | Igual que automático, con un tope de N publicaciones automáticas por día (1 a 20, día de Colombia). Pasado el tope, el commit queda sin publicar hasta el próximo push o «Publicar ahora». |
 
+**Valor inicial y contrato.** Si IT nunca fijó una política, en el primer despliegue oficial exitoso la Mesa deja el CD **limitado a 3 publicaciones por día solo si el desarrollador firmó el contrato** de la preparación a IT (versión vigente y para el plan que se despliega). **Sin contrato firmado y vigente no hay CD:** no se escribe ninguna política y queda apagado. Nunca pisa una decisión de IT ni cambia desarrollos que ya estaban en producción (`specs/019` y `specs/024` de la Mesa).
+
 «Publicar ahora» no cuenta para el tope. Una publicación automática que falla **sí** gasta cupo, porque ya consumió recursos.
 
 ## 3. Qué publica el CD y qué nunca publica solo
