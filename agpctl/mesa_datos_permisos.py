@@ -1,9 +1,9 @@
-"""ESPEJO de la Mesa de Requerimientos (backend/src/helpers/datos_permisos.py), copiado sin cambios de lógica.
-
-La Mesa es la fuente de verdad: son las mismas reglas con las que valida el plan antes de que IT apruebe. Copiado aquí para que el
-desarrollador y su agente las apliquen ANTES de pedir el despliegue (python -m agpctl datos check). Si la Mesa cambia una regla, se
-vuelve a copiar el archivo; no se edita a mano.
-"""
+# ESPEJO de la Mesa de Requerimientos (backend/src/helpers/datos_permisos.py), copiado sin cambios de lógica: solo se adaptan los imports.
+# La Mesa es la fuente de verdad: son las mismas reglas con las que valida el plan antes de que IT apruebe.
+# Si la Mesa cambia una regla, se regenera con `python scripts/sincronizar_espejos_mesa.py --mesa <repo de la Mesa>`; no se edita a mano.
+# ESPEJO-COMMIT: 1fce9241f73cef91e1a4b732f8f26fe4d7cc5f98
+# ESPEJO-SHA256: 29fec49046522e67d72923b59117d83a2d64eca21eb00ffac9ace9816b340b7b
+# ===== ESPEJO DE LA MESA: inicio del código (no editar a mano; regenerar con scripts/sincronizar_espejos_mesa.py) =====
 """Permisos de un desarrollo sobre bases de datos que YA existen: qué pide, el documento que IT aprueba y el script cerrado que lo aplica.
 
 Lógica pura (sin red ni base). La usan el preflight de la Mesa, que mete estos campos en el plan que aprueba IT (entran al hash del plan), la Mesa al aprobar
@@ -15,7 +15,8 @@ lo que no está declarado no se concede.
 
 Qué se concede y qué no:
   - SELECT, INSERT y UPDATE por tabla. INSERT/UPDATE son una excepción (se marca como escritura y exige explicar el motivo en la descripción de la tabla).
-  - Nunca DELETE ni permisos de esquema. La sensibilidad es INFORMATIVA: no bloquea ni pide una aprobación aparte (2026-11-05: IT aprueba una sola vez el contrato completo).
+  - Nunca DELETE ni permisos de esquema. La sensibilidad de la tabla y de sus columnas es INFORMATIVA: no bloquea ni pide una aprobación aparte (decisión del 2026-11-05:
+    IT aprueba una sola vez el contrato de despliegue completo). Toda tabla declarada recibe los permisos declarados.
   - Las columnas marcadas como sensibles (p. ej. correos) no bloquean pero IT las ve resaltadas en el documento: aprobarlo es aprobar esa excepción.
   - Las tablas propias a crear (`crear_en_despliegue`) las cubre `datos_plan`; aquí solo las tablas `preexistente`.
 
@@ -80,7 +81,7 @@ def motivo_de_destino_no_habilitado(d, restrictivos=(), faltan_secretos=None):
         return None if restrictivos else _mensaje_de_cuentas(d, nombres)
     try:
         faltan = list(faltan_secretos(nombres))
-    except Exception:  # noqa: BLE001 - cualquier fallo al consultar el vault bloquea; nunca se da por habilitado
+    except Exception:
         return (f"no se pudo comprobar en el vault de desarrollos si existen las cuentas de plataforma de {d['base']}: por seguridad el destino "
                 f"{d['servidor']}/{d['base']} no se da por habilitado")
     return _mensaje_de_cuentas(d, faltan) if faltan else None
