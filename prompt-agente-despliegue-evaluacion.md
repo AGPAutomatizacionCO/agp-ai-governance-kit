@@ -348,7 +348,15 @@ configuracion_roles el desarrollo monta la pantalla estándar de configuración 
                     API con la que habla esa pantalla (rutas, cuerpos y
                     autenticación con el id_token de la app) está en
                     CONTRATO-TUNEL-ROLES.md: no inventes llamadas, usa el
-                    cliente del paquete (src/services/rolesMesa.js).
+                    cliente del paquete (src/services/rolesMesa.js). Comprueba
+                    también que el backend lee el rol por GET /api/roles-app/
+                    <id>/mios con el id_token (helper roles_mesa.py del paquete o
+                    equivalente) y que la app SOLO usa el túnel: sin tabla de
+                    usuarios o de roles propia ni escrituras sobre tablas de roles
+                    (hoy los roles viven en tablas centrales de la Mesa; las
+                    tres tablas por desarrollo son un modelo objetivo pendiente:
+                    no las exijas ni las reportes como faltantes). Pasos y lista:
+                    COMO-DEJARLO-FUNCIONAL.md.
 mecanismo_propio_acceso  reporta si el desarrollo trae un login que no es el del kit o un
                     gestor de usuarios y roles propio (tabla de usuarios, rutas de
                     administración de usuarios o roles, pantalla de administración de
