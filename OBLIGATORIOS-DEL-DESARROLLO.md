@@ -181,7 +181,7 @@ perfilesIniciales:
 | `data-agp-pestana="roles\|usuarios\|secretos\|actividad"` | Cada pestaña |
 | `role="dialog"` y `aria-modal="true"` | El modal de asignar usuario (tres pasos) |
 
-Los roles personalizados **hoy viven en tablas centrales de la Mesa**: la app solo usa el túnel (`/mios`…), no crea ni escribe tablas de roles y no depende de tablas propias (las tres tablas por desarrollo son el modelo objetivo, **pendiente**, `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §6). Son de gestión continua: **sin vigencia ni cláusula de tiempo**.
+La Mesa guarda los roles de un desarrollo nuevo en tres tablas de su propio esquema, que crea y valida el worker en cada despliegue (SAC y los que ya tenían roles siguen en las tablas centrales hasta migrar). La app solo usa el túnel (`/mios`…): no las crea, no las escribe, no las lee directamente y **no las declara en el manifiesto de datos** (nombre reservado, `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §6). Son de gestión continua: **sin vigencia ni cláusula de tiempo**.
 Conexión: `ROLES_DESDE_MESA`, `MESA_API_URL` y `MESA_ID_PROYECTO` en `env` de `runtime.yaml`, `roles` en `GET /api/config` y `ROLES.md` v2. El backend lee el rol por el túnel con el helper `templates/auth-estandar/backend/src/helpers/roles_mesa.py` (`GET /api/roles-app/<id>/mios`, falla cerrada).
 **Incorrecto.** Una pantalla de «Administración de usuarios» con tabla propia de usuarios y rutas de roles propias; escribir las llamadas a `/api/roles-app` a mano en vez del cliente `rolesMesa.js`. **Se comprueba:** agente `configuracion_roles`.
 
