@@ -1,7 +1,7 @@
 # ESPEJO de la Mesa de Requerimientos (backend/src/helpers/datos_plan.py), copiado sin cambios de lógica: solo se adaptan los imports.
 # La Mesa es la fuente de verdad: son las mismas reglas con las que valida el plan antes de que IT apruebe.
 # Si la Mesa cambia una regla, se regenera con `python scripts/sincronizar_espejos_mesa.py --mesa <repo de la Mesa>`; no se edita a mano.
-# ESPEJO-COMMIT: 1fce9241f73cef91e1a4b732f8f26fe4d7cc5f98
+# ESPEJO-COMMIT: 3b311cdd4851b068973ea7bfb4ec04398075e16c
 # ESPEJO-SHA256: bb7db4e7c5f142c3eda15fdb0fca9869c1d1df50befffce753edd23d8bb91259
 # ===== ESPEJO DE LA MESA: inicio del código (no editar a mano; regenerar con scripts/sincronizar_espejos_mesa.py) =====
 """Parte de DATOS del plan de despliegue: qué esquema y tablas propias se crean, dónde, y con qué script (por hash).

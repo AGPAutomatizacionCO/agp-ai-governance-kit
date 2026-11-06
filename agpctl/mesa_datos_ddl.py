@@ -1,8 +1,8 @@
 # ESPEJO de la Mesa de Requerimientos (backend/src/helpers/datos_ddl.py), copiado sin cambios de lógica: solo se adaptan los imports.
 # La Mesa es la fuente de verdad: son las mismas reglas con las que valida el plan antes de que IT apruebe.
 # Si la Mesa cambia una regla, se regenera con `python scripts/sincronizar_espejos_mesa.py --mesa <repo de la Mesa>`; no se edita a mano.
-# ESPEJO-COMMIT: 1fce9241f73cef91e1a4b732f8f26fe4d7cc5f98
-# ESPEJO-SHA256: e9e5fd164749a233007efb59ff0ae5188b55e26705231f174e36d30d0c93bd7b
+# ESPEJO-COMMIT: 3b311cdd4851b068973ea7bfb4ec04398075e16c
+# ESPEJO-SHA256: fa8ca2757f7d13cf7544ef85c522770ae95b54dc5dd3b7b72dc7c70cde4b2267
 # ===== ESPEJO DE LA MESA: inicio del código (no editar a mano; regenerar con scripts/sincronizar_espejos_mesa.py) =====
 """Tablas propias de un desarrollo: validar la norma de nombres y generar el T-SQL que las crea (sin ejecutar nada).
 
@@ -56,7 +56,7 @@ def _nombre_objeto(prefijo, tabla, columnas=()):
     nombre = "_".join([prefijo, tabla, *columnas])
     if len(nombre) <= 128:
         return nombre
-    return nombre[:119] + "_" + hashlib.sha1(nombre.encode("utf-8")).hexdigest()[:8]
+    return nombre[:119] + "_" + hashlib.sha1(nombre.encode("utf-8"), usedforsecurity=False).hexdigest()[:8]
 
 
 def _literal(valor, tipo):

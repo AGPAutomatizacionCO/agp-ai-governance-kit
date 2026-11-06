@@ -1,7 +1,7 @@
 # ESPEJO de la Mesa de Requerimientos (backend/src/helpers/datos_permisos.py), copiado sin cambios de lógica: solo se adaptan los imports.
 # La Mesa es la fuente de verdad: son las mismas reglas con las que valida el plan antes de que IT apruebe.
 # Si la Mesa cambia una regla, se regenera con `python scripts/sincronizar_espejos_mesa.py --mesa <repo de la Mesa>`; no se edita a mano.
-# ESPEJO-COMMIT: 1fce9241f73cef91e1a4b732f8f26fe4d7cc5f98
+# ESPEJO-COMMIT: 3b311cdd4851b068973ea7bfb4ec04398075e16c
 # ESPEJO-SHA256: 29fec49046522e67d72923b59117d83a2d64eca21eb00ffac9ace9816b340b7b
 # ===== ESPEJO DE LA MESA: inicio del código (no editar a mano; regenerar con scripts/sincronizar_espejos_mesa.py) =====
 """Permisos de un desarrollo sobre bases de datos que YA existen: qué pide, el documento que IT aprueba y el script cerrado que lo aplica.
