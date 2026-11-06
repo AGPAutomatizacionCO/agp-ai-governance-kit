@@ -322,6 +322,7 @@ ARQUITECTURA-DESPLIEGUE.md   → Norma de arquitectura de entrega: monolito desp
 PERMISOS-Y-SECRETOS-DEL-WORKER.md → Cómo funciona el worker con permisos y secretos: qué declarar en el manifiesto y en runtime.yaml
 ACCESO-Y-ROLES-DEL-DESARROLLO.md → Quién entra y con qué rol: `acceso` en .agp/entra.yaml (organización o asignado), ROLES.md y qué documenta cada agente
 OBLIGATORIOS-DEL-DESARROLLO.md → Todo lo obligatorio de un desarrollo (regla, ejemplo correcto e incorrecto, quién lo comprueba): la lista que sigue el Agente de Despliegue
+COMO-DEJARLO-FUNCIONAL.md    → Pasos cortos para dejar funcional el acceso, los roles y los secretos, y la lista de comprobación previa a pedir el despliegue
 CONTRATO-TUNEL-ROLES.md      → API `/api/roles-app` con la que habla la pantalla de configuración de roles y secretos: rutas, autenticación con el id_token, cuerpos y errores
 DESPLIEGUE-A-MAIN.md         → Quién decide cómo se publica `main`: IT, con la política de CD por desarrollo (apagado, automático o limitado); qué publica el CD y qué nunca
 agent-context-package.md       → Cómo entregar contexto a los agentes

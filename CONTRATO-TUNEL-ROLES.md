@@ -8,7 +8,7 @@ Referencia técnica para quien construye o revisa la pantalla estándar «Config
 > `roles_por_area.py`, `secretos_tunel.py`, `auth.py`) en el commit `e27b3ca` de la Mesa (2026-11-05). Si la Mesa y este documento difieren, **manda la Mesa** y se corrige el documento.
 > El desarrollo no escribe roles ni toca el Key Vault: **pide**, y la Mesa valida, aplica y audita.
 >
-> **Dónde quedan los roles y cuánto duran.** Los roles personalizados viven en tres tablas del propio desarrollo (`App_<Área>_<Desarrollo>_Roles`, `…_RolesDatos` y `…_RolesPersonas`) que solo escribe la Mesa; mientras no existan, en las tablas centrales de la Mesa, y el túnel funciona igual. **Los roles son de gestión continua: no tienen vigencia ni fecha de vencimiento.** Una asignación dura hasta que quien administra la cambia o la quita; ni la pantalla, ni el túnel ni las tablas llevan una cláusula de tiempo. Ninguna ruta de este contrato recibe ni devuelve una fecha de vigencia.
+> **Dónde viven los roles (estado real).** Los roles personalizados y sus asignaciones **hoy viven en tablas centrales de la Mesa** (`RegistroDesarrollos_Roles*`, con la columna `IDProyecto`); `Admin`, `AdminApp` y `Usuario` viven en Entra ID. **La app no depende de tablas propias de roles: solo usa el túnel** (`/mios`, `/estado`, `/solicitudes`…) y solo la Mesa escribe. **Modelo objetivo, pendiente (spec 018 §5.1 de la Mesa):** tres tablas en el esquema del propio desarrollo (`App_<Área>_<Desarrollo>_Roles`, `…_RolesDatos`, `…_RolesPersonas`) que se crearían en el despliegue y que la app solo leería; **no está implementado** (el worker no las crea hoy) y su migración, incluida SAC, está pendiente de decisión. No las asumas ni las leas directamente. **Los roles son de gestión continua: no tienen vigencia ni fecha de vencimiento**; una asignación dura hasta que quien administra la cambia o la quita. Ninguna ruta de este contrato recibe ni devuelve una fecha de vigencia.
 
 ## 1. Qué es y quién lo llama
 
@@ -59,10 +59,91 @@ Un error trae `{ "message": "<motivo legible>" }` con su código HTTP (a veces `
 | `400` | Cuerpo o parámetro inválido (acción desconocida, `areas` que no es lista, `PUT` de secreto con claves distintas de `valor`…) |
 | `401` | Sin `Authorization`, token inválido o vencido, token sin correo |
 | `403` | La app que llama no es un desarrollo registrado; el token es de otro desarrollo; la persona no administra o no tiene la autoridad para esa acción |
-| `404` | El desarrollo, el rol (perfil), el permiso, el área o el secreto no existen |
+| `404` | El desarrollo, el rol (perfil), el permiso, el área de `ROLES.md` o el secreto no existen |
 | `409` | Conflicto de estado: el desarrollo no tiene Web App todavía, secreto que crea la Mesa, ya hay `n` admins globales, último admin global, perfil en uso, petición que ya no está pendiente |
 | `502` | Error del sistema (Entra, Graph, vault, base de datos). El mensaje es genérico: nunca lleva valores de secretos ni detalles internos |
 | `503` | La Mesa no pudo verificar la app que llama; reintentar |
+
+## 3.1 Dos cosas llamadas «área»
+
+La palabra «área» se usa en este contrato para dos cosas **distintas**. En la documentación del kit se dicen así, y **no se renombran los endpoints ni las acciones** (sería un cambio incompatible con las apps ya desplegadas):
+
+| | **Departamento de Microsoft** | **Dominio o permiso de `ROLES.md`** |
+|---|---|---|
+| Qué es | El `department` de Entra ID de la persona: el mismo texto que muestra su perfil en Teams. Lo define Microsoft / Recursos Humanos, no el desarrollo | Lo que **el desarrollo** declara en su `ROLES.md`: los `dominios` con sus `areas` (qué datos puede ver una persona) y los `permisos` (módulos y funciones) |
+| Se usa para | Dar **el mismo rol a todas las personas de un departamento** de una vez, y decidir si una persona es «del departamento del desarrollo» (si no lo es, la Mesa exige `justificacion` y `criterio`) | Acotar **qué datos** ve una persona o un rol dentro de la app |
+| Endpoint | `GET /personas-por-area` y `POST /asignacion-por-area` (lote de hasta 200 personas) | `POST /solicitudes` con la acción `asignar_areas` (o `asignar_acceso`): **una persona a la vez** |
+| Campo del cuerpo | `area`: el **texto del departamento** de Entra | `areas[]`: **ids** de `ROLES.md` (por ejemplo `MOD-Plano`) |
+| Quién da el valor | Entra (nunca se inventa ni se escribe «a ojo») | El `ROLES.md` del desarrollo |
+| También aparece en | `perfil.porArea`, `accesoPorArea` (`{area, perfil}`: la regla «a quien es de este departamento, dale este rol») y `personas[].porArea` | `areas`, `areasEfectivas`, `detalleAreas`, `perfiles[].areas` |
+
+**Regla para elegir.** ¿Vas a darle un rol a *todo un departamento* de la organización? → departamento de Microsoft (`asignacion-por-area`). ¿Vas a decidir *qué datos* ve una persona o un rol? → áreas/dominios de `ROLES.md` (`asignar_areas`, `asignar_acceso`). Con `ROLES.md` v1, el lote de `asignacion-por-area` acepta además `areas: [...]` (ids de `ROLES.md`) en lugar de `perfil`: ahí `area` sigue siendo el departamento que se lee de Entra y `areas` son los ids de `ROLES.md` que se les da.
+Una tercera «área» es la del **nombre de las tablas** (`app_<área>_<desarrollo>`, `NOMENCLATURA-DATOS.md`): es el departamento del responsable en Entra ID, en una sola palabra.
+
+> **Todo nombre de departamento de este documento es un EJEMPLO ficticio.** El valor real viene de Entra (`GET /personas-por-area` lo devuelve en `area`); un agente o una persona **no inventa** nombres de área ni de departamento.
+
+### Departamento de Microsoft — entrada y salida completas
+
+`GET /personas-por-area?area=Departamento%20Ejemplo` (EJEMPLO ficticio, el valor real viene de Entra):
+
+```json
+{
+  "area": "Departamento Ejemplo",
+  "personas": [
+    { "correo": "persona.uno@agpglass.com", "nombre": "Persona Uno", "area": "Departamento Ejemplo", "etiqueta": "Usuario", "perfil": null,
+      "vistaGeneral": true, "areas": [], "asignable": true, "motivo": null },
+    { "correo": "responsable@agpglass.com", "nombre": "Responsable Ejemplo", "area": "Departamento Ejemplo", "etiqueta": "Admin global", "perfil": null,
+      "vistaGeneral": false, "areas": [], "asignable": false, "motivo": "Es administrador: su acceso se cambia uno a uno." }
+  ],
+  "truncado": false,
+  "requiereJustificacion": true
+}
+```
+
+`POST /asignacion-por-area` (con `ROLES.md` v2; EJEMPLO ficticio, el valor real de `area` viene de Entra):
+
+```json
+{
+  "area": "Departamento Ejemplo",
+  "correos": ["persona.uno@agpglass.com", "persona.dos@agpglass.com"],
+  "perfil": "solo-consulta",
+  "justificacion": "El equipo de ese departamento necesita consultar el estado de los pedidos.",
+  "criterio": "Consulta de solo lectura; no modifica pedidos ni datos de otras áreas del negocio.",
+  "clave": "lote-2026-11-06"
+}
+```
+
+Respuesta (`data`):
+
+```json
+{
+  "area": "Departamento Ejemplo", "aplicados": 1, "rechazados": 1, "enCola": 0,
+  "resultados": [
+    { "correo": "persona.uno@agpglass.com", "nombre": "Persona Uno", "estado": "aplicado", "motivo": null },
+    { "correo": "persona.dos@agpglass.com", "nombre": "persona.dos@agpglass.com", "estado": "rechazado", "motivo": "No aparece en el área «Departamento Ejemplo» de Microsoft." }
+  ]
+}
+```
+
+`justificacion` y `criterio` (20 caracteres cada uno) solo se exigen cuando el departamento **no** es el del desarrollo (`requiereJustificacion: true`). `clave` es opcional (idempotencia; cada persona usa `<clave>:<correo>`).
+
+### Dominio o permiso de `ROLES.md` — entrada y salida completas
+
+`POST /solicitudes` con la acción `asignar_areas` (ids de `ROLES.md`; EJEMPLO ficticio):
+
+```json
+{ "accion": "asignar_areas", "correo": "persona.uno@agpglass.com", "areas": ["MOD-Plano"],
+  "justificacion": "Trabaja con el vidrio plano.", "criterio": "Ve solo los datos del dominio Industrial." }
+```
+
+Respuesta (`data`):
+
+```json
+{ "resultado": "autorizado", "mensaje": "…", "detalle": null,
+  "peticion": { "IDSolicitud": "…", "Estado": "aplicada", "Correlacion": "…" } }
+```
+
+`justificacion` y `criterio` solo hacen falta si la persona no es del departamento del desarrollo (por su `department` de Entra). Un id de `areas` que no existe en `ROLES.md` responde `404`.
 
 ## 4. Quién puede llamar qué
 
@@ -110,7 +191,7 @@ Lo pide **el backend de la app** al iniciar y renovar la sesión. Devuelve lo qu
 ```
 
 - `nivel`: `global` (administrador principal), `admin` (secundario) o `usuario`. Con `ROLES.md` v2 también vienen `version`, `perfil` y `permisos`; `perfil` es `null` si la persona no tiene rol ni vista general.
-- `perfil.general: true` = la persona **no tiene rol asignado** y ve la vista general. `perfil.porArea` aparece cuando el rol le llegó por la regla de su área de Microsoft.
+- `perfil.general: true` = la persona **no tiene rol asignado** y ve la vista general. `perfil.porArea` aparece cuando el rol le llegó por la regla de su departamento de Microsoft (`accesoPorArea`).
 - `permisos.modulos` son las **vistas** que puede abrir y `permisos.funciones` las **acciones** dentro de ellas (`<modulo>.<accion>`). Un administrador recibe todo el catálogo.
 - `sinAcceso` (texto) viene por compatibilidad y está **obsoleto**: la pantalla sin acceso es la estándar y no usa texto libre.
 
@@ -142,10 +223,10 @@ Devuelve el catálogo, las personas con rol y qué puede hacer quien mira. Campo
 Devuelven `[{ "nombre": "…", "correo": "…@agpglass.com", "detalle": "…" }]`. `personas` es para quien administra; `directorio` sirve **a cualquier pantalla** de la app (un buscador de
 entrevistados, responsables…) y solo pide sesión en esa app. La Mesa usa su propia identidad de Graph: el token del usuario nunca se usa contra Graph. Las búsquedas se reutilizan 5 minutos.
 
-### `GET /personas-por-area?area=Texto del área`
+### `GET /personas-por-area?area=Texto del departamento` (departamento de Microsoft)
 
-Personas de un área de Microsoft (el `department` de Entra ID, el mismo texto que muestra Teams): `{ "area", "personas": [...], "truncado", "requiereJustificacion" }`. Cada persona trae `asignable` (falso para
-administradores y para quien pide) y el `motivo`. `requiereJustificacion` es `true` cuando el área no es la del desarrollo. Máximo 500 personas (`truncado`). El `area` va de 2 a 100 caracteres.
+Personas de un **departamento de Microsoft** (el `department` de Entra ID, el mismo texto que muestra Teams; ver §3.1; todo nombre de departamento de este documento es un EJEMPLO ficticio, el valor real viene de Entra): `{ "area", "personas": [...], "truncado", "requiereJustificacion" }`. Cada persona trae `asignable` (falso para
+administradores y para quien pide) y el `motivo`. `requiereJustificacion` es `true` cuando el departamento no es el del desarrollo. Máximo 500 personas (`truncado`). El `area` (el texto del departamento) va de 2 a 100 caracteres.
 
 ### `GET /peticiones?estado=a,b&limite=n`, `GET /auditoria?limite=n`, `GET /secretos/historial?limite=n`
 
@@ -164,13 +245,13 @@ Cuerpo: `{ "accion": "…", …campos de la acción…, "justificacion"?, "crite
 | `accion` | Campos | Qué hace |
 |---|---|---|
 | `asignar_perfil` | `correo`, `perfil` (clave, o `null` para quitar) | Da a la persona un rol (perfil) de `ROLES.md` v2 |
-| `asignar_rol_acceso` | `correo`, `perfil` | Igual, con `rolesDeAcceso: true`: el rol trae sus áreas |
-| `asignar_acceso` | `correo`, `perfil`, `areas[]` | Rol y áreas juntos (v2) |
-| `asignar_areas` | `correo`, `areas[]` | Da áreas de `ROLES.md` (v1 y v2) |
+| `asignar_rol_acceso` | `correo`, `perfil` | Igual, con `rolesDeAcceso: true`: el rol trae sus áreas de `ROLES.md` |
+| `asignar_acceso` | `correo`, `perfil`, `areas[]` | Rol y áreas de `ROLES.md` juntos (v2) |
+| `asignar_areas` | `correo`, `areas[]` | Da **áreas de `ROLES.md`** (dominios/datos; **no** es un departamento de Microsoft: ver §3.1) a una persona (v1 y v2) |
 | `asignar_rol` | `correo`, `rol` | Cambia el rol de Entra: `Admin`, `AdminApp`, `Usuario`, el rol de administrador de un dominio (`ROLES.md` v1) o uno propio del desarrollo |
 | `quitar_rol` | `correo` | Quita el rol de Entra |
 | `guardar_perfil` | `perfil: { id?, nombre, permisos[], general?, areas? }` | Crea (sin `id`) o edita un rol: nombre de 2 a 60 caracteres y permisos del catálogo |
-| `borrar_perfil` | `perfil` (clave) | Elimina un rol sin personas, que no sea la vista general ni el rol por defecto de un área |
+| `borrar_perfil` | `perfil` (clave) | Elimina un rol sin personas, que no sea la vista general ni el rol por defecto de un departamento de Microsoft (`accesoPorArea`) |
 | `marcar_vista_general` | `perfil` (clave, o `null` para quitarla) | Marca el rol que ven todos los que no tienen uno asignado |
 
 Respuesta (`data`): `{ "resultado": "autorizado", "mensaje": "…", "detalle": …, "peticion": { "IDSolicitud", "Estado", "Correlacion" } }`. Un rechazo de reglas es un error HTTP con el motivo; un error del
@@ -179,8 +260,8 @@ sistema deja la petición pendiente y la Mesa la reintenta sola (la respuesta lo
 Reglas que la Mesa impone siempre:
 
 - Solo cuentas `@agpglass.com`. **Nadie cambia sus propios permisos** (salvo IT).
-- Si la persona **no es del área del desarrollo** (por su `department` de Entra), las acciones que dan acceso exigen `justificacion` y `criterio` de **al menos 20 caracteres cada uno**. Si el área o el
-  departamento no se conocen, se trata como otra área (falla del lado de pedir justificación).
+- Si la persona **no es del departamento del desarrollo** (por su `department` de Entra), las acciones que dan acceso exigen `justificacion` y `criterio` de **al menos 20 caracteres cada uno**. Si el departamento de la persona o el del
+  desarrollo no se conocen, se trata como otro departamento (falla del lado de pedir justificación).
 - Máximo 2 administradores globales; no se puede quitar ni cambiar al último; un admin delegado no puede cambiar a un administrador ni a IT.
 - Máximo 30 roles (perfiles) por desarrollo. Un rol con personas asignadas no se borra.
 - Cambios de `ROLES.md` v2 (`guardar_perfil`, `borrar_perfil`, `asignar_perfil`, `asignar_acceso`, `asignar_rol_acceso`) con un `ROLES.md` v1 responden `409`.
@@ -190,10 +271,10 @@ Reglas que la Mesa impone siempre:
 - `POST`: mismo cuerpo que `solicitudes`, pero **solo encola**: devuelve la fila de la petición (`pendiente`) y la atiende el proceso de la Mesa. Para quien espera la respuesta, usar `solicitudes`.
 - `DELETE`: cancela una petición **pendiente** (`{ "cancelada": true }`). Solo quien la envió o IT; si ya no está pendiente, `409`.
 
-### `POST /asignacion-por-area` — el mismo rol a todo un área
+### `POST /asignacion-por-area` — el mismo rol a todo un departamento de Microsoft
 
 Cuerpo: `{ "area": "…", "correos": ["…"], "perfil": "clave" | null, "justificacion"?, "criterio"?, "clave"? }` (con `ROLES.md` v1, `areas: [...]` en lugar de `perfil`). Hasta **200** correos por lote.
-La Mesa **vuelve a leer el área** y solo acepta correos que de verdad son de ella. Cada persona pasa por las mismas reglas que una petición individual; un rechazo no corta el lote. Si el área no es la
+La Mesa **vuelve a leer el departamento en Entra** y solo acepta correos que de verdad son de él. Cada persona pasa por las mismas reglas que una petición individual; un rechazo no corta el lote. Si el departamento no es el
 del desarrollo, el lote exige **una** `justificacion` y **un** `criterio` (20 caracteres cada uno). Respuesta:
 
 ```json
@@ -264,7 +345,7 @@ Reglas de un backend bien hecho (las que sigue el piloto de SAC, `backend/app/ro
 
 - **Falla cerrada:** si la Mesa no responde y no hay nada guardado, la persona entra con la **vista general (solo lectura)**; nunca con más de lo que dijo la Mesa.
 - **Caché corta** (≈60 s con token) para no preguntar en cada llamada; con la Mesa caída se puede reutilizar lo último que dijo mientras dure la sesión.
-- **Timeout de 15 s:** con reglas por área de Microsoft la Mesa también consulta a Graph y la primera llamada tras un rato sin uso puede tardar (arranque en frío).
+- **Timeout de 15 s:** con reglas por departamento de Microsoft la Mesa también consulta a Graph y la primera llamada tras un rato sin uso puede tardar (arranque en frío).
 - La API del desarrollo sigue validando el token y exige `Admin` en lo administrativo (`ACCESO-Y-ROLES-DEL-DESARROLLO.md` §1): el túnel decide **qué ve** la persona, no reemplaza la autorización.
 
 ### Comprobar a mano (sin pegar tokens en ningún archivo)

@@ -32,6 +32,7 @@ sin cambiar lo existente.
 | `src/components/EncabezadoAgp.test.jsx` | `src/components/EncabezadoAgp.test.jsx` | La prueba del contrato del encabezado (vitest): marcas, nombre y menú de usuario. Corre en el CI del desarrollo. |
 | `src/components/AgpLogo.jsx`, `Icon.jsx` | `src/components/` | Piezas que usan la pantalla y el encabezado (si el desarrollo ya las tiene, no se pisan; el encabezado necesita los iconos `sun` y `moon`). |
 | `backend/src/helpers/auth.py` | `backend/src/helpers/auth.py` | `require_auth`: valida el `id_token` de Entra ID. |
+| `backend/src/helpers/roles_mesa.py` | `backend/src/helpers/roles_mesa.py` | Lee el rol y los permisos de quien inicia sesión por el túnel de la Mesa (`GET /api/roles-app/<id>/mios`, con el mismo `id_token`): caché corta y falla cerrada. Solo lee: la app no crea ni escribe tablas de roles. Ver `COMO-DEJARLO-FUNCIONAL.md`. |
 | `backend/src/flask_config/bp_base.py` | ídem (o agregar solo la ruta) | `GET /api/config` (público: tenant, cliente y nombre) y `/api/health`. |
 | `.agp/entra.yaml` | `.agp/entra.yaml` | Manifiesto del login: `administradores` y permisos mínimos. |
 

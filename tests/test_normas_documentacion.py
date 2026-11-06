@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 NORMAS = (
     "ACCESO-Y-ROLES-DEL-DESARROLLO.md",
     "ARQUITECTURA-DESPLIEGUE.md",
+    "COMO-DEJARLO-FUNCIONAL.md",
     "CONTRATO-TUNEL-ROLES.md",
     "DESPLIEGUE-A-MAIN.md",
     "NOMENCLATURA-DATOS.md",
@@ -52,8 +53,16 @@ class DocumentacionNormativaTests(unittest.TestCase):
         for nombre in ("ACCESO-Y-ROLES-DEL-DESARROLLO.md", "CONTRATO-TUNEL-ROLES.md", "agent-despliegue.md"):
             texto = _leer(nombre)
             self.assertRegex(texto, r"sin vigencia|no tienen vigencia", nombre)
-            for tabla in ("_Roles`", "_RolesDatos`", "_RolesPersonas`"):
-                self.assertIn(tabla, texto, f"{nombre} no nombra la tabla {tabla}")
+            self.assertIn("RegistroDesarrollos_Roles", texto, nombre)
+            self.assertRegex(texto, r"pendiente", nombre)
+            self.assertNotRegex(texto, r"(?i)worker (las )?crea (las )?(tres )?tablas de roles|que crea el worker desde una plantilla", nombre)
+
+    def test_el_vocabulario_de_area_esta_aclarado(self):
+        contrato = _leer("CONTRATO-TUNEL-ROLES.md")
+        self.assertIn("## 3.1 Dos cosas llamadas «área»", contrato)
+        self.assertIn("EJEMPLO ficticio", contrato)
+        self.assertIn("departamento de Microsoft", contrato)
+        self.assertRegex(_leer("agent-despliegue.md"), r"no usa nombres de área ni de departamento inventados")
 
     def test_cada_requisito_del_agente_esta_en_la_lista_de_obligatorios(self):
         prompt = _leer("prompt-agente-despliegue-evaluacion.md")
