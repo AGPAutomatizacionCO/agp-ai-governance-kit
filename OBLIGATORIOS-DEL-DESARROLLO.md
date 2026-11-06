@@ -122,7 +122,7 @@ Restringir es la excepción: `acceso: asignado` con `justificacion` (≥ 40 cara
 ```yaml
 # Excepción justificada
 acceso: asignado
-justificacion: "Nómina individual: solo Compensaciones puede ver los salarios; ni la vista general puede mostrarse a otras áreas."
+justificacion: "Nómina individual: solo Compensaciones puede ver los salarios; ni la vista general puede mostrarse a otros departamentos."
 publico: "Personal de Compensaciones"
 ```
 
@@ -131,7 +131,7 @@ publico: "Personal de Compensaciones"
 
 ## 8. `ROLES.md` (v2)
 
-**Regla.** El archivo `ROLES.md` (contrato `roles.agp/v2`) es la vista para personas de los roles, áreas y permisos y es lo que valida la Mesa. Declara el catálogo de `permisos` (módulos y funciones que el código sabe ocultar y bloquear) y los `perfilesIniciales`.
+**Regla.** El archivo `ROLES.md` (contrato `roles.agp/v2`) es la vista para personas de los roles, áreas y permisos y es lo que valida la Mesa. Sus `areas` son dominios de datos del desarrollo, **no** departamentos de Microsoft (`CONTRATO-TUNEL-ROLES.md` §3.1). Declara el catálogo de `permisos` (módulos y funciones que el código sabe ocultar y bloquear) y los `perfilesIniciales`.
 Quien entra sin rol ve la vista general (la marca el administrador en «Configuración»). **No** lleva `sinAcceso.mensaje` (obsoleto: lo reemplaza la pantalla estándar).
 
 ```markdown

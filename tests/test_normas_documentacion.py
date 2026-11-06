@@ -55,6 +55,13 @@ class DocumentacionNormativaTests(unittest.TestCase):
             for tabla in ("_Roles`", "_RolesDatos`", "_RolesPersonas`"):
                 self.assertIn(tabla, texto, f"{nombre} no nombra la tabla {tabla}")
 
+    def test_el_vocabulario_de_area_esta_aclarado(self):
+        contrato = _leer("CONTRATO-TUNEL-ROLES.md")
+        self.assertIn("## 3.1 Dos cosas llamadas «área»", contrato)
+        self.assertIn("EJEMPLO ficticio", contrato)
+        self.assertIn("departamento de Microsoft", contrato)
+        self.assertRegex(_leer("agent-despliegue.md"), r"no usa nombres de área ni de departamento inventados")
+
     def test_cada_requisito_del_agente_esta_en_la_lista_de_obligatorios(self):
         prompt = _leer("prompt-agente-despliegue-evaluacion.md")
         bloque = prompt.split("## PASO 2B", 1)[1].split("### Regla de login Microsoft", 1)[0]
