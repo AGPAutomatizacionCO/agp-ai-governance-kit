@@ -353,9 +353,13 @@ configuracion_roles el desarrollo monta la pantalla estándar de configuración 
                     <id>/mios con el id_token (helper roles_mesa.py del paquete o
                     equivalente) y que la app SOLO usa el túnel: sin tabla de
                     usuarios o de roles propia ni escrituras sobre tablas de roles
-                    (hoy los roles viven en tablas centrales de la Mesa; las
-                    tres tablas por desarrollo son un modelo objetivo pendiente:
-                    no las exijas ni las reportes como faltantes). Pasos y lista:
+                    (la Mesa guarda los roles de un desarrollo nuevo en tres
+                    tablas de su esquema que crea y valida el worker; SAC y los
+                    que ya tenían roles siguen en las centrales: no las exijas,
+                    no las leas y reporta como hallazgo cualquier tabla del
+                    manifiesto de datos con esos nombres reservados
+                    App_<Área>_<Desarrollo>_Roles/_RolesDatos/_RolesPersonas).
+                    Pasos y lista:
                     COMO-DEJARLO-FUNCIONAL.md.
 mecanismo_propio_acceso  reporta si el desarrollo trae un login que no es el del kit o un
                     gestor de usuarios y roles propio (tabla de usuarios, rutas de

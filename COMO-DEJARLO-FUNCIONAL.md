@@ -53,9 +53,8 @@ El frontend usa el cliente `src/services/rolesMesa.js`, el menú `UserMenu` (con
 
 ### 6. La app SOLO usa el túnel: no crea ni escribe tablas de roles
 
-- **Hoy** los roles personalizados y sus asignaciones viven en tablas centrales de la Mesa (`RegistroDesarrollos_Roles*`). La app los lee **por el túnel** y solo la Mesa escribe.
-- La app **no crea, no escribe y no necesita** tablas de roles propias, y no tiene una tabla de usuarios propia. No llames a Graph para roles.
-- Las tres tablas por desarrollo (`App_<Área>_<Desarrollo>_Roles`, `…_RolesDatos`, `…_RolesPersonas`) son el **modelo objetivo, pendiente y no implementado** (spec 018 de la Mesa). No las declares en el manifiesto de datos ni las leas directamente.
+- La Mesa guarda los roles de un desarrollo **nuevo** en tres tablas de su propio esquema (`App_<Área>_<Desarrollo>_Roles`, `…_RolesDatos`, `…_RolesPersonas`, sin vigencia), que **crea y valida el worker en el despliegue**; SAC y los desarrollos que ya tenían roles siguen en las tablas centrales de la Mesa hasta su migración.
+- **Tu app no cambia en ningún caso:** lee el rol **por el túnel** (`/mios`) y solo la Mesa escribe. **No crea, no escribe, no lee directamente y no declara** tablas de roles (si las declaras en `ai/outputs/data-access-manifest.json`, el plan las bloquea como «nombre reservado»), y no tiene una tabla de usuarios propia. No llames a Graph para roles.
 - Los roles son de gestión continua: **sin vigencia** ni fecha de vencimiento.
 
 ### 7. En local (sin la Mesa)

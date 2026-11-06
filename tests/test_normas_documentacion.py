@@ -53,9 +53,10 @@ class DocumentacionNormativaTests(unittest.TestCase):
         for nombre in ("ACCESO-Y-ROLES-DEL-DESARROLLO.md", "CONTRATO-TUNEL-ROLES.md", "agent-despliegue.md"):
             texto = _leer(nombre)
             self.assertRegex(texto, r"sin vigencia|no tienen vigencia", nombre)
-            self.assertIn("RegistroDesarrollos_Roles", texto, nombre)
-            self.assertRegex(texto, r"pendiente", nombre)
-            self.assertNotRegex(texto, r"(?i)worker (las )?crea (las )?(tres )?tablas de roles|que crea el worker desde una plantilla", nombre)
+            self.assertIn("RegistroDesarrollos_Roles", texto, nombre)   # SAC y los que ya tenían roles siguen en las tablas centrales
+            self.assertRegex(texto, r"crea y valida", nombre)           # desarrollos nuevos: tres tablas en su esquema, creadas y validadas por el worker
+            self.assertRegex(texto, r"nombre reservado|no las declara", nombre)   # el desarrollador no las declara en el manifiesto
+            self.assertNotRegex(texto, r"(?i)no está implementado|pendiente y no implementado|el worker no las crea", nombre)
 
     def test_el_vocabulario_de_area_esta_aclarado(self):
         contrato = _leer("CONTRATO-TUNEL-ROLES.md")
