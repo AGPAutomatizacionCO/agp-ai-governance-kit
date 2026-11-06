@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 NORMAS = (
     "ACCESO-Y-ROLES-DEL-DESARROLLO.md",
     "ARQUITECTURA-DESPLIEGUE.md",
+    "COMO-DEJARLO-FUNCIONAL.md",
     "CONTRATO-TUNEL-ROLES.md",
     "DESPLIEGUE-A-MAIN.md",
     "NOMENCLATURA-DATOS.md",
@@ -52,8 +53,9 @@ class DocumentacionNormativaTests(unittest.TestCase):
         for nombre in ("ACCESO-Y-ROLES-DEL-DESARROLLO.md", "CONTRATO-TUNEL-ROLES.md", "agent-despliegue.md"):
             texto = _leer(nombre)
             self.assertRegex(texto, r"sin vigencia|no tienen vigencia", nombre)
-            for tabla in ("_Roles`", "_RolesDatos`", "_RolesPersonas`"):
-                self.assertIn(tabla, texto, f"{nombre} no nombra la tabla {tabla}")
+            self.assertIn("RegistroDesarrollos_Roles", texto, nombre)
+            self.assertRegex(texto, r"pendiente", nombre)
+            self.assertNotRegex(texto, r"(?i)worker (las )?crea (las )?(tres )?tablas de roles|que crea el worker desde una plantilla", nombre)
 
     def test_el_vocabulario_de_area_esta_aclarado(self):
         contrato = _leer("CONTRATO-TUNEL-ROLES.md")

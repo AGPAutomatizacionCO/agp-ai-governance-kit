@@ -931,6 +931,7 @@ agent-context-package.md
 ARQUITECTURA-DESPLIEGUE.md
 DESPLIEGUE-A-MAIN.md
 OBLIGATORIOS-DEL-DESARROLLO.md
+COMO-DEJARLO-FUNCIONAL.md
 CONTRATO-TUNEL-ROLES.md
 agent-documental.md
 agent-specification.md
