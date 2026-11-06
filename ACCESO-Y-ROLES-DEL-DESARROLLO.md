@@ -1,20 +1,20 @@
 # Acceso y roles de un desarrollo: quién entra, con qué rol y cómo se declara
 
 Norma para todo desarrollo con login de Microsoft Entra ID (todos los que se despliegan con la Mesa de Requerimientos). **Norma de IT del 2026-11-04: todo desarrollo funciona como la Mesa de Ayuda.**
-Cualquier persona de AGP entra y ve la vista general; los roles específicos los da el administrador **dentro** de la app, desde su panel «Configuración» (como RPC), por persona o a toda un área de Microsoft. La Mesa los guarda y valida por detrás (túnel de roles). Restringir el
+Cualquier persona de AGP entra y ve la vista general; los roles específicos los da el administrador **dentro** de la app, desde su panel «Configuración» (como RPC), por persona o a todo un departamento de Microsoft. La Mesa los guarda y valida por detrás (túnel de roles). Restringir el
 ingreso a personas asignadas es la excepción y se justifica. La Mesa lo muestra en el plan que aprueba IT, y los agentes lo documentan y lo verifican. Complementa `templates/auth-estandar/README.md` (el login) y
 `PERMISOS-Y-SECRETOS-DEL-WORKER.md` (los datos). El contrato técnico de la API con la que habla la pantalla de configuración (rutas, cuerpos, autenticación y errores) está en `CONTRATO-TUNEL-ROLES.md`; la lista de todo lo obligatorio, con ejemplos, en `OBLIGATORIOS-DEL-DESARROLLO.md`.
 
 ## 1. La pregunta que todo desarrollo responde
 
-> **¿Quién es el público del desarrollo?** Toda la organización, un área, varias áreas, o personas concretas.
+> **¿Quién es el público del desarrollo?** Toda la organización, un departamento, varios departamentos, o personas concretas.
 
 La respuesta decide `acceso` en `.agp/entra.yaml`:
 
 | `acceso` | Público | Qué pasa en Entra ID | Cómo se dan los roles |
 |---|---|---|---|
-| `organizacion` (**valor por defecto**) | Toda la organización AGP | La app **no exige asignación**: cualquier cuenta de AGP (un solo tenant) inicia sesión y ve la **vista general** | El administrador asigna los roles dentro de la app, en su panel «Configuración» (por persona o a toda un área de Microsoft). Quien no tiene rol ve la vista general (el perfil marcado como vista general) |
-| `asignado` (excepción, con `justificacion`) | Un área, varias áreas o personas concretas, cuando la información no puede verla nadie más | La app **exige asignación**: solo entran las personas asignadas | Gestor de roles: el Responsable asigna a personas **del área del desarrollo** (motivo de la lista) y a personas **de otra área** (justificación propia de al menos 30 letras) |
+| `organizacion` (**valor por defecto**) | Toda la organización AGP | La app **no exige asignación**: cualquier cuenta de AGP (un solo tenant) inicia sesión y ve la **vista general** | El administrador asigna los roles dentro de la app, en su panel «Configuración» (por persona o a todo un departamento de Microsoft). Quien no tiene rol ve la vista general (el perfil marcado como vista general) |
+| `asignado` (excepción, con `justificacion`) | Un departamento, varios departamentos o personas concretas, cuando la información no puede verla nadie más | La app **exige asignación**: solo entran las personas asignadas | Gestor de roles: el Responsable asigna a personas **del departamento del desarrollo** (motivo de la lista) y a personas **de otro departamento** (justificación propia de al menos 30 letras) |
 
 Reglas:
 
@@ -35,7 +35,7 @@ administradores:
 ```yaml
 # .agp/entra.yaml (excepción: solo personas asignadas)
 acceso: asignado
-justificacion: "Nómina individual: solo Compensaciones puede ver los salarios; ni la vista general puede mostrarse a otras áreas."
+justificacion: "Nómina individual: solo Compensaciones puede ver los salarios; ni la vista general puede mostrarse a otros departamentos."
 publico: "Personal de Compensaciones"
 administradores:
   - correo: responsable@agpglass.com
@@ -46,14 +46,14 @@ administradores:
 El archivo `ROLES.md` (contrato `roles.agp/v1` o `v2`, lo valida la Mesa) es la vista **para personas** de los roles y las áreas. El desarrollo documenta ahí:
 
 - **Roles:** `Admin` y `Usuario` (básicos) y los personalizados, con qué puede hacer cada uno.
-- **Áreas y dominios** (`dominios` → `areas`): qué áreas existen en la app y quién pertenece a cada una. Es lo que permite distinguir «del área del desarrollo» de «de otra área» al asignar.
+- **Dominios y áreas de `ROLES.md`** (`dominios` → `areas`): qué datos distingue la app y quién pertenece a cada uno. **No son los departamentos de Microsoft**: el departamento es el `department` de Entra ID (lo que muestra Teams) y es lo que permite distinguir «del departamento del desarrollo» de «de otro departamento» al asignar. Las dos cosas llamadas «área» están explicadas en `CONTRATO-TUNEL-ROLES.md` §3.1.
 - **Vista general:** qué ve quien entra sin rol (con `acceso: organizacion`, toda persona de AGP).
 - **`sinAcceso.mensaje` (obsoleto):** ya no se escribe un mensaje propio. Quien entra sin acceso ve la **pantalla estándar de AGP** (`SinAcceso`, paquete `templates/auth-estandar/`), que le dice que se comunique con el desarrollador funcional (`administradores[0]` de `.agp/entra.yaml`, con su correo @agpglass.com). Un `sinAcceso.mensaje` existente se ignora.
 - **Coherencia con el manifiesto:** si `acceso: organizacion`, el texto dice que cualquier cuenta de AGP entra con la vista general; si `asignado`, dice quién puede pedir acceso y a quién.
 
 ## 3. Qué hace cada agente
 
-**Agente documental.** Documenta la sección **«Acceso y roles»** del desarrollo (en la documentación funcional y de despliegue del expediente): público, `acceso` elegido y por qué, roles y áreas, qué es
+**Agente documental.** Documenta la sección **«Acceso y roles»** del desarrollo (en la documentación funcional y de despliegue del expediente): público, `acceso` elegido y por qué, roles y dominios/áreas de `ROLES.md`, qué es
 administrativo y cómo se valida en la API. Si el expediente dice una cosa y `.agp/entra.yaml` otra (por ejemplo, «lo usa toda la organización» y `acceso: asignado`), lo registra como contradicción y no elige por su cuenta.
 
 **Agente de despliegue.** Lee `.agp/entra.yaml` y `ROLES.md` y reporta, en `PreparacionDespliegue`, el requisito «acceso de usuarios»: el valor de `acceso`, si hay `justificacion` o `publico`, y si coinciden con
@@ -70,7 +70,7 @@ Todo desarrollo trae el **mismo menú de usuario** (`UserMenu`, paquete `templat
 ## 5. Lista de verificación
 
 1. `.agp/entra.yaml` declara `acceso` (`organizacion` o `asignado`) y su `justificacion` o `publico`.
-2. `ROLES.md` describe roles y áreas, coherentes con `acceso` (sin `sinAcceso.mensaje`: lo reemplaza la pantalla estándar).
+2. `ROLES.md` describe roles y dominios/áreas, coherentes con `acceso` (sin `sinAcceso.mensaje`: lo reemplaza la pantalla estándar).
 3. La API exige el rol `Admin` en todo lo administrativo; lo demás solo exige un token válido del tenant.
 4. El expediente tiene la sección «Acceso y roles» y no contradice al manifiesto.
 5. El encabezado monta el menú de usuario estándar (§4) y su «Configuración» va directo a la pantalla estándar y solo la ve quien administra.
@@ -84,7 +84,7 @@ Norma de IT del 2026-11-05 (spec 023 de la Mesa; prototipo aprobado). Todo desar
 
 - **Rol** es el único concepto que ve quien administra: nombre + **vistas** que puede abrir (cada una con sus acciones) + **datos** que consulta + la marca opcional «vista general» (lo que ve quien entra sin rol; nunca administrativo). «Perfil» es el nombre histórico del mismo concepto y no se muestra; en `ROLES.md` v2 las vistas son los `permisos` (módulos), las acciones son sus funciones y los datos son las áreas.
 - **Dónde viven:** `Admin` y `Usuario` en Entra ID. Los roles personalizados en **tablas del propio desarrollo** (`App_<Área>_<Desarrollo>_Roles`, `…_RolesDatos`, `…_RolesPersonas`), que crea el worker desde una plantilla estándar y que la app solo lee; solo escribe la Mesa (spec 018 §5.1). Son **tres** y solo tres: `…_Roles` (el rol y sus vistas), `…_RolesDatos` (los datos que consulta cada rol) y `…_RolesPersonas` (quién tiene cada rol). **Los roles son de gestión continua: no tienen vigencia ni fecha de vencimiento.** Una asignación dura hasta que quien administra la cambia o la quita; ni la pantalla, ni el túnel ni las tablas llevan una cláusula de tiempo. Mientras esas tablas no estén, la Mesa guarda los roles en sus tablas centrales y la pantalla funciona igual.
-- **Cuatro pestañas:** **Roles** (crear, editar, duplicar y eliminar; vista previa «así lo ve quien tenga este rol»), **Usuarios** (lista con filtros por nombre, rol y origen; asignar en un **modal de tres pasos**: usuario → rol → confirmar; si la persona es de otra área la Mesa exige dos textos de al menos 20 letras; reglas por área de Microsoft de `ROLES.md`), **Secretos** y **Actividad** (peticiones en curso e historial).
+- **Cuatro pestañas:** **Roles** (crear, editar, duplicar y eliminar; vista previa «así lo ve quien tenga este rol»), **Usuarios** (lista con filtros por nombre, rol y origen; asignar en un **modal de tres pasos**: usuario → rol → confirmar; si la persona es de otro departamento la Mesa exige dos textos de al menos 20 letras; reglas por departamento de Microsoft de `ROLES.md`), **Secretos** y **Actividad** (peticiones en curso e historial).
 - **Quién puede qué:** el administrador **principal** hace todo; el **secundario** ve todo y edita la definición de los roles, pero no asigna usuarios ni carga secretos; quien no administra no ve «Configuración». El servidor lo impone siempre: lo que la pantalla deshabilita, la Mesa igual lo rechaza. En Entra ID el principal es el rol `Admin` (o una persona de IT) y el secundario el rol `AdminApp`; la tabla completa, por ruta, está en `CONTRATO-TUNEL-ROLES.md` §4.
 - **Secretos:** solo los que declara `.agp/runtime.yaml` y que no crea la Mesa (ver «Secretos del desarrollo» abajo). El valor viaja una vez, se guarda y **nunca** se muestra ni se registra. «Cargar valor» y «Reiniciar app» son del administrador principal.
 - **Contrato que verifican la Mesa y los agentes:** la raíz con `data-agp-configuracion="estandar"`, las pestañas con `data-agp-pestana="roles|usuarios|secretos|actividad"`, el modal con `role="dialog"` y `aria-modal="true"`, y el menú de usuario con `data-agp-menu="configuracion"`. Un frontend que no pueda traer el mismo archivo (otro framework de UI) lo cumple por marcas.
@@ -97,7 +97,7 @@ Norma de IT del 2026-11-05 (spec 023 de la Mesa; prototipo aprobado). Todo desar
 | **Sin sesión o sin acceso** | — | — | Ve la pantalla estándar de login o la de «sin acceso» (§2) |
 | **Usuario** (con o sin rol; ve la vista general o los módulos de su rol) | Nombre y rol, «Cerrar sesión». **No** ve «Configuración» | Ninguna | Usar la app con lo que su rol le abre |
 | **Administrador secundario** (`AdminApp`) | «Configuración» | Roles, Usuarios, Secretos, Actividad, **en solo lectura salvo la definición de los roles** | Crear, editar, duplicar y eliminar roles; ver secretos (nombre y fecha) y actividad, y la lista de usuarios solo si `ROLES.md` declara `adminAppAsignaRoles: true`. **No** asigna usuarios ni carga secretos (aviso «solo lectura» visible) |
-| **Administrador principal** (`Admin`, o IT) | «Configuración» | Las cuatro, completas | Todo lo anterior, asignar usuarios (por persona o por área de Microsoft), cargar secretos y reiniciar la app |
+| **Administrador principal** (`Admin`, o IT) | «Configuración» | Las cuatro, completas | Todo lo anterior, asignar usuarios (por persona o por departamento de Microsoft), cargar secretos y reiniciar la app |
 
 Un `AdminApp` con `adminAppAsignaRoles: true` en `ROLES.md` también asigna personas de menor nivel (no a IT ni a otro administrador global). Cambiar **sus propios** permisos no lo permite nadie, salvo IT.
 
