@@ -122,7 +122,7 @@ Restringir es la excepción: `acceso: asignado` con `justificacion` (≥ 40 cara
 ```yaml
 # Excepción justificada
 acceso: asignado
-justificacion: "Nómina individual: solo Compensaciones puede ver los salarios; ni la vista general puede mostrarse a otras áreas."
+justificacion: "Nómina individual: solo Compensaciones puede ver los salarios; ni la vista general puede mostrarse a otros departamentos."
 publico: "Personal de Compensaciones"
 ```
 
@@ -131,7 +131,7 @@ publico: "Personal de Compensaciones"
 
 ## 8. `ROLES.md` (v2)
 
-**Regla.** El archivo `ROLES.md` (contrato `roles.agp/v2`) es la vista para personas de los roles, áreas y permisos y es lo que valida la Mesa. Declara el catálogo de `permisos` (módulos y funciones que el código sabe ocultar y bloquear) y los `perfilesIniciales`.
+**Regla.** El archivo `ROLES.md` (contrato `roles.agp/v2`) es la vista para personas de los roles, áreas y permisos y es lo que valida la Mesa. Sus `areas` son dominios de datos del desarrollo, **no** departamentos de Microsoft (`CONTRATO-TUNEL-ROLES.md` §3.1). Declara el catálogo de `permisos` (módulos y funciones que el código sabe ocultar y bloquear) y los `perfilesIniciales`.
 Quien entra sin rol ve la vista general (la marca el administrador en «Configuración»). **No** lleva `sinAcceso.mensaje` (obsoleto: lo reemplaza la pantalla estándar).
 
 ```markdown
@@ -181,8 +181,8 @@ perfilesIniciales:
 | `data-agp-pestana="roles\|usuarios\|secretos\|actividad"` | Cada pestaña |
 | `role="dialog"` y `aria-modal="true"` | El modal de asignar usuario (tres pasos) |
 
-Los roles personalizados viven en tres tablas del desarrollo (`…_Roles`, `…_RolesDatos`, `…_RolesPersonas`) y son de gestión continua: **sin vigencia ni cláusula de tiempo**.
-Conexión: `ROLES_DESDE_MESA`, `MESA_API_URL` y `MESA_ID_PROYECTO` en `env` de `runtime.yaml`, `roles` en `GET /api/config` y `ROLES.md` v2.
+Los roles personalizados **hoy viven en tablas centrales de la Mesa**: la app solo usa el túnel (`/mios`…), no crea ni escribe tablas de roles y no depende de tablas propias (las tres tablas por desarrollo son el modelo objetivo, **pendiente**, `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §6). Son de gestión continua: **sin vigencia ni cláusula de tiempo**.
+Conexión: `ROLES_DESDE_MESA`, `MESA_API_URL` y `MESA_ID_PROYECTO` en `env` de `runtime.yaml`, `roles` en `GET /api/config` y `ROLES.md` v2. El backend lee el rol por el túnel con el helper `templates/auth-estandar/backend/src/helpers/roles_mesa.py` (`GET /api/roles-app/<id>/mios`, falla cerrada).
 **Incorrecto.** Una pantalla de «Administración de usuarios» con tabla propia de usuarios y rutas de roles propias; escribir las llamadas a `/api/roles-app` a mano en vez del cliente `rolesMesa.js`. **Se comprueba:** agente `configuracion_roles`.
 
 ## 11. Pantalla estándar «sin acceso»
@@ -299,11 +299,19 @@ desarrollador firmado de la versión actual y para el plan que se despliega; sin
 
 ---
 
-## Antes de pedir el despliegue: la lista corta
+## Antes de pedir el despliegue: la lista de comprobación
+
+La versión con los pasos para dejarlo funcional está en `COMO-DEJARLO-FUNCIONAL.md`. Antes de pedir el despliegue, verifica que **todo esto quedó en el repositorio**:
 
 1. `python -m agpctl validate --repo <ruta> --environment dev` → `valid: true` (1–5).
 2. `python -m agpctl datos check --repo <ruta>` → `valid: true` si hay manifiesto de datos (13–15).
 3. `python -m agpctl runtime check --repo <ruta>` → `valid: true` y sin `avisos` (16–18).
-4. Login, menú, «Configuración» y «sin acceso» copiados del paquete sin cambios y con sus marcas (6, 9–12); `.agp/entra.yaml` y `ROLES.md` v2 coherentes (7–8).
-5. Expediente y notas de despliegue al día (19).
-6. Pedir el informe al Agente de Despliegue: cada requisito `ok` o con su motivo en `falta`.
+4. **Identidad y roles:** `.agp/entra.yaml` con `acceso`, `administradores[0]` @agpglass.com y `secrets: []` (6–7); `ROLES.md` v2 con `permisos` y `perfilesIniciales`, sin `sinAcceso.mensaje` (8).
+5. **Conexión con la Mesa:** `ROLES_DESDE_MESA`, `MESA_API_URL` (https) y `MESA_ID_PROYECTO` en `env` de `.agp/runtime.yaml` (10).
+6. **Secretos por nombre:** `desarrollo:` y todo secreto como `<desarrollo>-<dato>`, sin valores en el repositorio ni en `env` (16–17).
+7. **El backend lee el rol por el túnel:** consulta `GET /api/roles-app/<id>/mios` con el `id_token` (helper `roles_mesa.py` del paquete o equivalente), falla cerrada y no llama a Graph para roles (10).
+8. **Frontend estándar:** `UserMenu` con las marcas `data-agp-menu` y «Configuración» directo a `/configuracion`; `ConfiguracionDesarrollo` (`data-agp-configuracion="estandar"`); cliente `rolesMesa.js`; `SinAcceso` sin texto libre y `GET /api/config` con `contactoNombre` y `contactoCorreo` (9–11).
+9. **La app solo usa el túnel:** ninguna tabla de usuarios o de roles propia, ningún `CREATE TABLE`, `INSERT` o `UPDATE` sobre tablas de roles, ninguna ruta propia de administración de usuarios o roles, y el manifiesto de datos no declara tablas de roles: hoy los roles viven en tablas centrales de la Mesa y las tres tablas por desarrollo son un modelo objetivo pendiente (12).
+10. Sin `.env` real en el repositorio; `DISABLE_AUTH` solo en local.
+11. Expediente y notas de despliegue al día (19).
+12. Pedir el informe al Agente de Despliegue: cada requisito `ok` o con su motivo en `falta`.
