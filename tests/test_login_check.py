@@ -98,6 +98,49 @@ class LoginCheckTests(unittest.TestCase):
         msal.write_text("\n".join(linea for linea in msal.read_text(encoding="utf-8").splitlines() if "postLogoutRedirectUri" not in linea), encoding="utf-8")
         self.assertTrue(any("falta postLogoutRedirectUri" in i for i in check(self.dir)["issues"]))
 
+    # ── popup o redirección: la página puente solo es obligatoria con loginPopup ──
+    def _app_sin_puente(self, codigo_login: str, nombre: str = "src/auth/AuthGate.jsx") -> Path:
+        """Un desarrollo con MSAL 5 y `redirectUri` en la raíz, SIN página puente (como Portal SAC), cuyo login usa `codigo_login`."""
+        (self.dir / "src" / "auth").mkdir(parents=True)
+        (self.dir / "package.json").write_text(json.dumps(PAQUETE_MSAL5), encoding="utf-8")
+        (self.dir / "src" / "config").mkdir(parents=True)
+        (self.dir / "src" / "config" / "msal.js").write_text(
+            'import { PublicClientApplication } from "@azure/msal-browser";\nexport const msalConfig = { auth: { clientId: "x", authority: "a", redirectUri: window.location.origin } };\n',
+            encoding="utf-8")
+        (self.dir / nombre).write_text(codigo_login, encoding="utf-8")
+        (self.dir / ".agp").mkdir()
+        (self.dir / ".agp" / "entra.yaml").write_text("redirectUriPath: /\n", encoding="utf-8")
+        return self.dir
+
+    def test_flujo_por_redireccion_no_exige_la_pagina_puente(self):
+        self._app_sin_puente("await msalInstance.handleRedirectPromise();\nmsalInstance.loginRedirect({ scopes });\nmsalInstance.logoutRedirect();\n")
+        r = check(self.dir)
+        self.assertTrue(r["valid"], r["issues"])
+        self.assertEqual(r["frontends"][0]["flujo"], "redirect")
+        self.assertTrue(any("flujo por REDIRECCIÓN" in a and "loginPopup" in a for a in r["avisos"]), r["avisos"])
+
+    def test_flujo_por_popup_exige_la_pagina_puente(self):
+        self._app_sin_puente("const r = await msal.loginPopup(loginRequest);\n")
+        r = check(self.dir)
+        self.assertFalse(r["valid"])
+        self.assertEqual(r["frontends"][0]["flujo"], "popup")
+        self.assertTrue(any("redirectUri apunta a la raíz" in i for i in r["issues"]))
+
+    def test_popup_y_redireccion_a_la_vez_se_trata_como_popup(self):
+        self._app_sin_puente("msal.loginRedirect({ scopes });\nconst r = await msal.acquireTokenPopup(req);\n")
+        self.assertFalse(check(self.dir)["valid"])
+
+    def test_sin_ninguna_llamada_de_login_se_trata_como_popup(self):
+        self._app_sin_puente("export const nada = 1;\n")
+        r = check(self.dir)
+        self.assertFalse(r["valid"])
+        self.assertEqual(r["frontends"][0]["flujo"], "desconocido")
+
+    def test_las_pruebas_no_cuentan_para_detectar_el_flujo(self):
+        self._app_sin_puente("msal.loginRedirect({ scopes });\n")
+        (self.dir / "src" / "auth" / "AuthGate.test.jsx").write_text("expect(msal.loginPopup).toHaveBeenCalled();\n", encoding="utf-8")
+        self.assertEqual(check(self.dir)["frontends"][0]["flujo"], "redirect")
+
     # ── .dockerignore: la lista blanca debe dejar pasar la página puente ──
     LISTA_BLANCA_SIN_PUENTE = "*\n!backend\n!.agp\n!frontend\nfrontend/*\n!frontend/package.json\n!frontend/index.html\n!frontend/vite.config.js\n!frontend/src\n"
 

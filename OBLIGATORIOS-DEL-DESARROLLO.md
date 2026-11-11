@@ -97,7 +97,7 @@ pruebas antes de construir y usa acciones de terceros fijadas por SHA. El `--fil
 ## 6. Login Microsoft (MSAL) y `.agp/entra.yaml`
 
 **Regla.** MSAL con Entra ID es obligatorio para todo desarrollo, tenga o no bases de datos. Se copia el paquete `templates/auth-estandar/` **sin cambios** (`LoginScreen.jsx`, `login-estandar.css`, `agp-tema.css`,
-encabezado y menú); la API expone `GET /api/config` y valida el token con `require_auth`. **MSAL 5 exige una página puente:** `redirectUri` y `postLogoutRedirectUri` apuntan a `/auth/redirect`, el servidor sirve el HTML real `auth/redirect.html` en esa ruta (`src/auth/redirect.js` llama a `broadcastResponseToMainFrame()`), y `redirectUriPath` de `.agp/entra.yaml` es **la misma ruta**. `.agp/entra.yaml` declara al menos un administrador (el desarrollador funcional) con su correo @agpglass.com; **no hay secreto de cliente** (`secrets: []`).
+encabezado y menú); la API expone `GET /api/config` y valida el token con `require_auth`. **MSAL 5 con login por popup (`loginPopup`) exige una página puente** (con `loginRedirect` no: ver `INTEGRAR-MSAL.md`, «¿Usa popup o redirección?»): `redirectUri` y `postLogoutRedirectUri` apuntan a `/auth/redirect`, el servidor sirve el HTML real `auth/redirect.html` en esa ruta (`src/auth/redirect.js` llama a `broadcastResponseToMainFrame()`), y `redirectUriPath` de `.agp/entra.yaml` es **la misma ruta**. `.agp/entra.yaml` declara al menos un administrador (el desarrollador funcional) con su correo @agpglass.com; **no hay secreto de cliente** (`secrets: []`).
 
 ```yaml
 apiVersion: entra.agp/v1

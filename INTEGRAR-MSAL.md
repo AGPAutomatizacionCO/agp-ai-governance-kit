@@ -18,6 +18,7 @@ de login y MSAL nunca recibe la respuesta de Microsoft (`monitor_popup_timeout`,
 
 | Señal | Dónde mirar | Mala (el error) | Buena |
 |---|---|---|---|
+| Flujo de login | llamadas a MSAL en el código de la app | `loginPopup` / `acquireTokenPopup` / `logoutPopup` (popup: **aplica todo lo de esta guía**) | `loginRedirect` / `logoutRedirect` / `acquireTokenRedirect` + `handleRedirectPromise`: **no necesita página puente** (ver abajo) |
 | Versión de MSAL | `package.json` del frontend | `@azure/msal-browser` `5.x` o superior | (con 4.x no aplica; se recomienda actualizar) |
 | Retorno del login | `src/config/msal.js` o `.ts` | `redirectUri: window.location.origin` y sin `postLogoutRedirectUri` | `redirectUri` y `postLogoutRedirectUri` = `${window.location.origin}/auth/redirect` |
 | Registro en Entra | `.agp/entra.yaml` | `redirectUriPath: /` | `redirectUriPath: /auth/redirect` (igual que el código) |
@@ -25,6 +26,14 @@ de login y MSAL nunca recibe la respuesta de Microsoft (`monitor_popup_timeout`,
 | Compilación | `vite.config.*` | solo `index.html` | `build.rollupOptions.input` con `index.html` **y** `auth/redirect.html` |
 | Servidor / hosting | Flask/Node, `serve.json`, `staticwebapp.config.json`, nginx | la ruta `/auth/redirect` cae en el fallback de la SPA (`index.html`) | la ruta sirve `dist/auth/redirect.html` |
 | Imagen | `.dockerignore` | lista blanca (`*`) sin `!frontend/auth` | `!frontend/auth` después de `frontend/*` |
+
+### ¿Usa popup o redirección? Solo el popup necesita la página puente
+
+El error nace en el flujo de **popup**: la ventana emergente vuelve a `redirectUri` y MSAL 5 espera que ahí haya una página puente. Si la aplicación inicia sesión por
+**redirección de página completa** (`loginRedirect`, `logoutRedirect`, `acquireTokenRedirect` y `handleRedirectPromise()` al arrancar), la misma página regresa a `redirectUri`, la
+SPA recoge la respuesta y la raíz como `redirectUri` **funciona**: no añadas página puente ni cambies `entra.yaml` (cambiar un desarrollo que hoy funciona solo agrega riesgo).
+Caso real: Portal SAC (`AGP_CO_FINANCE_PORTAL_SAC`, `frontend/src/auth/AuthGate.jsx`, MSAL ^5.25 con `loginRedirect`). `agpctl login check` detecta el flujo: con redirección devuelve
+`valid: true` y un aviso; con popup (o si no encuentra ninguna llamada de login) exige la página puente. Si algún día cambias a `loginPopup`, la página puente pasa a ser obligatoria.
 
 **Comprobación automática:** `python -m agpctl login check --repo .` (solo lectura, devuelve `issues` con «Cómo corregirlo» y código de salida 1 si algo falla).
 
