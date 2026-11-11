@@ -35,6 +35,18 @@ def _leer(ruta: str) -> str:
 
 
 class DocumentacionNormativaTests(unittest.TestCase):
+    def test_roles_opcionales_no_eliminan_la_autenticacion_obligatoria(self):
+        agente = _leer('agent-despliegue.md')
+        prompt = _leer('prompt-agente-despliegue-evaluacion.md')
+        self.assertIn('roles no obligatorios para desplegar', agente)
+        self.assertIn('no son obligatorios para el test del worker', agente)
+        self.assertIn('login MSAL', agente)
+        self.assertIn('autorización efectiva', agente)
+        self.assertIn('Opcional: no bloquea ni se exige', _leer('OBLIGATORIOS-DEL-DESARROLLO.md'))
+        roles = prompt.split('roles               opcional:', 1)[1].split('acceso_usuarios', 1)[0]
+        self.assertIn('no_aplica', roles)
+        self.assertIn('No exigir', roles)
+
     def test_las_rutas_del_cliente_estan_en_el_contrato_del_tunel(self):
         cliente = _leer("templates/auth-estandar/src/services/rolesMesa.js")
         contrato = _leer("CONTRATO-TUNEL-ROLES.md")

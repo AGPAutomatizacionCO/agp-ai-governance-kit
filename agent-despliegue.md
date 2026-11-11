@@ -225,7 +225,7 @@ El requisito «menú de usuario» (norma `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §4,
 La gestión de roles es opcional y no bloquea la preparación del despliegue. No exigir ROLES.md, dominios, áreas, pantalla de roles, túnel de la Mesa ni tablas de roles. Un gestor propio de roles es válido; mantener MSAL y autorización efectiva de rutas administrativas. Los secretos siguen sometidos a su contrato y controles de acceso.
 
 El requisito «acceso de usuarios» (norma `ACCESO-Y-ROLES-DEL-DESARROLLO.md`, IT 2026-11-04: todo desarrollo abierto a la organización, como la Mesa de Ayuda) reporta el valor de `acceso` en
-`.agp/entra.yaml` (`organizacion`, el valor por defecto, o `asignado`, la excepción), si `asignado` trae `justificacion` y `publico`, y si coincide con `ROLES.md` y con el código (`require_auth` para
+`.agp/entra.yaml` (`organizacion`, el valor por defecto, o `asignado`, la excepción), si `asignado` trae `justificacion` y `publico`, y si coincide con el código (`require_auth` para
 usuarios; el rol `Admin` en lo administrativo; quien no tiene rol ve la vista general). Se reportan como hallazgo: `assignmentRequired: true` sin `acceso` (ya no cierra la app: quitarlo),
 `organizacion` junto a `assignmentRequired: true`, `asignado` sin `justificacion` o sin `publico`, una vista general con funciones administrativas, y un módulo administrativo que no exige rol.
 La Mesa muestra ese acceso en el plan que aprueba IT.
@@ -402,3 +402,6 @@ proyecto.
 Esta regla sustituye cualquier exigencia anterior de gestión de roles como gate: ROLES.md, adminsGlobales, dominios, áreas, perfilesIniciales, sinAcceso.mensaje, ROLES_DESDE_MESA, pantalla de roles y tablas de roles no son obligatorios para el test del worker, el agente de despliegue ni el worker de IT. No forzar la sustitución de un gestor propio por el de la Mesa. Informar no_aplica sin inventar áreas ni administradores para satisfacer un contrato opcional.
 
 Se mantienen obligatorios el login MSAL, validación de identidad y aislamiento, autorización efectiva de funciones administrativas, protección de secretos, contratos y permisos SQL, hashes de artefactos y aprobación humana. No eliminar roles existentes, conceder acceso por defecto ni tratar errores de autenticación como éxito. Una integración de roles elegida por el desarrollo conserva sus validadores de ejecución y pruebas: que no sea un gate documental no significa que funcione ni que pueda fallar abierta.
+
+
+Compatibilidad de las integraciones voluntarias: sus asignaciones son sin vigencia; expirar una sesión no retira por sí solo una asignación. No se borran las tablas centrales históricas RegistroDesarrollos_Roles ni sus relaciones: es un nombre reservado del almacenamiento de la Mesa. Si un contrato de datos solicita expresamente tablas propias, el worker crea y valida lo aprobado, nunca inyecta tablas de roles por defecto. El agente no usa nombres de área ni de departamento inventados; tampoco obliga a declarar esas áreas cuando no hay integración voluntaria.
