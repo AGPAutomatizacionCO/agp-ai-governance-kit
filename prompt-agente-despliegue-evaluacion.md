@@ -481,6 +481,14 @@ Reporta solo la estructura:
   (broadcastResponseToMainFrame) y el servidor sirve esa ruta con ese HTML (no
   con index.html). Con redirectUri = origen o redirectUriPath: / el login
   muestra «Error al iniciar sesión. Intenta de nuevo.» sin error en consola.
+  Es el error conocido de las plantillas anteriores (commit e5f6eb4, tag
+  v4.0.0-rc.2); cómo corregirlo: INTEGRAR-MSAL.md. Comprobación local:
+  `python -m agpctl login check --repo .`.
+- El .dockerignore (raíz del contexto o carpeta del frontend) debe dejar pasar
+  auth/redirect.html y src/auth/redirect.*: una lista blanca (`*`) sin
+  `!frontend/auth` construye la imagen sin la página puente. Si la excluye:
+  entra/auth_estandar = falta, nombra el .dockerignore y la regla a agregar
+  (`!frontend/auth`, después de `frontend/*`).
 - Acceso: abierto a toda la organización por defecto (norma de IT del
   2026-11-04). assignmentRequired: true sin `acceso` es hallazgo (ya no
   cierra la app). Restringir exige `acceso: asignado` con justificacion y

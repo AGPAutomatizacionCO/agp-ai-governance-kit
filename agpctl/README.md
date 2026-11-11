@@ -39,6 +39,14 @@ python -m agpctl runtime check --repo <proyecto>
 
 Solo lectura. Nunca lee un `.env` real: usa los NOMBRES de `.env.example`, del código (`os.getenv`, `os.environ`, `process.env`, `import.meta.env`) y de los `docker-compose*.yml`; no copia valores secretos ni crea nada en un vault. `plan` clasifica cada variable (secreto, env, fuente de solo lectura del catálogo IED, build, reservada, o «decidir» por una persona), propone el contrato y avisa de valores que no se alcanzan desde Azure (IP privadas, SQLite local). `check` falla si el código usa una variable que `runtime.yaml` no declara, o al revés. Los nombres de secreto propuestos usan `<prefijo>-<variable>` y el contrato propuesto declara `desarrollo: <prefijo>` (norma `<desarrollo>-<dato>`); el vault y los valores los gestiona IT. `check` aplica además las reglas de `.agp/runtime.yaml` que la Mesa valida al preflight (`agpctl/runtime_contrato.py`): claves permitidas (`apiVersion`, `desarrollo`, `env`, `secrets`, `fuentes`, `recursos_externos`; el vault no se elige), todo secreto con el prefijo `<desarrollo>-` y la forma de `recursos_externos` (workers, VM, jobs, scripts externos). Devuelve `valid`, `issues` y `avisos`: un `aviso` (por ejemplo, secretos sin `desarrollo`) no falla el comando pero la preparación a IT lo exige. Lee el código por patrones: las variables construidas dinámicamente no aparecen.
 
+## `agpctl login check` — el retorno del login con MSAL 5
+
+```text
+python -m agpctl login check --repo <proyecto>
+```
+
+Solo lectura y por texto. Con `@azure/msal-browser` 5.x comprueba: la versión del `package.json`; que exista el script puente (`broadcastResponseToMainFrame` de `@azure/msal-browser/redirect-bridge`) y `auth/redirect.html` sin `id="root"`; que `redirectUri` y `postLogoutRedirectUri` apunten a la ruta puente (`/auth/redirect`) y no a la raíz; que esa ruta sea `redirectUriPath` de `.agp/entra.yaml`; que la compilación incluya la página (entrada de Vite) y que algún servidor o configuración de hosting exponga la ruta; y que el `.dockerignore` deje pasar la página. Devuelve `valid`, `issues` (cada una con «Cómo corregirlo») y `avisos`; código de salida 1 si hay problemas. Con MSAL 4 o sin `@azure/msal-browser` no exige nada. Guía: `INTEGRAR-MSAL.md`.
+
 ## `agpctl datos check` — las reglas de datos de la Mesa, antes de pedir el despliegue
 
 ```text

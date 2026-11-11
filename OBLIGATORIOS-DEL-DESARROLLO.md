@@ -29,7 +29,7 @@ Lo que la Mesa **bloquea** no se negocia en la aprobación; lo que **avisa** se 
 | 3 | Contrato `agp-deploy.json` | `schemas/agp-deploy-v2.schema.json` | `agp_deploy` | `validate` | Bloquea |
 | 4 | CI y publicación | `DESPLIEGUE-A-MAIN.md` §5 | `ci`, `publicacion` | — | Bloquea |
 | 5 | Dockerfile | `ARQUITECTURA-DESPLIEGUE.md`, `templates/Dockerfile-odbc-sqlserver.snippet` | `dockerfile`, `contexto_docker` | `validate` | Bloquea |
-| 6 | Login Microsoft (MSAL) y `.agp/entra.yaml` | `templates/auth-estandar/README.md` | `entra`, `auth_estandar` | — | Bloquea |
+| 6 | Login Microsoft (MSAL) y `.agp/entra.yaml` | `templates/auth-estandar/README.md`, `INTEGRAR-MSAL.md` | `entra`, `auth_estandar` | `login check` | Bloquea |
 | 7 | Acceso: organización o asignado | `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §1 | `acceso_usuarios` | — | Aviso y se muestra a IT |
 | 8 | `ROLES.md` (v2) | `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §2 | `roles` | — | Bloquea si falta o es inválido (obligatorio con `gestionRoles: true`) |
 | 9 | Menú de usuario estándar | `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §4 | `menu_usuario` | — | Bloquea |
@@ -118,7 +118,7 @@ redirectUri: `${window.location.origin}/auth/redirect`,
 postLogoutRedirectUri: `${window.location.origin}/auth/redirect`,
 ```
 
-**Incorrecto.** Un login propio; un secreto de cliente en `secrets`; `administradores` vacío o con un correo que no es @agpglass.com. **Sin la página puente:** `redirectUri: window.location.origin` (la raíz), o `redirectUriPath: /` en `entra.yaml` con `@azure/msal-browser` 5.x, o `redirectUri` y `redirectUriPath` que no coinciden, o `/auth/redirect` servido con el fallback de la SPA (`index.html`). **El error que produce:** el popup de Microsoft recarga la pantalla de login, MSAL no recibe la respuesta y la persona ve «Error al iniciar sesión. Intenta de nuevo.» sin error en la consola (o `AADSTS50011` si el URI registrado en Entra no es el que usa el código). **Se comprueba:** agente `entra` y `auth_estandar`; la Mesa compara los archivos del paquete byte a byte con el kit fijado en `governance.yaml`.
+**Incorrecto.** Un login propio; un secreto de cliente en `secrets`; `administradores` vacío o con un correo que no es @agpglass.com. **Sin la página puente:** `redirectUri: window.location.origin` (la raíz), o `redirectUriPath: /` en `entra.yaml` con `@azure/msal-browser` 5.x, o `redirectUri` y `redirectUriPath` que no coinciden, o `/auth/redirect` servido con el fallback de la SPA (`index.html`). **El error que produce:** el popup de Microsoft recarga la pantalla de login, MSAL no recibe la respuesta y la persona ve «Error al iniciar sesión. Intenta de nuevo.» sin error en la consola (o `AADSTS50011` si el URI registrado en Entra no es el que usa el código). La imagen tampoco puede dejar fuera la página puente: un `.dockerignore` de lista blanca necesita `!frontend/auth`. **Guía paso a paso y versión probada (`@azure/msal-browser` 5.29.0):** `INTEGRAR-MSAL.md`. **Se comprueba:** `python -m agpctl login check --repo .` (versión de MSAL, script y página puente, `redirectUri`/`postLogoutRedirectUri`, coincidencia con `redirectUriPath`, entrada de Vite, ruta del servidor y `.dockerignore`) y la prueba de humo `src/auth/login-humo.test.js` de la plantilla. **Se comprueba:** agente `entra` y `auth_estandar`; la Mesa compara los archivos del paquete byte a byte con el kit fijado en `governance.yaml`.
 
 ## 7. Acceso: organización o asignado
 

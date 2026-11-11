@@ -13,6 +13,7 @@ from agpctl import __version__
 from agpctl.datos import check as datos_check
 from agpctl.detection import detect_project
 from agpctl.local_runtime import LocalRunError, local_down, local_plan, local_up
+from agpctl.login import check as login_check
 from agpctl.runtime import check as runtime_check
 from agpctl.runtime import plan as runtime_plan
 from scripts.validate_governance_ref import UniqueKeyLoader
@@ -218,6 +219,9 @@ def main() -> int:
     datos = sub.add_parser("datos", help="Comprobar el manifiesto de datos y la conexión declarada con las reglas de la Mesa")
     datos_sub = datos.add_subparsers(dest="datos_command", required=True)
     datos_sub.add_parser("check").add_argument("--repo", type=Path, required=True)
+    login = sub.add_parser("login", help="Comprobar el retorno del login con MSAL 5 (página puente /auth/redirect), por texto y solo lectura")
+    login_sub = login.add_subparsers(dest="login_command", required=True)
+    login_sub.add_parser("check").add_argument("--repo", type=Path, required=True)
     runtime = sub.add_parser("runtime", help="Proponer o comprobar .agp/runtime.yaml a partir de las variables que usa el desarrollo")
     runtime_sub = runtime.add_subparsers(dest="runtime_command", required=True)
     for action in ("plan", "check"):
@@ -252,6 +256,11 @@ def main() -> int:
 
     if args.command == "datos":
         result = datos_check(args.repo)
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0 if result["valid"] else 1
+
+    if args.command == "login":
+        result = login_check(args.repo)
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0 if result["valid"] else 1
 
