@@ -48,3 +48,7 @@ Segundo candidato para el piloto dev. Mismo alcance que `v4.0.0-rc.1` (`python-a
 - Esquemas versionados para gobierno, despliegue v2 y perfiles; el identificador lógico del esquema de acceso a datos ya no apunta a `main`.
 
 > `v4.0.0-rc.1` y `v4.0.0-rc.2` son versiones candidatas para el piloto dev; todavía no hay versión estable.
+
+
+## 2026-11-11 — IT: roles opcionales en despliegue
+Agente y prompt de despliegue separan autenticación obligatoria de gestión de roles opcional. Sin cambiar otros agentes, releases existentes ni controles de autorización/secretos. La Mesa y los workers se alinean en un PR independiente.
