@@ -56,7 +56,8 @@ describe.skipIf(!conMsal5)("login con MSAL 5: la raíz no puede ser el retorno",
 
   it("la configuración de MSAL (si existe) vuelve a la página puente", async () => {
     if (!existsSync(join(raiz, "src/config/msal.js"))) return;
-    const { msalConfig } = await import("../config/msal.js");
+    const modulo = "../config/msal.js";   // especificador calculado: en un repositorio sin este archivo, Vite no intenta resolverlo
+    const { msalConfig } = await import(/* @vite-ignore */ modulo);
     expect(msalConfig.auth.redirectUri).toBe(`${window.location.origin}/auth/redirect`);
     expect(msalConfig.auth.postLogoutRedirectUri).toBe(msalConfig.auth.redirectUri);
   });
