@@ -496,6 +496,15 @@ Reporta solo la estructura:
 - Nunca pidas ni muestres valores de secretos, client ID reales ni tokens.
 ```
 
+- MSAL inicializado: si el frontend crea `new PublicClientApplication(...)` y
+  llama a loginPopup/acquireToken*/getAllAccounts, debe haber `initialize()`
+  (o `MsalProvider`/`createStandardPublicClientApplication`) en el código. Sin
+  eso el login muestra «Error al iniciar sesión. Intenta de nuevo.» AL INSTANTE
+  y sin ninguna petición en Network (`uninitialized_public_client_application`).
+  entra/auth_estandar = falta: nombra el archivo y copia la regla; cómo
+  corregirlo: INTEGRAR-MSAL.md («MSAL exige initialize()»), referencia AGPTS
+  76576bb. Comprobación local: `python -m agpctl login check --repo .`.
+
 ---
 
 ## PASO 3 — RETORNAR SOLO EL JSON

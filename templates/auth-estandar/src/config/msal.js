@@ -56,3 +56,28 @@ export function getMsalInstance() {
   if (!_instance) _instance = new PublicClientApplication(msalConfig);
   return _instance;
 }
+
+// REGLA: MSAL (>= 3) exige `await instance.initialize()` antes de CUALQUIER operación de la instancia (getAllAccounts, acquireToken*, loginPopup, logoutPopup).
+// Sin eso lanza `uninitialized_public_client_application` ANTES de abrir el popup: «Error al iniciar sesión» al instante y ninguna petición en Network.
+// `MsalProvider` (main.jsx.example) ya inicializa, pero no dependas de él: este helper es idempotente y comparte la promesa (StrictMode, llamadas concurrentes).
+let _inicializacion = null;
+export function msalListo() {
+  if (!_inicializacion) {
+    _inicializacion = getMsalInstance().initialize().catch((error) => {
+      _inicializacion = null; // permite reintentar si falló (p. ej. una interrupción transitoria)
+      throw error;
+    });
+  }
+  return _inicializacion;
+}
+
+/** Toda operación con la instancia pasa por aquí: `usarMsalInicializado((msal) => msal.loginPopup(loginRequest))`. */
+export async function usarMsalInicializado(operacion) {
+  await msalListo();
+  return operacion(getMsalInstance());
+}
+
+export function esErrorMsalSinInicializar(error) {
+  return error?.errorCode === "uninitialized_public_client_application"
+    || String(error?.message || "").includes("uninitialized_public_client_application");
+}

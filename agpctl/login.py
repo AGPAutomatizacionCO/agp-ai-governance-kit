@@ -9,7 +9,8 @@ Intenta de nuevo.» sin error en la consola. Este chequeo comprueba, sin ejecuta
      (sin `id="root"`: nunca monta la aplicación);
   3. que `redirectUri` y `postLogoutRedirectUri` de la configuración de MSAL apunten a la ruta puente y no a la raíz;
   4. que esa ruta sea EXACTAMENTE `redirectUriPath` de `.agp/entra.yaml` (lo que la Mesa registra en Entra ID);
-  5. que la compilación incluya la página (entrada de Vite) y que algún servidor/configuración exponga la ruta.
+  5. que la compilación incluya la página (entrada de Vite) y que algún servidor/configuración exponga la ruta;
+  6. que la instancia de MSAL se inicialice (`initialize()` o `MsalProvider`) antes de llamar a loginPopup/acquireToken*/getAllAccounts (cualquier flujo, MSAL >= 3).
 
 Regla y guía: OBLIGATORIOS-DEL-DESARROLLO.md §6 e INTEGRAR-MSAL.md.
 """
@@ -34,6 +35,9 @@ _CONSTANTE_RUTA = re.compile(r"""RUTA_RETORNO_MSAL\s*=\s*['"`]([^'"`]+)['"`]""")
 _ID_RAIZ = re.compile(r"""id\s*=\s*["']root["']""")
 _POPUP = re.compile(r"\b(?:loginPopup|acquireTokenPopup|logoutPopup)\b")
 _REDIRECT = re.compile(r"\b(?:loginRedirect|acquireTokenRedirect|logoutRedirect|handleRedirectPromise)\b")
+_NUEVA_INSTANCIA = re.compile(r"\bnew\s+PublicClientApplication\s*\(")
+_OPERACION_MSAL = re.compile(r"\.(?:loginPopup|loginRedirect|acquireToken\w*|getAllAccounts|getActiveAccount|logoutPopup|logoutRedirect|handleRedirectPromise|ssoSilent)\s*\(")
+_INICIALIZA = re.compile(r"\.initialize\s*\(|\bMsalProvider\b|\bcreateStandardPublicClientApplication\b|\bcreatePublicClientApplication\b")
 _ES_PRUEBA = re.compile(r"(?:\.test\.|\.spec\.|[\/](?:tests?|__tests__)[\/])")
 
 
@@ -72,7 +76,7 @@ def _flujo(carpeta: Path) -> str:
     que es lo que trae la plantilla). Los archivos de prueba no cuentan."""
     popup = redirect = False
     for f in _archivos(carpeta):
-        if f.suffix not in _CODIGO_FRONTEND or _ES_PRUEBA.search(f.as_posix()):
+        if f.suffix not in _CODIGO_FRONTEND or _ES_PRUEBA.search("/" + f.relative_to(carpeta).as_posix()):
             continue
         texto = _leer(f)
         popup = popup or bool(_POPUP.search(texto))
@@ -160,6 +164,34 @@ def _revisar_frontend(repo: Path, carpeta: Path, version: str, issues: list[str]
     elif not vite:
         avisos.append(f"{etiqueta}: no hay vite.config.*; comprueba a mano que tu compilación genere auth/redirect.html.")
     return ruta
+
+
+def _sin_comentarios(texto: str) -> str:
+    """El código sin comentarios `//` ni `/* */`: una frase como «sin MsalProvider» en un comentario no inicializa nada."""
+    texto = re.sub(r"/\*.*?\*/", "", texto, flags=re.DOTALL)
+    return re.sub(r"(?m)^\s*//.*$|(?<=[\s;,)])//[^\n]*$", "", texto)
+
+
+def _revisar_inicializacion(repo: Path, carpeta: Path, version: str, issues: list[str]) -> None:
+    """MSAL (>= 3) exige `await instance.initialize()` antes de cualquier operación. Si el código crea `new PublicClientApplication(...)` a mano, llama a
+    loginPopup/acquireToken*/getAllAccounts... y en ningún sitio inicializa (ni `MsalProvider` ni `createStandardPublicClientApplication`), MSAL lanza
+    `uninitialized_public_client_application` ANTES de abrir el popup: la persona ve «Error al iniciar sesión» al instante y no hay ninguna petición en Network."""
+    crea = opera = inicializa = False
+    for f in _archivos(carpeta):
+        if f.suffix not in _CODIGO_FRONTEND or _ES_PRUEBA.search("/" + f.relative_to(carpeta).as_posix()):
+            continue
+        texto = _sin_comentarios(_leer(f))
+        crea = crea or bool(_NUEVA_INSTANCIA.search(texto))
+        opera = opera or bool(_OPERACION_MSAL.search(texto))
+        inicializa = inicializa or bool(_INICIALIZA.search(texto))
+    if crea and opera and not inicializa:
+        etiqueta = carpeta.relative_to(repo).as_posix() or "."
+        issues.append(
+            f"{etiqueta}: el código crea `new PublicClientApplication` y llama a loginPopup/acquireToken*/getAllAccounts sin `initialize()` ni MsalProvider. "
+            f"MSAL {version} lanza `uninitialized_public_client_application` ANTES de abrir el popup: la persona ve «Error al iniciar sesión. Intenta de nuevo.» al instante y "
+            "no hay ninguna petición en Network. Cómo corregirlo: copia `msalListo()` y `usarMsalInicializado()` de templates/auth-estandar/src/config/msal.js y usa "
+            f"`await usarMsalInicializado((msal) => msal.loginPopup(...))` en cada operación (ver {GUIA}, «MSAL exige initialize()»)."
+        )
 
 
 def _servidor_expone(repo: Path, ruta: str) -> bool:
@@ -257,6 +289,8 @@ def check(repo: Path) -> dict:
         etiqueta = carpeta.relative_to(repo).as_posix() or "."
         flujo = _flujo(carpeta)
         revisados.append({"carpeta": etiqueta, "msalBrowser": version, "mayor": mayor, "flujo": flujo})
+        if mayor is None or mayor >= 3:
+            _revisar_inicializacion(repo, carpeta, version, issues)
         if mayor is not None and mayor >= 5 and flujo == "redirect":
             avisos.append(
                 f"{etiqueta}: usa MSAL {version} con el flujo por REDIRECCIÓN (loginRedirect/logoutRedirect): la página puente no es necesaria y `redirectUri` en la raíz "
@@ -273,7 +307,7 @@ def check(repo: Path) -> dict:
         ruta_codigo = _revisar_frontend(repo, carpeta, version, issues, avisos) or ruta_codigo
         _revisar_dockerignore(repo, carpeta, issues)
     if not aplica_msal5:
-        return {"valid": True, "issues": [], "avisos": avisos, "frontends": revisados}
+        return {"valid": not issues, "issues": issues, "avisos": avisos, "frontends": revisados}
     ruta = ruta_codigo or RUTA_PUENTE
 
     # 4. coincidencia con entra.yaml

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from "react";
-import { getMsalInstance, loginRequest } from "../config/msal";
+import { esErrorMsalSinInicializar, loginRequest, usarMsalInicializado } from "../config/msal";
 import { aadstsDeErrorMsal, causaProbable } from "../auth/erroresEntra";
 
 // Contexto de autenticación estándar de AGP: mismo comportamiento que el login de la Mesa (restauración silenciosa de sesión, login con ventana
@@ -23,6 +23,7 @@ function isExpiredOrExpiringSoon(idToken, bufferSeconds = 60) {
 // Nunca se muestra el texto libre del error del proveedor (puede traer datos de la respuesta OAuth): solo el código AADSTS y su causa probable.
 export function mensajeDeErrorLogin(e) {
   const codigo = e?.errorCode || "";
+  if (esErrorMsalSinInicializar(e)) return "Microsoft no terminó de preparar el inicio de sesión. Recarga la página y vuelve a intentarlo; si persiste, avisa a TI.";
   if (codigo === "interaction_in_progress") return "Ya hay una ventana de Microsoft abierta. Completa ese acceso.";
   if (codigo === "monitor_popup_timeout" || codigo === "hash_empty_error") {
     return "Microsoft no pudo devolver el acceso a la aplicación. Cierra la ventana de acceso e intenta de nuevo; si persiste, avisa a TI (revisa la página puente /auth/redirect).";
@@ -64,16 +65,15 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const msal = getMsalInstance();
-      const account = msal.getActiveAccount() || msal.getAllAccounts()[0];
-      if (!account) {
-        if (!cancelled) setAuthChecking(false);
-        return;
-      }
       try {
-        const result = await msal.acquireTokenSilent({ ...loginRequest, account });
-        msal.setActiveAccount(result.account);
-        if (!cancelled) applyAccount(result.account);
+        const account = await usarMsalInicializado(async (msal) => {
+          const cuenta = msal.getActiveAccount() || msal.getAllAccounts()[0];
+          if (!cuenta) return null;
+          const result = await msal.acquireTokenSilent({ ...loginRequest, account: cuenta });
+          msal.setActiveAccount(result.account);
+          return result.account;
+        });
+        if (account && !cancelled) applyAccount(account);
       } catch (_) {
         // sesión no recuperable en silencio: LoginScreen resuelve el resto
       } finally {
@@ -89,10 +89,11 @@ export function AuthProvider({ children }) {
     setLoginError("");
     setLoginLoading(true);
     try {
-      const msal = getMsalInstance();
-      const result = await msal.loginPopup(loginRequest);
-      msal.setActiveAccount(result.account);
-      applyAccount(result.account);
+      await usarMsalInicializado(async (msal) => {
+        const result = await msal.loginPopup(loginRequest);
+        msal.setActiveAccount(result.account);
+        applyAccount(result.account);
+      });
     } catch (e) {
       if (!esCancelacion(e)) setLoginError(mensajeDeErrorLogin(e));
     } finally {
@@ -101,31 +102,36 @@ export function AuthProvider({ children }) {
     }
   }, [applyAccount]);
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
     accountRef.current = null;
     setCurrentUser(null);
     setRoles([]);
-    try { getMsalInstance().logoutPopup(); } catch (_) {}
+    try { await usarMsalInicializado((msal) => msal.logoutPopup()); } catch (_) {}
   }, []);
 
   // id_token vigente para el encabezado Authorization: Bearer de la API (silencioso; solo vuelve a mostrar el popup si la sesión no es recuperable).
   const getAuthToken = useCallback(async () => {
-    const msal = getMsalInstance();
-    const account = accountRef.current || msal.getActiveAccount() || msal.getAllAccounts()[0];
-    if (!account) return null;
     try {
-      let result = await msal.acquireTokenSilent({ ...loginRequest, account });
-      if (isExpiredOrExpiringSoon(result.idToken)) {
-        result = await msal.acquireTokenSilent({ ...loginRequest, account, forceRefresh: true });
-      }
-      return result.idToken;
+      return await usarMsalInicializado(async (msal) => {
+        const account = accountRef.current || msal.getActiveAccount() || msal.getAllAccounts()[0];
+        if (!account) return null;
+        try {
+          let result = await msal.acquireTokenSilent({ ...loginRequest, account });
+          if (isExpiredOrExpiringSoon(result.idToken)) {
+            result = await msal.acquireTokenSilent({ ...loginRequest, account, forceRefresh: true });
+          }
+          return result.idToken;
+        } catch (_) {
+          try {
+            const result = await msal.acquireTokenPopup({ ...loginRequest, account });
+            return result.idToken;
+          } catch (_e) {
+            return null;
+          }
+        }
+      });
     } catch (_) {
-      try {
-        const result = await msal.acquireTokenPopup({ ...loginRequest, account });
-        return result.idToken;
-      } catch (_e) {
-        return null;
-      }
+      return null;
     }
   }, []);
 

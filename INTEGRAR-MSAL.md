@@ -94,3 +94,23 @@ La plantilla ya lo resuelve (`src/auth/erroresEntra.js`, `src/auth/redirect.js`,
 | `AADSTS700016` | Microsoft no encuentra el `clientId` en el directorio | Revisar `MSAL_CLIENT_ID` y la app registrada |
 | `AADSTS9002326` | El URI está registrado como «Web» y no como «Aplicación de una sola página» | TI lo pasa a la plataforma SPA |
 | `access_denied` | La persona canceló o se negó el acceso | Volver a intentar y aceptar los permisos |
+
+## MSAL exige `initialize()` antes de cualquier llamada
+
+**Regla:** `@azure/msal-browser` ≥ 3 exige `await instance.initialize()` antes de CUALQUIER operación de la instancia (`getAllAccounts`, `getActiveAccount`, `acquireToken*`, `loginPopup`, `logoutPopup`, `loginRedirect`, `handleRedirectPromise`). Sin eso lanza `uninitialized_public_client_application` **antes de abrir el popup**:
+la persona ve «Error al iniciar sesión. Intenta de nuevo.» **al instante** y no hay ninguna petición en Network (caso AGPTS, 2026-11-11). `MsalProvider` (`@azure/msal-react`) ya inicializa, por eso la plantilla
+funcionaba con `main.jsx.example`; **si usas MSAL directo, sin `MsalProvider`, tienes que hacerlo tú**.
+
+La plantilla lo trae resuelto en `src/config/msal.js` (`msalListo()`, `usarMsalInicializado()`, `esErrorMsalSinInicializar()`), idempotente aunque haya `MsalProvider`:
+
+```js
+import { loginRequest, usarMsalInicializado } from "../config/msal";
+await usarMsalInicializado(async (msal) => {
+  const result = await msal.loginPopup(loginRequest);
+  msal.setActiveAccount(result.account);
+});
+```
+
+- Úsalo en el efecto de restauración de sesión, el login, el logout y `getAuthToken` (el cierre de sesión también es una operación de MSAL).
+- `mensajeDeErrorLogin` traduce `uninitialized_public_client_application` a «Microsoft no terminó de preparar el inicio de sesión. Recarga la página…».
+- Se comprueba con `python -m agpctl login check --repo .` (hallazgo «sin `initialize()` ni MsalProvider», con los fixtures «antes» y «después» de AGPTS) y con la prueba `src/auth/msal-inicializacion.test.js` de la plantilla.
