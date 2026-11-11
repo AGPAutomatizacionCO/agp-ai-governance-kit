@@ -9,7 +9,7 @@ Cada paso dice qué hacer y dónde está la regla completa. La lista para compro
 
 Copia `templates/auth-estandar/.agp/entra.yaml` y completa `administradores` (al menos el desarrollador funcional, con su correo @agpglass.com). Deja `acceso: organizacion` (la norma) salvo que IT apruebe `asignado` con `justificacion` y `publico`.
 No hay secreto de cliente (`secrets: []`). Regla: `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §1.
-**El retorno del login (MSAL 5):** `redirectUriPath` queda en `/auth/redirect`, y el código y el servidor deben usar esa misma ruta: copia también `auth/redirect.html`, `src/auth/redirect.js`, la configuración de Vite de `vite.config.example.js` y `backend/src/flask_config/bp_retorno_msal.py` (regístralo antes del fallback de la SPA). Sin la página puente, el login muestra «Error al iniciar sesión. Intenta de nuevo.»: ver «MSAL 5 exige una página puente» en `templates/auth-estandar/README.md`.
+**El retorno del login (MSAL 5):** `redirectUriPath` queda en `/auth/redirect`, y el código y el servidor deben usar esa misma ruta: copia también `auth/redirect.html`, `src/auth/redirect.js`, la configuración de Vite de `vite.config.example.js` y `backend/src/flask_config/bp_retorno_msal.py` (regístralo antes del fallback de la SPA). Sin la página puente, el login muestra «Error al iniciar sesión. Intenta de nuevo.»: guía paso a paso en `INTEGRAR-MSAL.md` y comprobación con `python -m agpctl login check --repo .`.
 
 ### 2. Roles: `ROLES.md` v2
 
