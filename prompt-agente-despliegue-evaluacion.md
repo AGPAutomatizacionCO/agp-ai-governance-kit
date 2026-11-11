@@ -336,48 +336,24 @@ menu_usuario        el desarrollo monta el menú de usuario estándar de AGP
                     administra; con varios enlaces propios despliega Administración)
                     y "Cerrar sesión". Búscalo en src/components/ (UserMenu, Header o
                     MenuAvatar). Si falta, falta: nombra el archivo del paquete.
-configuracion_roles el desarrollo monta la pantalla estándar de configuración de
-                    roles y secretos (templates/auth-estandar/src/screens/
-                    ConfiguracionDesarrollo.jsx) en /configuracion: raíz con
-                    data-agp-configuracion="estandar", pestañas con data-agp-pestana
-                    (roles, usuarios, secretos, actividad) y modal con role="dialog"
-                    y aria-modal="true"; y se conecta a la Mesa (ROLES_DESDE_MESA en
-                    .agp/runtime.yaml, roles en /api/config, ROLES.md v2). Se cumple
-                    con el componente del paquete o con uno propio que respete el
-                    contrato. Si falta, falta: nombra el archivo del paquete. La
-                    API con la que habla esa pantalla (rutas, cuerpos y
-                    autenticación con el id_token de la app) está en
-                    CONTRATO-TUNEL-ROLES.md: no inventes llamadas, usa el
-                    cliente del paquete (src/services/rolesMesa.js). Comprueba
-                    también que el backend lee el rol por GET /api/roles-app/
-                    <id>/mios con el id_token (helper roles_mesa.py del paquete o
-                    equivalente) y que la app SOLO usa el túnel: sin tabla de
-                    usuarios o de roles propia ni escrituras sobre tablas de roles
-                    (la Mesa guarda los roles de un desarrollo nuevo en tres
-                    tablas de su esquema que crea y valida el worker; SAC y los
-                    que ya tenían roles siguen en las centrales: no las exijas,
-                    no las leas y reporta como hallazgo cualquier tabla del
-                    manifiesto de datos con esos nombres reservados
-                    App_<Área>_<Desarrollo>_Roles/_RolesDatos/_RolesPersonas).
-                    Pasos y lista:
-                    COMO-DEJARLO-FUNCIONAL.md.
-mecanismo_propio_acceso  reporta si el desarrollo trae un login que no es el del kit o un
-                    gestor de usuarios y roles propio (tabla de usuarios, rutas de
-                    administración de usuarios o roles, pantalla de administración de
-                    usuarios). ok = ninguno; falta = lo hay: nombra los archivos y dice
-                    que debe pasar a la pantalla estándar (norma ACCESO-Y-ROLES-DEL-
-                    DESARROLLO.md §7). No corrige ni elige.
-roles               ROLES.md existe y cumple la forma roles.agp/v2 (o v1 en un
-                    desarrollo anterior): bloque YAML inicial con apiVersion,
-                    adminsGlobales, dominios (áreas), permisos (módulos y
-                    funciones) y perfilesIniciales, y al menos una tabla en el
-                    texto. Obligatorio si .agp/entra.yaml declara gestionRoles:
-                    true. Un sinAcceso.mensaje está obsoleto: repórtalo como
-                    hallazgo informativo (lo reemplaza la pantalla estándar).
-                    Norma: ACCESO-Y-ROLES-DEL-DESARROLLO.md §2.
+configuracion_roles opcional e informativo: no es requisito de despliegue ni
+                    causa de falta. No exigir pantalla de gestión de roles,
+                    ROLES_DESDE_MESA, túnel de roles ni tablas estándar de roles.
+                    La gestión puede ser propia del desarrollo o usar la Mesa.
+                    No modificar ni conceder permisos por esta decisión.
+mecanismo_propio_acceso  distingue autenticación de autorización: un login
+                    que sustituye MSAL sigue siendo un hallazgo de seguridad.
+                    Un gestor propio de roles no es una falta y no debe
+                    reemplazarse por la Mesa para poder desplegar.
+roles               opcional: reportar no_aplica para la preparación del
+                    despliegue aunque exista gestionRoles: true. No exigir
+                    ROLES.md, adminsGlobales, dominios, áreas, perfilesIniciales
+                    ni sinAcceso.mensaje como gate. Si la app usa voluntariamente
+                    un contrato de roles, sus controles reales siguen vigentes;
+                    no afirmar que sus asignaciones funcionan sin evidencia.
 acceso_usuarios     lee el valor de `acceso` de .agp/entra.yaml (organizacion,
                     el valor por defecto, o asignado, la excepción) y dice si
-                    coincide con ROLES.md y con el código (require_auth para
+                    coincide con el código (require_auth para
                     usuarios, el rol Admin en lo administrativo; quien no tiene
                     rol ve la vista general). Hallazgos: assignmentRequired:
                     true sin `acceso`; organizacion junto a assignmentRequired:

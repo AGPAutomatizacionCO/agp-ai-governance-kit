@@ -1,5 +1,8 @@
 # Acceso y roles de un desarrollo: quién entra, con qué rol y cómo se declara
 
+> Actualización de IT, 2026-11-11: la gestión de roles es opcional para desplegar. Las secciones siguientes documentan la integración voluntaria con la Mesa; no convierten ROLES.md, dominios, áreas, pantalla ni tablas estándar en requisitos del test del worker o del worker IT. Se admiten roles propios del desarrollo. Mantener MSAL, autorización real, secretos y permisos de datos; no migrar ni borrar asignaciones existentes por esta regla.
+
+
 Norma para todo desarrollo con login de Microsoft Entra ID (todos los que se despliegan con la Mesa de Requerimientos). **Norma de IT del 2026-11-04: todo desarrollo funciona como la Mesa de Ayuda.**
 Cualquier persona de AGP entra y ve la vista general; los roles específicos los da el administrador **dentro** de la app, desde su panel «Configuración» (como RPC), por persona o a todo un departamento de Microsoft. La Mesa los guarda y valida por detrás (túnel de roles). Restringir el
 ingreso a personas asignadas es la excepción y se justifica. La Mesa lo muestra en el plan que aprueba IT, y los agentes lo documentan y lo verifican. Complementa `templates/auth-estandar/README.md` (el login) y

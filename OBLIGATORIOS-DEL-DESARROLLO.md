@@ -1,5 +1,8 @@
 # Obligatorios de un desarrollo AGP: la norma, cómo se ve bien y cómo se comprueba
 
+> IT, 2026-11-11: gestión de roles, ROLES.md, dominios, áreas, perfiles y pantalla de roles son opcionales para desplegar. Las secciones 8 y 10 describen una integración voluntaria y no son gates del test worker, agente de despliegue ni worker IT. Mantener MSAL, autorización real, secretos y permisos SQL.
+
+
 Un solo lugar para saber **qué exige la norma a todo desarrollo que se despliega con la Mesa de Requerimientos**, con la regla, el documento donde vive, un ejemplo correcto, uno incorrecto y **quién lo comprueba**.
 Sirve a tres lectores: la persona o el agente que **construye** (para llegar con el desarrollo maduro y no con preguntas), el **Agente de Despliegue** (cada fila es un requisito de su informe
 `PreparacionDespliegue`, ver `agent-despliegue.md` §7 y `prompt-agente-despliegue-evaluacion.md` PASO 2B) y quien **revisa** (IT).
@@ -31,11 +34,11 @@ Lo que la Mesa **bloquea** no se negocia en la aprobación; lo que **avisa** se 
 | 5 | Dockerfile | `ARQUITECTURA-DESPLIEGUE.md`, `templates/Dockerfile-odbc-sqlserver.snippet` | `dockerfile`, `contexto_docker` | `validate` | Bloquea |
 | 6 | Login Microsoft (MSAL) y `.agp/entra.yaml` | `templates/auth-estandar/README.md`, `INTEGRAR-MSAL.md` | `entra`, `auth_estandar` | `login check` | Bloquea |
 | 7 | Acceso: organización o asignado | `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §1 | `acceso_usuarios` | — | Aviso y se muestra a IT |
-| 8 | `ROLES.md` (v2) | `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §2 | `roles` | — | Bloquea si falta o es inválido (obligatorio con `gestionRoles: true`) |
+| 8 | `ROLES.md` (v2) | `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §2 | `roles` | — | Opcional: no bloquea ni se exige aunque exista `gestionRoles: true` |
 | 9 | Menú de usuario estándar | `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §4 | `menu_usuario` | — | Bloquea |
-| 10 | Pantalla «Configuración de roles y secretos» | `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §6, `CONTRATO-TUNEL-ROLES.md` | `configuracion_roles` | — | Aviso |
+| 10 | Pantalla de gestión de roles (opcional) | `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §6, `CONTRATO-TUNEL-ROLES.md` | `configuracion_roles` | — | Opcional, no es gate |
 | 11 | Pantalla estándar «sin acceso» | `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §2 | `pantalla_sin_acceso` | — | Aviso |
-| 12 | Sin login ni gestor de roles propios | `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §7 | `mecanismo_propio_acceso` | — | Aviso |
+| 12 | Login MSAL obligatorio; gestor de roles propio permitido | `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §7 | `mecanismo_propio_acceso` | — | Aviso |
 | 13 | Manifiesto de datos | `PERMISOS-Y-SECRETOS-DEL-WORKER.md`, `schemas/data-access-manifest.schema.json` | `manifiesto_datos` | `datos check` | Bloquea |
 | 14 | Datos propios: nombres, SQLite → tabla propia | `NOMENCLATURA-DATOS.md` | `datos_locales` | `datos check` | Bloquea |
 | 15 | Permisos de datos mínimos | `PERMISOS-Y-SECRETOS-DEL-WORKER.md` §3 | `manifiesto_datos` | `datos check` | Bloquea |
@@ -137,7 +140,7 @@ publico: "Personal de Compensaciones"
 
 ## 8. `ROLES.md` (v2)
 
-**Regla.** El archivo `ROLES.md` (contrato `roles.agp/v2`) es la vista para personas de los roles, áreas y permisos y es lo que valida la Mesa. Sus `areas` son dominios de datos del desarrollo, **no** departamentos de Microsoft (`CONTRATO-TUNEL-ROLES.md` §3.1). Declara el catálogo de `permisos` (módulos y funciones que el código sabe ocultar y bloquear) y los `perfilesIniciales`.
+**Integración opcional.** El archivo `ROLES.md` (contrato `roles.agp/v2`) es la vista para personas de los roles, áreas y permisos y es lo que valida la Mesa. Sus `areas` son dominios de datos del desarrollo, **no** departamentos de Microsoft (`CONTRATO-TUNEL-ROLES.md` §3.1). Declara el catálogo de `permisos` (módulos y funciones que el código sabe ocultar y bloquear) y los `perfilesIniciales`.
 Quien entra sin rol ve la vista general (la marca el administrador en «Configuración»). **No** lleva `sinAcceso.mensaje` (obsoleto: lo reemplaza la pantalla estándar).
 
 ```markdown
@@ -163,7 +166,7 @@ perfilesIniciales:
 ```
 
 **Incorrecto.** `apiVersion: roles.agp/v1` en un desarrollo nuevo; texto que contradice a `entra.yaml` (por ejemplo «lo usa toda la organización» con `acceso: asignado`).
-**Se comprueba:** agente `roles` (existe y cumple la forma `roles.agp/v1` o `v2`; con `gestionRoles: true` en `.agp/entra.yaml` es obligatorio) y `acceso_usuarios` (coherencia con el código y con `entra.yaml`).
+**Se comprueba:** agente `roles` (existe y cumple la forma `roles.agp/v1` o `v2`; no bloquea el despliegue aunque `.agp/entra.yaml` declare `gestionRoles: true`) y `acceso_usuarios` (coherencia con el código y con `entra.yaml`).
 
 ## 9. Menú de usuario estándar
 
@@ -179,7 +182,7 @@ perfilesIniciales:
 
 ## 10. Pantalla «Configuración de roles y secretos»
 
-**Regla.** `/configuracion` monta `ConfiguracionDesarrollo` (pestañas Roles, Usuarios, Secretos y Actividad), conectada a la Mesa por el túnel de roles; **no se arma otra**. Qué ve cada persona está en `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §6 y la API en `CONTRATO-TUNEL-ROLES.md`.
+**Integración opcional con la Mesa.** `/configuracion` monta `ConfiguracionDesarrollo` (pestañas Roles, Usuarios, Secretos y Actividad), conectada a la Mesa por el túnel de roles; **no se arma otra**. Qué ve cada persona está en `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §6 y la API en `CONTRATO-TUNEL-ROLES.md`.
 
 | Marca | Qué es |
 |---|---|
@@ -189,7 +192,7 @@ perfilesIniciales:
 
 La Mesa guarda los roles de un desarrollo nuevo en tres tablas de su propio esquema, que crea y valida el worker en cada despliegue (SAC y los que ya tenían roles siguen en las tablas centrales hasta migrar). La app solo usa el túnel (`/mios`…): no las crea, no las escribe, no las lee directamente y **no las declara en el manifiesto de datos** (nombre reservado, `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §6). Son de gestión continua: **sin vigencia ni cláusula de tiempo**.
 Conexión: `ROLES_DESDE_MESA`, `MESA_API_URL` y `MESA_ID_PROYECTO` en `env` de `runtime.yaml`, `roles` en `GET /api/config` y `ROLES.md` v2. El backend lee el rol por el túnel con el helper `templates/auth-estandar/backend/src/helpers/roles_mesa.py` (`GET /api/roles-app/<id>/mios`, falla cerrada).
-**Incorrecto.** Una pantalla de «Administración de usuarios» con tabla propia de usuarios y rutas de roles propias; escribir las llamadas a `/api/roles-app` a mano en vez del cliente `rolesMesa.js`. **Se comprueba:** agente `configuracion_roles`.
+**Fuera del contrato voluntario del túnel.** Un gestor de roles propio es válido para desplegar y no debe sustituirse por la Mesa. Si se elige el túnel, evitar escribir las llamadas a `/api/roles-app` a mano en vez del cliente `rolesMesa.js`. **Se comprueba:** agente `configuracion_roles`.
 
 ## 11. Pantalla estándar «sin acceso»
 
@@ -197,7 +200,7 @@ Conexión: `ROLES_DESDE_MESA`, `MESA_API_URL` y `MESA_ID_PROYECTO` en `env` de `
 `GET /api/config` como `contactoNombre` y `contactoCorreo`) y la persona con sesión; ES / PT; botones Copiar correo, Reintentar y Cerrar sesión.
 **Incorrecto.** Un mensaje propio (`sinAcceso.mensaje` de `ROLES.md`) o un «contacta a TI» genérico; un contacto que no es @agpglass.com. **Se comprueba:** agente `pantalla_sin_acceso`.
 
-## 12. Sin login ni gestor de roles propios
+## 12. Login MSAL obligatorio; gestor de roles propio permitido
 
 **Regla.** La fuente de verdad de los roles es la Mesa. No quedan una tabla de usuarios del desarrollo, rutas de administración de usuarios o roles ni una pantalla de administración de usuarios: se migran (`ACCESO-Y-ROLES-DEL-DESARROLLO.md` §7). El agente **detecta y reporta**; no corrige ni elige.
 **Se comprueba:** agente `mecanismo_propio_acceso` (`ok` = no hay ninguno).
