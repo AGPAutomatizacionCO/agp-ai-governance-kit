@@ -35,7 +35,7 @@ Quedan fuera de la norma, salvo excepción escrita de IT:
 
 - Una sola pieza que desplegar, probar y retirar: un health check, un plan, una limpieza.
 - Mismo origen: sin CORS ni variable con la dirección de la API.
-- Un solo redirect URI de login que registrar en Entra.
+- Un solo redirect URI de login que registrar en Entra: la página puente `/auth/redirect` (MSAL 5, ver `templates/auth-estandar/README.md`).
 - La ruta de despliegue solo sabe desplegar un contenedor: menos permisos y menos fallos.
 - Para herramientas internas con decenas de usuarios, la CDN y el escalado global de una Static Web App no aportan.
 

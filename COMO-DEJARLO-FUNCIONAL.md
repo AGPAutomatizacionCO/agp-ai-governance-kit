@@ -9,6 +9,7 @@ Cada paso dice qué hacer y dónde está la regla completa. La lista para compro
 
 Copia `templates/auth-estandar/.agp/entra.yaml` y completa `administradores` (al menos el desarrollador funcional, con su correo @agpglass.com). Deja `acceso: organizacion` (la norma) salvo que IT apruebe `asignado` con `justificacion` y `publico`.
 No hay secreto de cliente (`secrets: []`). Regla: `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §1.
+**El retorno del login (MSAL 5):** `redirectUriPath` queda en `/auth/redirect`, y el código y el servidor deben usar esa misma ruta: copia también `auth/redirect.html`, `src/auth/redirect.js`, la configuración de Vite de `vite.config.example.js` y `backend/src/flask_config/bp_retorno_msal.py` (regístralo antes del fallback de la SPA). Sin la página puente, el login muestra «Error al iniciar sesión. Intenta de nuevo.»: ver «MSAL 5 exige una página puente» en `templates/auth-estandar/README.md`.
 
 ### 2. Roles: `ROLES.md` v2
 
@@ -72,7 +73,8 @@ Recorre la lista de comprobación de abajo y pídele al Agente de Despliegue su 
 
 Cada punto es verificable en el repositorio (el Agente de Despliegue lo reporta dentro de `entra`, `roles`, `acceso_usuarios`, `configuracion_roles`, `menu_usuario`, `runtime`, `secretos_norma` y `mecanismo_propio_acceso`).
 
-- [ ] `.agp/entra.yaml`: `acceso`, `administradores[0]` con correo @agpglass.com, `secrets: []`.
+- [ ] `.agp/entra.yaml`: `acceso`, `administradores[0]` con correo @agpglass.com, `secrets: []`, `redirectUriPath: /auth/redirect`.
+- [ ] Login con MSAL 5: `redirectUri` y `postLogoutRedirectUri` de `src/config/msal.js` = `${origin}/auth/redirect`; existen `auth/redirect.html` y `src/auth/redirect.js`; la compilación genera `dist/auth/redirect.html` y el servidor lo sirve en `GET /auth/redirect` (nunca `index.html`).
 - [ ] `ROLES.md` v2 con `permisos` y `perfilesIniciales`, sin `sinAcceso.mensaje`.
 - [ ] `.agp/runtime.yaml`: `ROLES_DESDE_MESA`, `MESA_API_URL` (https) y `MESA_ID_PROYECTO` en `env`; `desarrollo:` y todo secreto como `<desarrollo>-<dato>`; sin valores secretos; `python -m agpctl runtime check` sin `issues` ni `avisos`.
 - [ ] Backend: lee el rol por `GET /api/roles-app/<id>/mios` con el `id_token` (helper `roles_mesa.py` o equivalente) y falla cerrada.

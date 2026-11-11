@@ -3,11 +3,18 @@ import { PublicClientApplication } from "@azure/msal-browser";
 // Login estándar de AGP (MSAL en el navegador, PKCE, SIN secreto de cliente).
 // El tenant y la aplicación de Entra ID NO se escriben aquí: los entrega la API en GET /api/config y se cargan con cargarConfigMsal() ANTES
 // de crear la instancia de MSAL (ver main.jsx.example). La Mesa registra la aplicación de login del desarrollo al desplegarlo.
+// MSAL 5 (@azure/msal-browser 5.x) exige una PÁGINA PUENTE dedicada para el retorno del login y del logout: el popup vuelve a esta ruta, la página
+// solo entrega la respuesta a la ventana principal (src/auth/redirect.js) y no monta la aplicación. Si el retorno cae en la raíz, el popup recarga
+// la pantalla de login y el acceso nunca se completa («Error al iniciar sesión. Intenta de nuevo.»). Esta ruta debe ser EXACTAMENTE `redirectUriPath`
+// de .agp/entra.yaml: es la que la Mesa registra en Entra ID (OBLIGATORIOS-DEL-DESARROLLO.md §6).
+export const RUTA_RETORNO_MSAL = "/auth/redirect";
+
 export const msalConfig = {
   auth: {
     clientId: "",
     authority: "https://login.microsoftonline.com/organizations",
-    redirectUri: window.location.origin,
+    redirectUri: `${window.location.origin}${RUTA_RETORNO_MSAL}`,
+    postLogoutRedirectUri: `${window.location.origin}${RUTA_RETORNO_MSAL}`,
   },
   // localStorage (no sessionStorage): la sesión se comparte entre pestañas y sobrevive a cerrar el navegador, como se espera de un login único.
   cache: { cacheLocation: "localStorage" },
