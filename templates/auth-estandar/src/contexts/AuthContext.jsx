@@ -18,6 +18,22 @@ function isExpiredOrExpiringSoon(idToken, bufferSeconds = 60) {
   }
 }
 
+// Mensaje claro por código de error de MSAL (el popup de MSAL 5 falla de formas distintas; «Error al iniciar sesión» a secas no dice qué hacer).
+// Nunca se muestra el texto del error del proveedor: puede traer datos de la respuesta OAuth.
+export function mensajeDeErrorLogin(e) {
+  const codigo = e?.errorCode || "";
+  if (codigo === "interaction_in_progress") return "Ya hay una ventana de Microsoft abierta. Completa ese acceso.";
+  if (codigo === "monitor_popup_timeout" || codigo === "hash_empty_error") {
+    return "Microsoft no pudo devolver el acceso a la aplicación. Cierra la ventana de acceso e intenta de nuevo; si persiste, avisa a TI (revisa la página puente /auth/redirect).";
+  }
+  if (codigo === "popup_window_error") return "El navegador bloqueó la ventana de Microsoft. Permite ventanas emergentes para esta aplicación.";
+  return "Error al iniciar sesión. Intenta de nuevo.";
+}
+
+function esCancelacion(e) {
+  return e?.errorCode === "user_cancelled" || Boolean(e?.message?.includes("user_cancelled"));
+}
+
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
@@ -28,6 +44,7 @@ export function AuthProvider({ children }) {
   // Arranca en true: mientras se restaura la sesión en silencio se muestra «cargando» y no la pantalla de login (si no, cada recarga la mostraría).
   const [authChecking, setAuthChecking] = useState(true);
   const accountRef = useRef(null);
+  const loginEnCurso = useRef(false);   // dos clics seguidos abren UNA sola ventana de Microsoft (si no, MSAL falla con interaction_in_progress)
 
   // Camino único para el login interactivo y la restauración silenciosa: nunca se desincronizan.
   const applyAccount = useCallback((account) => {
@@ -62,6 +79,8 @@ export function AuthProvider({ children }) {
   }, [applyAccount]);
 
   const login = useCallback(async () => {
+    if (loginEnCurso.current) return;
+    loginEnCurso.current = true;
     setLoginError("");
     setLoginLoading(true);
     try {
@@ -70,10 +89,9 @@ export function AuthProvider({ children }) {
       msal.setActiveAccount(result.account);
       applyAccount(result.account);
     } catch (e) {
-      if (!e.message?.includes("user_cancelled")) {
-        setLoginError("Error al iniciar sesión. Intenta de nuevo.");
-      }
+      if (!esCancelacion(e)) setLoginError(mensajeDeErrorLogin(e));
     } finally {
+      loginEnCurso.current = false;
       setLoginLoading(false);
     }
   }, [applyAccount]);

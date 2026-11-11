@@ -97,12 +97,12 @@ pruebas antes de construir y usa acciones de terceros fijadas por SHA. El `--fil
 ## 6. Login Microsoft (MSAL) y `.agp/entra.yaml`
 
 **Regla.** MSAL con Entra ID es obligatorio para todo desarrollo, tenga o no bases de datos. Se copia el paquete `templates/auth-estandar/` **sin cambios** (`LoginScreen.jsx`, `login-estandar.css`, `agp-tema.css`,
-encabezado y menú); la API expone `GET /api/config` y valida el token con `require_auth`. `.agp/entra.yaml` declara al menos un administrador (el desarrollador funcional) con su correo @agpglass.com; **no hay secreto de cliente** (`secrets: []`).
+encabezado y menú); la API expone `GET /api/config` y valida el token con `require_auth`. **MSAL 5 exige una página puente:** `redirectUri` y `postLogoutRedirectUri` apuntan a `/auth/redirect`, el servidor sirve el HTML real `auth/redirect.html` en esa ruta (`src/auth/redirect.js` llama a `broadcastResponseToMainFrame()`), y `redirectUriPath` de `.agp/entra.yaml` es **la misma ruta**. `.agp/entra.yaml` declara al menos un administrador (el desarrollador funcional) con su correo @agpglass.com; **no hay secreto de cliente** (`secrets: []`).
 
 ```yaml
 apiVersion: entra.agp/v1
 login: required
-redirectUriPath: /
+redirectUriPath: /auth/redirect      # = redirectUri de src/config/msal.js y ruta servida por el backend
 signInAudience: AzureADMyOrg
 graphPermissions: [User.Read, offline_access]
 acceso: organizacion
@@ -112,7 +112,13 @@ secrets: []
 env: [MSAL_CLIENT_ID, MSAL_TENANT_ID]
 ```
 
-**Incorrecto.** Un login propio; un secreto de cliente en `secrets`; `administradores` vacío o con un correo que no es @agpglass.com. **Se comprueba:** agente `entra` y `auth_estandar`; la Mesa compara los archivos del paquete byte a byte con el kit fijado en `governance.yaml`.
+```js
+// src/config/msal.js — correcto (MSAL 5)
+redirectUri: `${window.location.origin}/auth/redirect`,
+postLogoutRedirectUri: `${window.location.origin}/auth/redirect`,
+```
+
+**Incorrecto.** Un login propio; un secreto de cliente en `secrets`; `administradores` vacío o con un correo que no es @agpglass.com. **Sin la página puente:** `redirectUri: window.location.origin` (la raíz), o `redirectUriPath: /` en `entra.yaml` con `@azure/msal-browser` 5.x, o `redirectUri` y `redirectUriPath` que no coinciden, o `/auth/redirect` servido con el fallback de la SPA (`index.html`). **El error que produce:** el popup de Microsoft recarga la pantalla de login, MSAL no recibe la respuesta y la persona ve «Error al iniciar sesión. Intenta de nuevo.» sin error en la consola (o `AADSTS50011` si el URI registrado en Entra no es el que usa el código). **Se comprueba:** agente `entra` y `auth_estandar`; la Mesa compara los archivos del paquete byte a byte con el kit fijado en `governance.yaml`.
 
 ## 7. Acceso: organización o asignado
 

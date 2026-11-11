@@ -473,6 +473,14 @@ Reporta solo la estructura:
           correo: usuario@agpglass.com
 - login distinto de required, o status "definido-sin-implementar": entra =
   falta. El login debe estar implementado para desplegar.
+- Retorno del login con MSAL 5 (@azure/msal-browser 5.x o superior): el popup
+  vuelve a una PÁGINA PUENTE, no a la raíz. Reporta entra/auth_estandar =
+  falta si no coinciden las tres: redirectUri y postLogoutRedirectUri del
+  código (src/config/msal.*) terminan en /auth/redirect; redirectUriPath de
+  entra.yaml es /auth/redirect; existe auth/redirect.html + src/auth/redirect.*
+  (broadcastResponseToMainFrame) y el servidor sirve esa ruta con ese HTML (no
+  con index.html). Con redirectUri = origen o redirectUriPath: / el login
+  muestra «Error al iniciar sesión. Intenta de nuevo.» sin error en consola.
 - Acceso: abierto a toda la organización por defecto (norma de IT del
   2026-11-04). assignmentRequired: true sin `acceso` es hallazgo (ya no
   cierra la app). Restringir exige `acceso: asignado` con justificacion y

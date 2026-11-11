@@ -2,7 +2,7 @@
 # La Mesa lo lee para el preflight y para la fase «entra». Solo NOMBRES: nada de valores ni secretos.
 apiVersion: entra.agp/v1
 login: required
-redirectUriPath: /                      # la SPA vuelve a la raíz del sitio (redirectUri = origen)
+redirectUriPath: /auth/redirect         # página puente de MSAL 5 (src/auth/redirect.js): igual a RUTA_RETORNO_MSAL de src/config/msal.js
 logoutPath: /
 signInAudience: AzureADMyOrg            # un solo tenant (AGP)
 graphPermissions:                       # delegados, mínimos

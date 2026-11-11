@@ -11,7 +11,10 @@ sin cambiar lo existente.
 
 | Archivo del paquete | Va en el repositorio como | Para qué |
 |---|---|---|
-| `src/config/msal.js` | `src/config/msal.js` | Configura MSAL con lo que entrega la API (`cargarConfigMsal`) y guarda el nombre (`appInfo`). |
+| `src/config/msal.js` | `src/config/msal.js` | Configura MSAL con lo que entrega la API (`cargarConfigMsal`) y guarda el nombre (`appInfo`). `redirectUri` y `postLogoutRedirectUri` apuntan a la **página puente** `/auth/redirect` (MSAL 5). |
+| `auth/redirect.html`, `src/auth/redirect.js` (+ `redirect.test.js`) | ídem | **Página puente de MSAL 5**: el popup de Microsoft vuelve aquí y la página solo entrega la respuesta a la ventana principal; nunca monta la aplicación. Ver «MSAL 5 exige una página puente». |
+| `vite.config.example.js` | `vite.config.js` (adaptar) | Compila las dos páginas (`index.html` y `auth/redirect.html`) y reescribe `/auth/redirect` en desarrollo y en `vite preview`. |
+| `backend/src/flask_config/bp_retorno_msal.py` | ídem | Sirve `GET /auth/redirect` con el HTML real de la compilación (nunca el `index.html` de la SPA), sin caché y sin `Cross-Origin-Opener-Policy`. |
 | `src/contexts/AuthContext.jsx` | `src/contexts/AuthContext.jsx` | Sesión: restauración silenciosa, `login`, `logout`, `getAuthToken`, `roles`, `isAdmin`. |
 | `src/screens/LoginScreen.jsx` | `src/screens/LoginScreen.jsx` | La pantalla de login aprobada, con el nombre del desarrollo. Su raíz lleva `data-agp-login="estandar"`. Se copia sin cambios. |
 | `src/styles/login-estandar.css` | `src/styles/login-estandar.css` | Los estilos que la pantalla toma del CSS global de la Mesa (color de marca, fuente, reinicio de márgenes). Va acotado a `#login-screen` y hace que la pantalla se vea **igual** en cualquier desarrollo. |
@@ -36,7 +39,7 @@ sin cambiar lo existente.
 | `backend/src/flask_config/bp_base.py` | ídem (o agregar solo la ruta) | `GET /api/config` (público: tenant, cliente y nombre) y `/api/health`. |
 | `.agp/entra.yaml` | `.agp/entra.yaml` | Manifiesto del login: `administradores` y permisos mínimos. |
 
-Dependencias: frontend `@azure/msal-browser`; backend `PyJWT[crypto]` y `requests`.
+Dependencias: frontend `@azure/msal-browser` (la plantilla está probada con la 5.x; con 5.x la página puente es obligatoria); backend `PyJWT[crypto]` y `requests`.
 
 ## Cómo se conecta (resumen)
 
@@ -47,6 +50,20 @@ Dependencias: frontend `@azure/msal-browser`; backend `PyJWT[crypto]` y `request
 4. `.agp/entra.yaml`: declara **al menos un administrador** (desarrollador funcional) con el nombre como aparece en Teams y su correo
    @agpglass.com, y **cómo se controla el acceso**: `acceso: organizacion` (norma: toda cuenta de AGP entra con la vista general) o, como
    excepción, `acceso: asignado` (solo personas asignadas; con `justificacion` y `publico`). Ver `ACCESO-Y-ROLES-DEL-DESARROLLO.md`. **No hay secreto de cliente** (`secrets: []`).
+
+## MSAL 5 exige una página puente
+
+Con `@azure/msal-browser` 5.x el login con ventana emergente ya no se resuelve volviendo a la raíz del sitio: el popup regresa a `redirectUri` y **esa ruta debe ser una página dedicada** que llame a `broadcastResponseToMainFrame()` (`@azure/msal-browser/redirect-bridge`). Si `redirectUri` es la raíz de la aplicación, el popup recarga la pantalla de login, MSAL no recibe la respuesta y la persona ve **«Error al iniciar sesión. Intenta de nuevo.»** sin ningún error en la consola.
+
+Tres cosas deben **coincidir exactamente** (la Mesa solo registra en Entra lo que dice `entra.yaml`):
+
+| Dónde | Qué dice |
+|---|---|
+| `src/config/msal.js` | `redirectUri` y `postLogoutRedirectUri` = `${window.location.origin}/auth/redirect` |
+| `.agp/entra.yaml` | `redirectUriPath: /auth/redirect` (la Mesa lo registra como URI de «Aplicación de una sola página» en Entra ID al desplegar) |
+| El servidor y la compilación | `GET /auth/redirect` responde `dist/auth/redirect.html` (no `index.html`): Vite con dos entradas (`vite.config.example.js`) y la ruta de `bp_retorno_msal.py` registrada antes del fallback de la SPA |
+
+Si el desarrollo ya estaba desplegado con `redirectUriPath: /`, además de cambiar el código hay que **volver a ejecutar la fase «entra» de la Mesa** para que registre el URI nuevo; sin él, Entra rechaza el retorno.
 
 ## El menú de usuario estándar
 
