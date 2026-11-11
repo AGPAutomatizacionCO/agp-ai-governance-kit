@@ -32,6 +32,9 @@ _POST_LOGOUT = re.compile(r"\bpostLogoutRedirectUri\s*:\s*([^\n]+)")
 _RAIZ = re.compile(r"^[`'\"]?\$?\{?\s*window\.location\.origin\s*\}?[`'\"]?\s*[,}]?\s*$")
 _CONSTANTE_RUTA = re.compile(r"""RUTA_RETORNO_MSAL\s*=\s*['"`]([^'"`]+)['"`]""")
 _ID_RAIZ = re.compile(r"""id\s*=\s*["']root["']""")
+_POPUP = re.compile(r"\b(?:loginPopup|acquireTokenPopup|logoutPopup)\b")
+_REDIRECT = re.compile(r"\b(?:loginRedirect|acquireTokenRedirect|logoutRedirect|handleRedirectPromise)\b")
+_ES_PRUEBA = re.compile(r"(?:\.test\.|\.spec\.|[\/](?:tests?|__tests__)[\/])")
 
 
 def _archivos(raiz: Path):
@@ -61,6 +64,22 @@ def _frontends(repo: Path) -> list[tuple[Path, str]]:
         if version:
             encontrados.append((paquete.parent, str(version)))
     return encontrados
+
+
+def _flujo(carpeta: Path) -> str:
+    """«popup» si el código de la app abre la ventana emergente de Microsoft (loginPopup/acquireTokenPopup/logoutPopup), «redirect» si SOLO usa
+    el flujo por redirección (loginRedirect/acquireTokenRedirect/logoutRedirect) y «desconocido» si no hay ninguna llamada (se trata como popup,
+    que es lo que trae la plantilla). Los archivos de prueba no cuentan."""
+    popup = redirect = False
+    for f in _archivos(carpeta):
+        if f.suffix not in _CODIGO_FRONTEND or _ES_PRUEBA.search(f.as_posix()):
+            continue
+        texto = _leer(f)
+        popup = popup or bool(_POPUP.search(texto))
+        redirect = redirect or bool(_REDIRECT.search(texto))
+    if popup:
+        return "popup"
+    return "redirect" if redirect else "desconocido"
 
 
 def _mayor(version: str) -> int | None:
@@ -236,7 +255,15 @@ def check(repo: Path) -> dict:
     for carpeta, version in frontends:
         mayor = _mayor(version)
         etiqueta = carpeta.relative_to(repo).as_posix() or "."
-        revisados.append({"carpeta": etiqueta, "msalBrowser": version, "mayor": mayor})
+        flujo = _flujo(carpeta)
+        revisados.append({"carpeta": etiqueta, "msalBrowser": version, "mayor": mayor, "flujo": flujo})
+        if mayor is not None and mayor >= 5 and flujo == "redirect":
+            avisos.append(
+                f"{etiqueta}: usa MSAL {version} con el flujo por REDIRECCIÓN (loginRedirect/logoutRedirect): la página puente no es necesaria y `redirectUri` en la raíz "
+                f"funciona. Si algún día cambias a loginPopup, la página puente pasa a ser obligatoria (ver {GUIA}); `redirectUriPath` de .agp/entra.yaml debe seguir siendo "
+                "el `redirectUri` que usa el código."
+            )
+            continue
         if mayor is not None and mayor < 5:
             avisos.append(f"{etiqueta}: @azure/msal-browser {version} (< 5): la página puente no es obligatoria; la plantilla del kit se prueba con 5.x.")
             continue
