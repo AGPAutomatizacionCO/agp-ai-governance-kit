@@ -49,6 +49,9 @@ class PaginaPuenteTests(unittest.TestCase):
         vite = _leer("vite.config.example.js")
         self.assertIn('resolve(__dirname, "auth/redirect.html")', vite)
         self.assertIn("/auth/redirect.html", vite)     # reescritura en desarrollo y en preview
+        # con llaves: si `use()` se devuelve, Vite lo toma por un hook posterior y el servidor de desarrollo no arranca
+        self.assertIn("configureServer(servidor) { servidor.middlewares.use(", vite)
+        self.assertIn("configurePreviewServer(servidor) { servidor.middlewares.use(", vite)
 
     def test_los_mensajes_de_login_cubren_los_errores_del_popup(self):
         texto = _leer("src/contexts/AuthContext.jsx")

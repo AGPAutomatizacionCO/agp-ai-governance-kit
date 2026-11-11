@@ -14,8 +14,9 @@ export default defineConfig({
     react(),
     {
       name: "agp-ruta-puente-msal",
-      configureServer: (servidor) => servidor.middlewares.use(rutaPuente()),
-      configurePreviewServer: (servidor) => servidor.middlewares.use(rutaPuente()),
+      // con llaves: `use()` devuelve la app de connect y Vite trataría ese retorno como un hook posterior (el servidor no arranca)
+      configureServer(servidor) { servidor.middlewares.use(rutaPuente()) },
+      configurePreviewServer(servidor) { servidor.middlewares.use(rutaPuente()) },
     },
   ],
   build: {
