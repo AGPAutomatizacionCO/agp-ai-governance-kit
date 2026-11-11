@@ -106,6 +106,10 @@ class NormaDocumentadaTests(unittest.TestCase):
         self.assertIn("Error al iniciar sesión. Intenta de nuevo.", obligatorios)   # el error que produce y cómo se ve
         self.assertIn("redirectUriPath: /auth/redirect", obligatorios)
         self.assertIn("broadcastResponseToMainFrame", obligatorios)
+        guia = (ROOT / "INTEGRAR-MSAL.md").read_text(encoding="utf-8")
+        self.assertIn("5.29.0", guia)          # la versión de msal-browser que se prueba
+        for senal in ("e5f6eb4", "v4.0.0-rc.2", "agpctl login check", "!frontend/auth", "41ed723"):
+            self.assertIn(senal, guia)
 
 
 if __name__ == "__main__":

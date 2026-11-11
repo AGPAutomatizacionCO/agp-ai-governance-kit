@@ -1,0 +1,27 @@
+# .dockerignore del desarrollo (ejemplo). Contexto de construcción = raíz del repositorio. Lista blanca: se excluye TODO salvo lo que la imagen necesita.
+# Si el tuyo es una lista blanca, la página puente del login de MSAL 5 (/auth/redirect) debe pasar: sin `!frontend/auth` la imagen se construye sin ella
+# (el build falla porque vite.config.js la tiene como segunda entrada, o la ruta devuelve 404) y el login muestra «Error al iniciar sesión. Intenta de nuevo.».
+# Comprobación: python -m agpctl login check --repo .
+*
+!backend/requirements.txt
+!backend/app
+# `COPY frontend/` exige la regla explícita; `frontend/*` vuelve a excluir su contenido y solo entra lo de abajo
+!frontend
+frontend/*
+!frontend/package.json
+!frontend/package-lock.json
+!frontend/vite.config.js
+!frontend/index.html
+# Página puente del login de MSAL 5: va DESPUÉS de `frontend/*`
+!frontend/auth
+!frontend/public
+!frontend/src
+# El manifiesto del login: la API lee de él el contacto de la pantalla «sin acceso»
+!.agp
+.agp/*
+!.agp/entra.yaml
+# lo que NO debe entrar aunque esté dentro de lo permitido
+**/__pycache__
+**/*.pyc
+**/.env
+**/.env.*

@@ -13,6 +13,8 @@ sin cambiar lo existente.
 |---|---|---|
 | `src/config/msal.js` | `src/config/msal.js` | Configura MSAL con lo que entrega la API (`cargarConfigMsal`) y guarda el nombre (`appInfo`). `redirectUri` y `postLogoutRedirectUri` apuntan a la **página puente** `/auth/redirect` (MSAL 5). |
 | `auth/redirect.html`, `src/auth/redirect.js` (+ `redirect.test.js`) | ídem | **Página puente de MSAL 5**: el popup de Microsoft vuelve aquí y la página solo entrega la respuesta a la ventana principal; nunca monta la aplicación. Ver «MSAL 5 exige una página puente». |
+| `src/auth/login-humo.test.js` | ídem | **Prueba de humo del login** (vitest): falla si vuelve la raíz como `redirectUri` con MSAL 5, si falta la página puente o si Vite no la compila. |
+| `.dockerignore.example` | `.dockerignore` (adaptar) | Lista blanca de ejemplo que deja pasar `frontend/auth` (la página puente); sin esa regla la imagen se construye sin ella. |
 | `vite.config.example.js` | `vite.config.js` (adaptar) | Compila las dos páginas (`index.html` y `auth/redirect.html`) y reescribe `/auth/redirect` en desarrollo y en `vite preview`. |
 | `backend/src/flask_config/bp_retorno_msal.py` | ídem | Sirve `GET /auth/redirect` con el HTML real de la compilación (nunca el `index.html` de la SPA), sin caché y sin `Cross-Origin-Opener-Policy`. |
 | `src/contexts/AuthContext.jsx` | `src/contexts/AuthContext.jsx` | Sesión: restauración silenciosa, `login`, `logout`, `getAuthToken`, `roles`, `isAdmin`. |
@@ -64,6 +66,8 @@ Tres cosas deben **coincidir exactamente** (la Mesa solo registra en Entra lo qu
 | El servidor y la compilación | `GET /auth/redirect` responde `dist/auth/redirect.html` (no `index.html`): Vite con dos entradas (`vite.config.example.js`) y la ruta de `bp_retorno_msal.py` registrada antes del fallback de la SPA |
 
 Si el desarrollo ya estaba desplegado con `redirectUriPath: /`, además de cambiar el código hay que **volver a ejecutar la fase «entra» de la Mesa** para que registre el URI nuevo; sin él, Entra rechaza el retorno.
+
+Guía completa, cómo detectar el error en un repositorio viejo y la versión probada (`@azure/msal-browser` 5.29.0): [`INTEGRAR-MSAL.md`](../../INTEGRAR-MSAL.md). Comprobación local: `python -m agpctl login check --repo .`.
 
 ## El menú de usuario estándar
 
