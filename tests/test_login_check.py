@@ -34,6 +34,85 @@ def construir_despues(destino: Path, base: str = "", paquete=None) -> Path:
     return destino
 
 
+FIXTURES = ROOT / "tests" / "fixtures" / "login"
+
+
+class InicializacionMsalTests(unittest.TestCase):
+    """MSAL >= 3 exige initialize() antes de cualquier operación: sin eso «Error al iniciar sesión» al instante y sin peticiones en Network (AGPTS, 2026-11-11)."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.dir = Path(self.tmp.name)
+
+    def _frontend(self, archivos: dict, version="5.29.0"):
+        carpeta = self.dir / "frontend"
+        for nombre, contenido in archivos.items():
+            ruta = carpeta / nombre
+            ruta.parent.mkdir(parents=True, exist_ok=True)
+            ruta.write_text(contenido, encoding="utf-8")
+        (carpeta / "package.json").write_text(json.dumps({"name": "x", "dependencies": {"@azure/msal-browser": version}}), encoding="utf-8")
+        return self.dir
+
+    @staticmethod
+    def _inicializacion(resultado):
+        return [i for i in resultado["issues"] if "uninitialized_public_client_application" in i]
+
+    def test_antes_agpts_sin_initialize_se_detecta_con_guia(self):
+        r = check(FIXTURES / "agpts-initialize-antes")
+        hallazgos = self._inicializacion(r)
+        self.assertEqual(len(hallazgos), 1, r["issues"])
+        self.assertIn("Cómo corregirlo", hallazgos[0])
+        self.assertIn("ninguna petición en Network", hallazgos[0])
+        self.assertIn("usarMsalInicializado", hallazgos[0])
+
+    def test_despues_agpts_con_initialize_no_se_marca(self):
+        self.assertEqual(self._inicializacion(check(FIXTURES / "agpts-initialize-despues")), [])
+
+    def test_la_plantilla_actual_del_kit_inicializa(self):
+        carpeta = self.dir / "frontend"
+        for origen in ("src/config/msal.js", "src/contexts/AuthContext.jsx"):
+            (carpeta / origen).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy(PLANTILLA / origen, carpeta / origen)
+        (carpeta / "package.json").write_text(json.dumps(PAQUETE_MSAL5), encoding="utf-8")
+        self.assertEqual(self._inicializacion(check(self.dir)), [])
+
+    def test_con_msal_provider_no_se_marca(self):
+        raiz = self._frontend({
+            "src/config/msal.js": "export const i = new PublicClientApplication(c);",
+            "src/main.jsx": "import { MsalProvider } from '@azure/msal-react'; render(<MsalProvider instance={i} />);",
+            "src/Auth.jsx": "await i.loginPopup(req);",
+        })
+        self.assertEqual(self._inicializacion(check(raiz)), [])
+
+    def test_un_comentario_que_menciona_msal_provider_no_inicializa(self):
+        raiz = self._frontend({
+            "src/config/msal.js": "// sin MsalProvider ni initialize() " + chr(10) + "export const i = new PublicClientApplication(c);",
+            "src/Auth.jsx": "await i.loginPopup(req);",
+        })
+        self.assertEqual(len(self._inicializacion(check(raiz))), 1)
+
+    def test_tambien_aplica_al_flujo_por_redireccion(self):
+        raiz = self._frontend({
+            "src/config/msal.js": "export const i = new PublicClientApplication(c);",
+            "src/Auth.jsx": "await i.loginRedirect(req);",
+        })
+        r = check(raiz)
+        self.assertEqual(len(self._inicializacion(r)), 1, r["issues"])
+        self.assertFalse(r["valid"])
+
+    def test_sin_operaciones_o_con_msal_2_no_se_marca(self):
+        solo_config = self._frontend({"src/config/msal.js": "export const i = new PublicClientApplication(c);"})
+        self.assertEqual(self._inicializacion(check(solo_config)), [])
+        otro = tempfile.TemporaryDirectory()
+        self.addCleanup(otro.cleanup)
+        carpeta = Path(otro.name) / "frontend"
+        (carpeta / "src").mkdir(parents=True)
+        (carpeta / "src" / "a.js").write_text("const i = new PublicClientApplication(c); i.loginPopup(r);", encoding="utf-8")
+        (carpeta / "package.json").write_text(json.dumps({"dependencies": {"@azure/msal-browser": "2.39.0"}}), encoding="utf-8")
+        self.assertEqual(self._inicializacion(check(Path(otro.name))), [])
+
+
 class LoginCheckTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
