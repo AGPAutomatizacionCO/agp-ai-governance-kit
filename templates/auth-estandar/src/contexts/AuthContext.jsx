@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from "react";
 import { getMsalInstance, loginRequest } from "../config/msal";
+import { aadstsDeErrorMsal, causaProbable } from "../auth/erroresEntra";
 
 // Contexto de autenticación estándar de AGP: mismo comportamiento que el login de la Mesa (restauración silenciosa de sesión, login con ventana
 // emergente, id_token vigente para la API), sin lo propio de la Mesa (equipos de IT, vista previa, búsqueda en el directorio).
@@ -19,7 +20,7 @@ function isExpiredOrExpiringSoon(idToken, bufferSeconds = 60) {
 }
 
 // Mensaje claro por código de error de MSAL (el popup de MSAL 5 falla de formas distintas; «Error al iniciar sesión» a secas no dice qué hacer).
-// Nunca se muestra el texto del error del proveedor: puede traer datos de la respuesta OAuth.
+// Nunca se muestra el texto libre del error del proveedor (puede traer datos de la respuesta OAuth): solo el código AADSTS y su causa probable.
 export function mensajeDeErrorLogin(e) {
   const codigo = e?.errorCode || "";
   if (codigo === "interaction_in_progress") return "Ya hay una ventana de Microsoft abierta. Completa ese acceso.";
@@ -27,6 +28,10 @@ export function mensajeDeErrorLogin(e) {
     return "Microsoft no pudo devolver el acceso a la aplicación. Cierra la ventana de acceso e intenta de nuevo; si persiste, avisa a TI (revisa la página puente /auth/redirect).";
   }
   if (codigo === "popup_window_error") return "El navegador bloqueó la ventana de Microsoft. Permite ventanas emergentes para esta aplicación.";
+  // Error de Entra: solo la causa y el código AADSTS, nunca el texto libre del proveedor.
+  const aadsts = aadstsDeErrorMsal(e);
+  const causa = causaProbable({ error: codigo || e?.subError || "", aadsts });
+  if (causa || aadsts) return `${causa || "Microsoft rechazó el acceso."}${aadsts ? ` (${aadsts})` : ""}`;
   return "Error al iniciar sesión. Intenta de nuevo.";
 }
 

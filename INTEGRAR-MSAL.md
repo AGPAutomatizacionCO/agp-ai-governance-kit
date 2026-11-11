@@ -75,3 +75,22 @@ Caso real: Portal SAC (`AGP_CO_FINANCE_PORTAL_SAC`, `frontend/src/auth/AuthGate.
 | Página de Microsoft con `AADSTS50011` | el URI registrado en Entra no es el que usa el código | paso 5 |
 | Página de Microsoft con `AADSTS9002326` | el URI está registrado como «Web» y no como «Aplicación de una sola página» | corregirlo en Entra o repetir la fase «entra» |
 | La imagen no trae `auth/redirect.html` | `.dockerignore` | paso 6 |
+
+## El puente debe mostrar el código de error de Entra
+
+Con MSAL 5, `broadcastResponseToMainFrame()` **relanza** la respuesta cuando Entra devuelve un error (`error=...&error_description=AADSTS...`) y antes limpia el hash. Un `.catch` mudo
+deja a la persona con «No se pudo completar el acceso» y «Error al iniciar sesión» sin ningún dato: no se sabe si falta asignar al usuario, el consentimiento o el URI.
+La plantilla ya lo resuelve (`src/auth/erroresEntra.js`, `src/auth/redirect.js`, `mensajeDeErrorLogin` de `AuthContext.jsx`):
+
+- El puente lee `window.location.hash` y `search` **antes** de llamar a `broadcastResponseToMainFrame()` y, si falla, muestra «Microsoft respondió: <error> (AADSTS…)» con la causa probable.
+- Solo se leen y se muestran el `error` y el código `AADSTS#####`. **Nunca** el `code`, el `state`, los tokens ni el texto libre de Microsoft.
+- La ventana principal hace lo mismo con los errores de MSAL (`subError`, `errorMessage`): `server_error`, `access_denied`, `consent_required`, `interaction_required` y el código AADSTS.
+
+| Código | Causa probable | Qué hacer |
+|---|---|---|
+| `AADSTS50105` | El usuario no está asignado a la aplicación (asignación requerida) | TI asigna al usuario o quita «asignación requerida» |
+| `AADSTS65001` | Falta el consentimiento de la aplicación | TI concede el consentimiento del administrador (`User.Read`) |
+| `AADSTS50011` | El URI de retorno no coincide con el registrado | TI registra `<sitio>/auth/redirect` en Entra (fase «entra») |
+| `AADSTS700016` | Microsoft no encuentra el `clientId` en el directorio | Revisar `MSAL_CLIENT_ID` y la app registrada |
+| `AADSTS9002326` | El URI está registrado como «Web» y no como «Aplicación de una sola página» | TI lo pasa a la plataforma SPA |
+| `access_denied` | La persona canceló o se negó el acceso | Volver a intentar y aceptar los permisos |
