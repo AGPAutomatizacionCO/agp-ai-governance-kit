@@ -137,6 +137,18 @@ env:
 
 `python -m agpctl runtime check --repo <ruta>` lo comprueba antes de pedir el despliegue (`agpctl/README.md`).
 
+### Credenciales SQL personales de 7 días (migraciones y consultas propias)
+
+Para migrar datos o consultar, quien desarrolla NO usa la cuenta de la aplicación ni pide una compartida: desde la ruta del desarrollo en la Mesa (paso Despliegue, botón verde **Despliegue**) pide una cuenta SQL **personal**, nueva y distinta de la de la app.
+
+- **Solo lo aprobado**: las bases y las tablas del **manifiesto firmado** (`ai/outputs/data-access-manifest.json`), con permisos mínimos (`SELECT` en tablas de otros; en tablas propias, las operaciones que declare el manifiesto). Si el manifiesto cambia y retira algo, la cuenta se da de baja.
+- **Vigencia fija de 7 días**, sin selector. La cuenta se elimina sola al vencer; se puede revocar antes.
+- **Una cuenta viva por persona y base**. Para pedir otra en la misma base, la anterior debe vencer o revocarse.
+- **La contraseña se ve una sola vez** y la Mesa no la guarda. No se comparte ni se sube al repositorio.
+- Está **apagada por defecto**: IT la enciende por desarrollo (`AGP_CREDENCIALES_SQL_PERMITIDOS` en la Mesa).
+
+Un desarrollo que necesite datos para migrar NO debe declarar un secreto de usuario SQL propio para eso en `runtime.yaml`: la cuenta personal no es un secreto del desarrollo. Detalle y casos borde: `specs/029-credenciales-sql-personales.md` y `docs/despliegue/CREDENCIALES-SQL-PERSONALES.md` de la Mesa.
+
 ## 7. Si el desarrollo ya tiene su propio login o su propio gestor de roles
 
 La norma es una sola. Un desarrollo que traiga **su propio mecanismo** (pantalla de login que no es la del kit, o una administración de usuarios y roles propia con su tabla de usuarios, sus rutas de administración y su propia pantalla) **debe pasar al de la norma**:
