@@ -1,5 +1,7 @@
 # Permisos y secretos: cómo funciona el worker y qué debe declarar un desarrollo
 
+> Actualización propuesta por IT, 2026-11-17: para roles y secretos propios seguir [Configuración local](CONFIGURACION-LOCAL-ROLES-Y-SECRETOS.md). El túnel y los componentes `rolesMesa` descritos aquí son heredados; no copiarlos como dependencia de login/configuración. El aprovisionamiento y aprobación del contrato de datos por la plataforma se conservan; no son consultas de autorización en ejecución. La plantilla MSAL/login no cambia.
+
 Norma para todo desarrollo que se despliega con la Mesa de Requerimientos y toca una base de datos. Explica **quién hace qué** (la Mesa, el worker, IT, el dueño del dato) para que el
 desarrollo declare lo correcto desde el principio y no se entere en el despliegue. Lo que no está declarado **no se concede**. Complementa a `NOMENCLATURA-DATOS.md` (nombres de lo que el desarrollo
 crea) y a `ARQUITECTURA-DESPLIEGUE.md` (un contenedor, un recurso).

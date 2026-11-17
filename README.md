@@ -1,5 +1,8 @@
 # AGP AI Governance Kit
 
+Guía para [roles en tablas propias y secretos en Key Vault, sin dependencia de la Mesa](CONFIGURACION-LOCAL-ROLES-Y-SECRETOS.md): autorización de la vista Configuración, controles del backend y ejemplos de SmartBending y SAC. Propuesta documental de IT; sin despliegue.
+
+
 > **Implementación CI/CD en prueba local — no lista para deploy.** Los
 > validadores, esquemas y workflow de release añadidos en esta fase aún no
 > tienen PR aprobado, release publicado ni check obligatorio en GitHub.

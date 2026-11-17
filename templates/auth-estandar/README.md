@@ -1,5 +1,7 @@
 # Login estándar de AGP (paquete de referencia)
 
+> Actualización propuesta por IT, 2026-11-17: para roles y secretos propios seguir [Configuración local](../../CONFIGURACION-LOCAL-ROLES-Y-SECRETOS.md). El túnel y los componentes `rolesMesa` descritos aquí son heredados; no copiarlos como dependencia de login/configuración. El aprovisionamiento y aprobación del contrato de datos por la plataforma se conservan; no son consultas de autorización en ejecución. La plantilla MSAL/login no cambia.
+
 **Norma de IT (2026-10-20).** Todo desarrollo que se despliegue con la Mesa trae el **mismo login de la Mesa**: misma pantalla, mismo flujo
 (MSAL en el navegador, PKCE, **sin secreto de cliente**) y misma validación del token en la API. Lo único propio de cada desarrollo es su
 **nombre**, que la Mesa fija sola al desplegar. El agente de despliegue **bloquea** si falta esta estructura.
