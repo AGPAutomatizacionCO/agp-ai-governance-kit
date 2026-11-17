@@ -325,6 +325,7 @@ OBLIGATORIOS-DEL-DESARROLLO.md → Todo lo obligatorio de un desarrollo (regla, 
 COMO-DEJARLO-FUNCIONAL.md    → Pasos cortos para dejar funcional el acceso, los roles y los secretos, y la lista de comprobación previa a pedir el despliegue
 CONTRATO-TUNEL-ROLES.md      → API `/api/roles-app` con la que habla la pantalla de configuración de roles y secretos: rutas, autenticación con el id_token, cuerpos y errores
 DESPLIEGUE-A-MAIN.md         → Quién decide cómo se publica `main`: IT, con la política de CD por desarrollo (apagado, automático o limitado); qué publica el CD y qué nunca
+NORMA-GITHUB-ACTIONS.md      → Reglas obligatorias de los workflows (timeout, concurrency, borradores, filtros, artefactos, runners) y de cómo se trabajan los PR
 agent-context-package.md       → Cómo entregar contexto a los agentes
 agent-documental.md            → Agente 1: mantiene el expediente técnico
 agent-specification.md         → Agente 2: convierte necesidades en spec

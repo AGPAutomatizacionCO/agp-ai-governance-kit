@@ -30,7 +30,7 @@ Lo que la Mesa **bloquea** no se negocia en la aprobación; lo que **avisa** se 
 | 1 | Monolito desplegable y perfil | `ARQUITECTURA-DESPLIEGUE.md` | `perfil` | `validate` | Bloquea |
 | 2 | Pin del kit | `schemas/governance-manifest.schema.json` | `governance` | `validate` | Bloquea |
 | 3 | Contrato `agp-deploy.json` | `schemas/agp-deploy-v2.schema.json` | `agp_deploy` | `validate` | Bloquea |
-| 4 | CI y publicación | `DESPLIEGUE-A-MAIN.md` §5 | `ci`, `publicacion` | — | Bloquea |
+| 4 | CI y publicación | `DESPLIEGUE-A-MAIN.md` §5, `NORMA-GITHUB-ACTIONS.md` | `ci`, `publicacion` | — | Bloquea |
 | 5 | Dockerfile | `ARQUITECTURA-DESPLIEGUE.md`, `templates/Dockerfile-odbc-sqlserver.snippet` | `dockerfile`, `contexto_docker` | `validate` | Bloquea |
 | 6 | Login Microsoft (MSAL) y `.agp/entra.yaml` | `templates/auth-estandar/README.md`, `INTEGRAR-MSAL.md` | `entra`, `auth_estandar` | `login check` | Bloquea |
 | 7 | Acceso: organización o asignado | `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §1 | `acceso_usuarios` | — | Aviso y se muestra a IT |
@@ -88,7 +88,7 @@ profile: python-api
 ## 4. CI y publicación
 
 **Regla.** `.github/workflows/ci.yml` con trigger en `main` (verde sobre el commit que se despliega) y `.github/workflows/dev-publish.yml` solo con `workflow_dispatch` (entradas `run_id` y `expected_sha`), que repite las
-pruebas antes de construir y usa acciones de terceros fijadas por SHA. El `--file` del `az acr build` es exactamente `build.dockerfile` y el último argumento exactamente `build.context`.
+pruebas antes de construir y usa acciones de terceros fijadas por SHA. Todo workflow cumple `NORMA-GITHUB-ACTIONS.md` (`timeout-minutes` en cada job, `concurrency` por PR o por SHA, sin pruebas en PR en borrador, `paths-ignore` solo en el PR). El `--file` del `az acr build` es exactamente `build.dockerfile` y el último argumento exactamente `build.context`.
 **Incorrecto.** Un `dev-publish.yml` con `push:`; un publicador propio que despliega por su cuenta (el único camino de publicación es el que dispara la Mesa). **Se comprueba:** agente `ci` (el estado verde solo lo ve la Mesa: `no_verificable` sin evidencia) y `publicacion`.
 
 ## 5. Dockerfile
