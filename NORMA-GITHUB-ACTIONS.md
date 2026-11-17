@@ -55,7 +55,7 @@ Un job que ya tenía `if:` combina las dos condiciones: `if: ${{ !github.event.p
 ## Reglas para las personas y sus agentes
 
 1. **Abre el PR en borrador** mientras trabajas y márcalo «listo para revisión» cuando quieras las pruebas.
-2. **Un PR por cambio funcional.** Ni uno por cada ajuste mínimo ni uno gigante con todo el día: el PR gigante es difícil de revisar y de revertir.
+2. **Todos tus cambios en un solo PR.** No abras un PR por cada ajuste: sube todos los commits de tu trabajo al mismo PR (en borrador) y márcalo «listo para revisión» una sola vez. Describe en el PR todo lo que cambia, para que se pueda revisar y, si hace falta, revertir.
 3. **Prueba en local antes de empujar.** No empujes commits de uno en uno «para ver si pasa».
 4. **No reintentes una corrida fallida sin cambiar nada**, salvo que la falla sea de la infraestructura (runner caído, red).
 5. Un workflow nuevo o modificado cumple esta norma desde su primer commit. El agente que lo escriba la aplica sin que se lo pidan.
