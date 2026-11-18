@@ -92,7 +92,7 @@ Reporta solo los que encuentres, con su guía:
 | `notas_despliegue` | `specs/007-deployment-notes.md` completo | `DESPLIEGUE-A-MAIN.md` |
 | `nombre_repo` | el nombre del repositorio cumple la norma | `OBLIGATORIOS-DEL-DESARROLLO.md` |
 | `governance` | `.agp/governance.yaml` con el pin del kit | `schemas/governance-manifest.schema.json`, `examples/governance.valid.yaml` |
-| `dev_publish` | `.github/workflows/dev-publish.yml` solo `workflow_dispatch` con `run_id` y `expected_sha`, repite pruebas, `az acr build` igual al perfil | `DESPLIEGUE-A-MAIN.md`, `NORMA-GITHUB-ACTIONS.md` |
+| `dev_publish` | `.github/workflows/dev-publish.yml` solo `workflow_dispatch` con `run_id` y `expected_sha`, plantilla de la Mesa (runner de GitHub, caché, sin reconstruir el mismo commit; las pruebas las da `ci.yml`), Dockerfile y contexto iguales al perfil | `DESPLIEGUE-A-MAIN.md`, `NORMA-GITHUB-ACTIONS.md` |
 | `runtime_secretos` | `.agp/runtime.yaml` declara todo secreto que lee el código; los `-db-*` los crea la Mesa | `PERMISOS-Y-SECRETOS-DEL-WORKER.md` |
 | `pantalla_sin_acceso` | la pantalla estándar sin acceso está integrada | `templates/auth-estandar/src/screens/SinAcceso.jsx` |
 | `roles` | los roles viven en tablas del propio desarrollo, no en la Mesa | `ACCESO-Y-ROLES-DEL-DESARROLLO.md` |

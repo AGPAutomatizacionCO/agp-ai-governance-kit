@@ -50,7 +50,7 @@ No ve el correo de quien aprobó la política ni identificadores internos. Cambi
 ## 5. Requisitos de cada desarrollo para activar el CD
 
 1. Un **despliegue oficial exitoso previo** (es la base de la comparación).
-2. `.github/workflows/dev-publish.yml` según el contrato de la Mesa: solo `workflow_dispatch` con `run_id` y `expected_sha`, que repite las pruebas antes de construir la imagen. Es la red de seguridad: un commit que rompe las pruebas no se publica.
+2. `.github/workflows/dev-publish.yml` según el contrato de la Mesa: solo `workflow_dispatch` con `run_id` y `expected_sha`, que construye una sola vez la imagen del commit exacto (runner de GitHub, caché de capas; si la imagen de ese commit ya existe, no la reconstruye). No repite las pruebas: la red de seguridad es `ci.yml` en verde sobre ese commit, y la Mesa espera a que termine; un commit que rompe las pruebas no se publica. Solo un repositorio sin CI en push a main repite sus pruebas en `dev-publish.yml` antes de construir.
 3. `.github/agp-deploy.json`.
 4. Los archivos de contrato sin cambios entre commits (si cambian, ese commit va por aprobación completa).
 
