@@ -28,6 +28,7 @@ Lee y aplica estos archivos antes de responder:
 https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/main/constitution.md
 https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/main/harness-policy.md
 https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/main/agent-development.md
+https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/main/ROLES-PROPIOS-EN-TABLAS-DEL-DESARROLLO.md   (si el desarrollo tiene roles, accesos o configuración: cómo crear sus tablas de roles)
 
 Actúa exclusivamente como Agente de Desarrollo según el rol definido en el kit.
 
@@ -177,6 +178,7 @@ Si el proyecto ya tiene `AGENTS.md` completo y actualizado, usa esta versión re
 ```
 Lee y aplica:
 https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/main/agent-development.md
+https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/main/ROLES-PROPIOS-EN-TABLAS-DEL-DESARROLLO.md   (si hay roles o configuración de acceso)
 
 [ADJUNTA AQUÍ EL CONTENIDO DE AGENTS.md DEL PROYECTO]
 

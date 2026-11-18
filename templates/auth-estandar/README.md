@@ -1,6 +1,6 @@
 # Login estándar de AGP (paquete de referencia)
 
-> Actualización propuesta por IT, 2026-11-17: para roles y secretos propios seguir [Configuración local](../../CONFIGURACION-LOCAL-ROLES-Y-SECRETOS.md). El túnel y los componentes `rolesMesa` descritos aquí son heredados; no copiarlos como dependencia de login/configuración. El aprovisionamiento y aprobación del contrato de datos por la plataforma se conservan; no son consultas de autorización en ejecución. La plantilla MSAL/login no cambia.
+> **Configuración propia de roles y secretos (IT, 2026-11-18).** Este paquete trae la pantalla y el backend de la **configuración local**: las asignaciones y la auditoría viven en dos tablas del esquema del propio desarrollo y la API del desarrollo decide, sin llamar a la Mesa. Guía: [Configuración local](../../CONFIGURACION-LOCAL-ROLES-Y-SECRETOS.md). El túnel `/api/roles-app` (retirado el 2026-11-11) y sus componentes pasaron a [`templates/auth-estandar-tunel-heredado/`](../auth-estandar-tunel-heredado/README.md): son heredados y no se copian a un desarrollo nuevo. La plantilla MSAL/login no cambia.
 
 **Norma de IT (2026-10-20).** Todo desarrollo que se despliegue con la Mesa trae el **mismo login de la Mesa**: misma pantalla, mismo flujo
 (MSAL en el navegador, PKCE, **sin secreto de cliente**) y misma validación del token en la API. Lo único propio de cada desarrollo es su
@@ -27,10 +27,10 @@ sin cambiar lo existente.
 | `src/screens/SinAcceso.test.jsx` | `src/screens/SinAcceso.test.jsx` | La prueba del contrato (vitest): marca, contacto, botones y que no inventa un contacto. |
 | `src/components/UserMenu.jsx` | `src/components/UserMenu.jsx` | **Menú de usuario estándar**: nombre y rol de quien entró; al hacer clic, «Configuración» (directo a `/configuracion`) y «Cerrar sesión». Probado en producción con RPC. Ver abajo. |
 | `src/styles/menu-usuario-estandar.css` | `src/styles/menu-usuario-estandar.css` | Sus estilos, acotados a `.agp-menu-usuario`. |
-| `src/screens/ConfiguracionDesarrollo.jsx` | `src/screens/ConfiguracionDesarrollo.jsx` | **Pantalla estándar «Configuración de roles y secretos»** (`/configuracion`): pestañas Roles, Usuarios, Secretos y Actividad contra el túnel de la Mesa. Ver «La pantalla de configuración». |
+| `src/screens/ConfiguracionDesarrollo.jsx` | `src/screens/ConfiguracionDesarrollo.jsx` | **Pantalla estándar «Configuración de roles y secretos»** (`/configuracion`): pestañas Usuarios, Secretos y Actividad contra la API propia del desarrollo. Ver «La pantalla de configuración». |
 | `src/styles/configuracion-estandar.css` | `src/styles/configuracion-estandar.css` | Sus estilos, acotados a `.agp-config` (usan las variables de `agp-tema.css`). |
-| `src/services/rolesMesa.js` | `src/services/rolesMesa.js` | Cliente del túnel de roles y secretos de la Mesa (usa el `id_token` de `AuthContext`). Rutas, cuerpos y errores: `CONTRATO-TUNEL-ROLES.md`. |
-| `src/screens/ConfiguracionDesarrollo.test.jsx`, `src/services/rolesMesa.test.js` | ídem | Las pruebas (vitest) de la pantalla y del cliente. Corren en el CI del desarrollo. |
+| `src/services/configuracionLocal.js` | `src/services/configuracionLocal.js` | Cliente de la API **propia** del desarrollo (`/api/configuracion/…`) con el `id_token` de `AuthContext`. No habla con la Mesa. |
+| `src/screens/ConfiguracionDesarrollo.test.jsx`, `src/services/configuracionLocal.test.js` | ídem | Las pruebas (vitest) de la pantalla y del cliente. Corren en el CI del desarrollo. |
 | `src/components/UserMenu.test.jsx` | `src/components/UserMenu.test.jsx` | La prueba del contrato (vitest): nombre, rol, «Configuración» solo con permiso y «Cerrar sesión». Corre en el CI del desarrollo. |
 | `src/styles/agp-tema.css` | `src/styles/agp-tema.css` | **Colores y fuente de la Mesa**: las variables (`--bg`, `--surface`, `--border`, `--text`, `--brand`, `--c-*`, `--sem-*`…) en oscuro y en claro (`body.theme-light`) y la base de `html, body`. Se importa una vez en `src/main.jsx`. Ver abajo. |
 | `src/components/EncabezadoAgp.jsx` | `src/components/EncabezadoAgp.jsx` | **Encabezado estándar**: nombre del desarrollo, ES / PT, modo claro / oscuro y el menú de usuario. Ver abajo. |
@@ -39,7 +39,8 @@ sin cambiar lo existente.
 | `src/components/EncabezadoAgp.test.jsx` | `src/components/EncabezadoAgp.test.jsx` | La prueba del contrato del encabezado (vitest): marcas, nombre y menú de usuario. Corre en el CI del desarrollo. |
 | `src/components/AgpLogo.jsx`, `Icon.jsx` | `src/components/` | Piezas que usan la pantalla y el encabezado (si el desarrollo ya las tiene, no se pisan; el encabezado necesita los iconos `sun` y `moon`). |
 | `backend/src/helpers/auth.py` | `backend/src/helpers/auth.py` | `require_auth`: valida el `id_token` de Entra ID. |
-| `backend/src/helpers/roles_mesa.py` | `backend/src/helpers/roles_mesa.py` | Lee el rol y los permisos de quien inicia sesión por el túnel de la Mesa (`GET /api/roles-app/<id>/mios`, con el mismo `id_token`): caché corta y falla cerrada. Solo lee: la app no crea ni escribe tablas de roles. Ver `COMO-DEJARLO-FUNCIONAL.md`. |
+| `backend/src/helpers/roles_propios.py` | `backend/src/helpers/roles_propios.py` | **Roles propios**: lee y escribe las dos tablas del desarrollo (personas y auditoría) con el mismo `Alcance` (nivel, vistas y acciones) que usaba el helper heredado. El actor sale del token, asignar y auditar es una sola transacción, nadie cambia su propio perfil, no se deja el desarrollo sin administradores y falla cerrada. **Se edita `PERFILES`** (la matriz real del desarrollo). Ver `CONFIGURACION-LOCAL-ROLES-Y-SECRETOS.md`. |
+| `backend/src/flask_config/bp_configuracion.py` | ídem (y `app.register_blueprint(bp_configuracion)`) | La API de la pantalla: `/api/configuracion/estado`, `personas`, `directorio`, `secretos`, `actividad`. Releé el permiso en CADA endpoint (401 sin sesión, 403 sin capacidad), carga secretos con `ManagedIdentityCredential` solo para los nombres de `CONFIG_SECRETOS_PERMITIDOS` y nunca devuelve ni registra valores. |
 | `backend/src/flask_config/bp_base.py` | ídem (o agregar solo la ruta) | `GET /api/config` (público: tenant, cliente y nombre) y `/api/health`. |
 | `.agp/entra.yaml` | `.agp/entra.yaml` | Manifiesto del login: `administradores` y permisos mínimos. |
 
@@ -87,12 +88,15 @@ El rol sale del token (`Admin` → «Administrador», si no «Usuario»); un des
 
 ## La pantalla de configuración
 
-`ConfiguracionDesarrollo` es la pantalla estándar de roles y secretos (norma `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §6). Se monta en la ruta `/configuracion`, dentro de la sesión (con react-router: `<Route path="/configuracion" element={<ConfiguracionDesarrollo onVolver={() => navigate("/")} />} />`).
+`ConfiguracionDesarrollo` es la pantalla estándar de roles y secretos (norma `ACCESO-Y-ROLES-DEL-DESARROLLO.md`, guía `CONFIGURACION-LOCAL-ROLES-Y-SECRETOS.md`). Se monta en `/configuracion`, dentro de la sesión (con react-router: `<Route path="/configuracion" element={<ConfiguracionDesarrollo onVolver={() => navigate("/")} />} />`). La ruta y la entrada «Configuración» del menú se muestran solo a quien tiene la capacidad; **el control real es el backend**, que vuelve a comprobarla en cada llamada.
 
-1. **Backend:** `GET /api/config` entrega `roles: { mesaUrl, idProyecto }` cuando están `ROLES_DESDE_MESA=true`, `MESA_API_URL` (https) y `MESA_ID_PROYECTO` (`bp_base.py` del paquete; el frontend lo guarda en `appInfo.roles`). Sin eso la pantalla dice que la conexión con la Mesa no está activa.
-2. **Autorización:** con `ROLES_DESDE_MESA=true` el backend le pregunta a la Mesa por la persona (`GET /api/roles-app/<id>/mios` con el mismo `id_token`) y autoriza con lo que responde. `ROLES.md` v2 declara los permisos y los perfiles iniciales.
-3. **Quién puede qué** lo decide la Mesa por persona (`estado.yo`): el principal asigna y carga secretos; el secundario solo ve y edita la definición de los roles.
-4. **Marcas que verifican la Mesa y los agentes:** `data-agp-configuracion="estandar"` (raíz), `data-agp-pestana="roles|usuarios|secretos|actividad"` (pestañas) y `role="dialog"` con `aria-modal="true"` (modal de asignar).
+1. **Tablas:** declara en `ai/outputs/data-access-manifest.json` las dos tablas propias (personas y auditoría) y la vista de usuarios de IT como `preexistente` solo `SELECT`. Ejemplo completo: `examples/data-access-manifest.roles-propios.valid.json` (la clave primaria entera lleva `autoincremental: true`; sin eso la tabla se crea sin IDENTITY). No uses los nombres `_Roles`, `_RolesDatos` ni `_RolesPersonas` (reservados para el modo heredado).
+   Patrón, permisos del worker, nombres y pasos completos: [`ROLES-PROPIOS-EN-TABLAS-DEL-DESARROLLO.md`](../../ROLES-PROPIOS-EN-TABLAS-DEL-DESARROLLO.md) (AGPTS como referencia).
+2. **Variables** (no son secretos; van en `env` de `.agp/runtime.yaml`): `ROLES_PROPIOS_ESQUEMA`, `ROLES_PROPIOS_TABLA_PERSONAS`, `ROLES_PROPIOS_TABLA_AUDITORIA`, `CONFIG_ADMINISTRADORES_INICIALES` (correos de los administradores iniciales ya aprobados), `CONFIG_SECRETOS_PERMITIDOS` (nombres de los secretos manuales) y `CONFIG_KEY_VAULT_URL` (el vault fijo del desarrollo).
+3. **Backend:** copia `roles_propios.py` y `bp_configuracion.py`, edita `PERFILES` con la matriz real y registra el blueprint. Para autorizar el resto de la API usa `roles_propios.resolver(g.user_email)`; devuelve el mismo `Alcance` (`nivel`, `modulos`, `funciones`, `administra`) que el helper heredado.
+4. **Qué decide cada parte:** el token prueba quién eres; la tabla decide qué puedes hacer (el claim `roles` de un token viejo no autoriza); el actor de cada cambio es siempre el del token; el valor de un secreto se escribe en Key Vault con la identidad administrada de la aplicación y no se lee ni se devuelve. IT revisa el permiso de esa identidad (`Key Vault Secrets Officer` acotado a los secretos autorizados).
+5. **Marcas que verifican la Mesa y los agentes:** `data-agp-configuracion="estandar"` (raíz), `data-agp-pestana="usuarios|secretos|actividad"` (pestañas) y `role="dialog"` con `aria-modal="true"` (modal de asignar).
+6. **Pantalla sin acceso:** quien inicia sesión y no tiene ningún perfil ve la vista general o `SinAcceso`, según el público documentado en `ACCESO-Y-ROLES-DEL-DESARROLLO.md`; nunca permisos implícitos.
 
 ## Encabezado y colores estándar
 

@@ -2,6 +2,8 @@
 
 Guía de implementación propuesta a revisión de IT, 2026-11-17. Para desarrollos con autorización propia, el camino de acceso y configuración no requiere llamadas a la Mesa. La gestión de roles sigue siendo opcional para desplegar; esta guía no añade un requisito al test del worker ni al worker IT. No cambia asignaciones ni migra datos automáticamente.
 
+**Tablas de roles:** cómo se crean, con qué permisos y con qué nombres (patrón de dos tablas, AGPTS como referencia, RRHH/People) está en [Roles propios en tablas del desarrollo](ROLES-PROPIOS-EN-TABLAS-DEL-DESARROLLO.md).
+
 ## Responsabilidades
 
 - Microsoft Entra ID y MSAL autentican la identidad. La API comprueba firma, tenant, audiencia y vigencia. El navegador no decide quién es administrador.

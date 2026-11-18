@@ -1,11 +1,11 @@
-"""El helper de backend de la plantilla que lee el rol por el túnel de la Mesa (`GET /api/roles-app/<id>/mios`)."""
+"""El helper HEREDADO (templates/auth-estandar-tunel-heredado) que lee el rol por el túnel de la Mesa (`GET /api/roles-app/<id>/mios`). Solo para desarrollos que lo usan explícitamente."""
 import importlib.util
 import unittest
 from pathlib import Path
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
-_ruta = ROOT / "templates" / "auth-estandar" / "backend" / "src" / "helpers" / "roles_mesa.py"
+_ruta = ROOT / "templates" / "auth-estandar-tunel-heredado" / "backend" / "src" / "helpers" / "roles_mesa.py"
 _spec = importlib.util.spec_from_file_location("roles_mesa_plantilla", _ruta)
 rm = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(rm)

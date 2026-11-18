@@ -1,0 +1,179 @@
+{
+  "version": "1",
+  "desarrollo": "demo",
+  "fuentes_datos": [
+    {
+      "database_id": "colombia",
+      "server": "agpcolombia.database.windows.net",
+      "database": "AGP_Colombia",
+      "motor": "Azure SQL",
+      "esquemas": [
+        {
+          "schema": "app_ejemplo_demo",
+          "tablas": [
+            {
+              "table": "App_Ejemplo_Demo_sistema_roles_personas",
+              "origen": "propia_del_desarrollo",
+              "crear_en_despliegue": true,
+              "sensibilidad": "baja",
+              "descripcion": "Personas con acceso a la vista y su perfil (configuración local de roles)",
+              "operaciones_permitidas": [
+                "SELECT",
+                "INSERT",
+                "UPDATE",
+                "DELETE"
+              ],
+              "columnas": [
+                {
+                  "name": "id",
+                  "sensible": false,
+                  "tipo": "int",
+                  "clave_primaria": true,
+                  "autoincremental": true
+                },
+                {
+                  "name": "correo",
+                  "sensible": true,
+                  "tipo": "nvarchar(254)",
+                  "nulable": false,
+                  "unico": true
+                },
+                {
+                  "name": "perfil",
+                  "sensible": false,
+                  "tipo": "nvarchar(40)",
+                  "nulable": false
+                },
+                {
+                  "name": "asignado_por",
+                  "sensible": true,
+                  "tipo": "nvarchar(254)",
+                  "nulable": false
+                },
+                {
+                  "name": "created_at",
+                  "sensible": false,
+                  "tipo": "datetime2",
+                  "nulable": false,
+                  "valor_por_defecto": "SYSUTCDATETIME()"
+                },
+                {
+                  "name": "updated_at",
+                  "sensible": false,
+                  "tipo": "datetime2",
+                  "nulable": false,
+                  "valor_por_defecto": "SYSUTCDATETIME()"
+                }
+              ]
+            },
+            {
+              "table": "App_Ejemplo_Demo_sistema_roles_auditoria",
+              "origen": "propia_del_desarrollo",
+              "crear_en_despliegue": true,
+              "sensibilidad": "baja",
+              "descripcion": "Auditoría de cambios de perfil y de carga de secretos (solo se inserta)",
+              "operaciones_permitidas": [
+                "SELECT",
+                "INSERT"
+              ],
+              "columnas": [
+                {
+                  "name": "id",
+                  "sensible": false,
+                  "tipo": "int",
+                  "clave_primaria": true,
+                  "autoincremental": true
+                },
+                {
+                  "name": "fecha",
+                  "sensible": false,
+                  "tipo": "datetime2",
+                  "nulable": false,
+                  "valor_por_defecto": "SYSUTCDATETIME()"
+                },
+                {
+                  "name": "actor",
+                  "sensible": true,
+                  "tipo": "nvarchar(254)",
+                  "nulable": false
+                },
+                {
+                  "name": "accion",
+                  "sensible": false,
+                  "tipo": "nvarchar(40)",
+                  "nulable": false
+                },
+                {
+                  "name": "correo",
+                  "sensible": true,
+                  "tipo": "nvarchar(254)",
+                  "nulable": false
+                },
+                {
+                  "name": "perfil_anterior",
+                  "sensible": false,
+                  "tipo": "nvarchar(40)",
+                  "nulable": true
+                },
+                {
+                  "name": "perfil_nuevo",
+                  "sensible": false,
+                  "tipo": "nvarchar(40)",
+                  "nulable": true
+                },
+                {
+                  "name": "motivo",
+                  "sensible": false,
+                  "tipo": "nvarchar(300)",
+                  "nulable": true
+                },
+                {
+                  "name": "resultado",
+                  "sensible": false,
+                  "tipo": "nvarchar(40)",
+                  "nulable": false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "schema": "corporacion",
+          "tablas": [
+            {
+              "table": "vw_UsuariosCorporacion",
+              "origen": "preexistente",
+              "sensibilidad": "media",
+              "descripcion": "Directorio corporativo de IT para buscar personas al asignar un perfil (solo lectura)",
+              "operaciones_permitidas": [
+                "SELECT"
+              ],
+              "columnas": [
+                {
+                  "name": "Correo",
+                  "sensible": true,
+                  "tipo": "nvarchar(256)"
+                },
+                {
+                  "name": "Nombre",
+                  "sensible": true,
+                  "tipo": "nvarchar(256)"
+                },
+                {
+                  "name": "Area",
+                  "sensible": false,
+                  "tipo": "nvarchar(128)"
+                },
+                {
+                  "name": "Cargo",
+                  "sensible": false,
+                  "tipo": "nvarchar(128)"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

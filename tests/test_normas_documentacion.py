@@ -23,6 +23,7 @@ NORMAS = (
     "prompt-agente-despliegue-evaluacion.md",
     "prompt-agente-despliegue-minimos.md",
     "templates/auth-estandar/README.md",
+    "ROLES-PROPIOS-EN-TABLAS-DEL-DESARROLLO.md",
 )
 # Archivos que cita la norma pero que viven en el repositorio de cada desarrollo, no en el kit.
 _DEL_DESARROLLO = {"ROLES.md"}
@@ -49,7 +50,7 @@ class DocumentacionNormativaTests(unittest.TestCase):
         self.assertIn('No exigir', roles)
 
     def test_las_rutas_del_cliente_estan_en_el_contrato_del_tunel(self):
-        cliente = _leer("templates/auth-estandar/src/services/rolesMesa.js")
+        cliente = _leer("templates/auth-estandar-tunel-heredado/src/services/rolesMesa.js")
         contrato = _leer("CONTRATO-TUNEL-ROLES.md")
         rutas = {re.split(r"[?$]", r.replace("`", ""))[0].rstrip("/") for r in re.findall(r'llamar\(\s*[`"](/[^`"]*)[`"]', cliente)}
         self.assertTrue(rutas, "no se encontraron rutas en el cliente: ¿cambió su forma?")

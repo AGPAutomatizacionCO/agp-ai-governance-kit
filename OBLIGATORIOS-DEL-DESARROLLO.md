@@ -183,17 +183,16 @@ perfilesIniciales:
 
 ## 10. Pantalla «Configuración de roles y secretos»
 
-**Integración opcional con la Mesa.** `/configuracion` monta `ConfiguracionDesarrollo` (pestañas Roles, Usuarios, Secretos y Actividad), conectada a la Mesa por el túnel de roles; **no se arma otra**. Qué ve cada persona está en `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §6 y la API en `CONTRATO-TUNEL-ROLES.md`.
+**Configuración propia (sin la Mesa en ejecución).** `/configuracion` monta `ConfiguracionDesarrollo` (pestañas Usuarios, Secretos y Actividad) contra la **API propia** del desarrollo (`bp_configuracion.py`); **no se arma otra**. Las asignaciones y la auditoría viven en dos tablas del esquema del desarrollo. Qué ve cada persona está en `ACCESO-Y-ROLES-DEL-DESARROLLO.md`, cómo se implementa en `CONFIGURACION-LOCAL-ROLES-Y-SECRETOS.md` y **cómo se crean las dos tablas de roles (patrón, permisos del worker, nombres) en `ROLES-PROPIOS-EN-TABLAS-DEL-DESARROLLO.md`**, con AGPTS como referencia.
 
 | Marca | Qué es |
 |---|---|
 | `data-agp-configuracion="estandar"` | La raíz de la pantalla |
-| `data-agp-pestana="roles\|usuarios\|secretos\|actividad"` | Cada pestaña |
-| `role="dialog"` y `aria-modal="true"` | El modal de asignar usuario (tres pasos) |
+| `data-agp-pestana="usuarios\|secretos\|actividad"` | Cada pestaña |
+| `role="dialog"` y `aria-modal="true"` | El modal de asignar usuario |
 
-La Mesa guarda los roles de un desarrollo nuevo en tres tablas de su propio esquema, que crea y valida el worker en cada despliegue (SAC y los que ya tenían roles siguen en las tablas centrales hasta migrar). La app solo usa el túnel (`/mios`…): no las crea, no las escribe, no las lee directamente y **no las declara en el manifiesto de datos** (nombre reservado, `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §6). Son de gestión continua: **sin vigencia ni cláusula de tiempo**.
-Conexión: `ROLES_DESDE_MESA`, `MESA_API_URL` y `MESA_ID_PROYECTO` en `env` de `runtime.yaml`, `roles` en `GET /api/config` y `ROLES.md` v2. El backend lee el rol por el túnel con el helper `templates/auth-estandar/backend/src/helpers/roles_mesa.py` (`GET /api/roles-app/<id>/mios`, falla cerrada).
-**Fuera del contrato voluntario del túnel.** Un gestor de roles propio es válido para desplegar y no debe sustituirse por la Mesa. Si se elige el túnel, evitar escribir las llamadas a `/api/roles-app` a mano en vez del cliente `rolesMesa.js`. **Se comprueba:** agente `configuracion_roles`.
+Reglas: el backend vuelve a comprobar el permiso en **todos** los endpoints administrativos (401 sin sesión, 403 sin capacidad, falla cerrada); el actor es el del token; asignar y auditar es una sola transacción; nadie cambia su propio perfil ni se deja el desarrollo sin administradores; los secretos se escriben con la identidad administrada del desarrollo, solo los nombres permitidos, y nunca se leen ni se devuelven. El desarrollo **declara** sus dos tablas en el manifiesto de datos (ejemplo: `examples/data-access-manifest.roles-propios.valid.json`) con los nombres propios que fija NOMENCLATURA-DATOS.md; los nombres `_Roles`, `_RolesDatos` y `_RolesPersonas` están reservados para el modo heredado. Los roles son de gestión continua: **sin vigencia ni cláusula de tiempo**.
+Plantillas: `templates/auth-estandar/backend/src/helpers/roles_propios.py` y `backend/src/flask_config/bp_configuracion.py`. El túnel de la Mesa quedó **heredado** (`templates/auth-estandar-tunel-heredado/`, `CONTRATO-TUNEL-ROLES.md`) y no se copia a un desarrollo nuevo. **Se comprueba:** agente `configuracion_roles`.
 
 ## 11. Pantalla estándar «sin acceso»
 
@@ -317,11 +316,11 @@ La versión con los pasos para dejarlo funcional está en `COMO-DEJARLO-FUNCIONA
 2. `python -m agpctl datos check --repo <ruta>` → `valid: true` si hay manifiesto de datos (13–15).
 3. `python -m agpctl runtime check --repo <ruta>` → `valid: true` y sin `avisos` (16–18).
 4. **Identidad y roles:** `.agp/entra.yaml` con `acceso`, `administradores[0]` @agpglass.com y `secrets: []` (6–7); `ROLES.md` v2 con `permisos` y `perfilesIniciales`, sin `sinAcceso.mensaje` (8).
-5. **Conexión con la Mesa:** `ROLES_DESDE_MESA`, `MESA_API_URL` (https) y `MESA_ID_PROYECTO` en `env` de `.agp/runtime.yaml` (10).
+5. **Configuración propia:** `ROLES_PROPIOS_ESQUEMA`, `ROLES_PROPIOS_TABLA_PERSONAS`, `ROLES_PROPIOS_TABLA_AUDITORIA`, `CONFIG_ADMINISTRADORES_INICIALES`, `CONFIG_SECRETOS_PERMITIDOS` y `CONFIG_KEY_VAULT_URL` en `env` de `.agp/runtime.yaml` (10).
 6. **Secretos por nombre:** `desarrollo:` y todo secreto como `<desarrollo>-<dato>`, sin valores en el repositorio ni en `env` (16–17).
-7. **El backend lee el rol por el túnel:** consulta `GET /api/roles-app/<id>/mios` con el `id_token` (helper `roles_mesa.py` del paquete o equivalente), falla cerrada y no llama a Graph para roles (10).
-8. **Frontend estándar:** `UserMenu` con las marcas `data-agp-menu` y «Configuración» directo a `/configuracion`; `ConfiguracionDesarrollo` (`data-agp-configuracion="estandar"`); cliente `rolesMesa.js`; `SinAcceso` sin texto libre y `GET /api/config` con `contactoNombre` y `contactoCorreo` (9–11).
-9. **La app solo usa el túnel:** ninguna tabla de usuarios o de roles propia, ningún `CREATE TABLE`, `INSERT` o `UPDATE` sobre tablas de roles, ninguna ruta propia de administración de usuarios o roles, y el manifiesto de datos no declara tablas de roles: hoy los roles viven en tablas centrales de la Mesa y las tres tablas por desarrollo son un modelo objetivo pendiente (12).
+7. **El backend autoriza con sus tablas:** `roles_propios.resolver(g.user_email)` (helper `roles_propios.py` del paquete o equivalente), falla cerrada, vuelve a leer el permiso en cada endpoint administrativo y no llama a la Mesa ni a Graph para roles (10).
+8. **Frontend estándar:** `UserMenu` con las marcas `data-agp-menu` y «Configuración» directo a `/configuracion`; `ConfiguracionDesarrollo` (`data-agp-configuracion="estandar"`); cliente `configuracionLocal.js`; `SinAcceso` sin texto libre y `GET /api/config` con `contactoNombre` y `contactoCorreo` (9–11).
+9. **Tablas propias de acceso declaradas:** las dos tablas (personas y auditoría) y la vista de usuarios de IT están en el manifiesto de datos con permisos mínimos (auditoría solo `SELECT`/`INSERT`); ninguna ruta propia fuera de `/api/configuracion` administra usuarios o roles y ningún secreto SQL aprovisionado se sobrescribe desde la pantalla (12).
 10. Sin `.env` real en el repositorio; `DISABLE_AUTH` solo en local.
 11. Expediente y notas de despliegue al día (19).
 12. Pedir el informe al Agente de Despliegue: cada requisito `ok` o con su motivo en `falta`.

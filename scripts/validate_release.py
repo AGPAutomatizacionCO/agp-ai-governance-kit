@@ -100,6 +100,7 @@ def validate_json(errors: list[str]) -> None:
     examples = (
         ("governance-manifest.schema.json", "governance.valid.yaml", True),
         ("governance-manifest.schema.json", "governance.invalid.yaml", False),
+        ("data-access-manifest.schema.json", "data-access-manifest.roles-propios.valid.json", True),
         ("agp-deploy-v2.schema.json", "agp-deploy-v2.valid.json", True),
         ("agp-deploy-v2.schema.json", "agp-deploy-v2.invalid.json", False),
         ("profile-v1.schema.json", "profile-container.valid.yaml", True),
