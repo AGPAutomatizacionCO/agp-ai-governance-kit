@@ -1,0 +1,54 @@
+{
+  "agente": "despliegue_minimos",
+  "version": 1,
+  "repositorio": "AGPAutomatizacionCO/AGP_CO_EJEMPLO",
+  "commit": "1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d",
+  "minimos": [
+    {
+      "id": "login_msal",
+      "estado": "cumple",
+      "evidencia": ".agp/entra.yaml:3",
+      "detalle": null,
+      "guia": null
+    },
+    {
+      "id": "perfil",
+      "estado": "cumple",
+      "evidencia": ".agp/profile.yaml:2",
+      "detalle": null,
+      "guia": null
+    },
+    {
+      "id": "puerto_salud",
+      "estado": "cumple",
+      "evidencia": ".github/agp-deploy.json:2",
+      "detalle": null,
+      "guia": null
+    },
+    {
+      "id": "ci_verde",
+      "estado": "cumple",
+      "evidencia": "gh run list: success sobre 1a2b3c4",
+      "detalle": null,
+      "guia": null
+    },
+    {
+      "id": "manifiesto_datos",
+      "estado": "no_aplica",
+      "evidencia": "El código no usa SQL",
+      "detalle": null,
+      "guia": null
+    }
+  ],
+  "avisos": [
+    {
+      "id": "notas_despliegue",
+      "detalle": "specs/007-deployment-notes.md está vacío",
+      "guia": "DESPLIEGUE-A-MAIN.md"
+    }
+  ],
+  "puede_avanzar": true,
+  "bloqueantes_confirmados": [],
+  "requiere_revision_humana": false,
+  "resumen": "Los cinco mínimos cumplen."
+}

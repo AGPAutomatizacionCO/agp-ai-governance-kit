@@ -1,0 +1,557 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/AGPAutomatizacionCO/agp-ai-governance-kit/main/schemas/agent-despliegue-minimos-v1.schema.json",
+  "title": "Respuesta del Agente de Despliegue de mínimos (evaluación manual)",
+  "description": "Lo que devuelve el agente y la persona pega en la Mesa. La Mesa recalcula puede_avanzar a partir de minimos: nunca se confía en el booleano.",
+  "type": "object",
+  "required": [
+    "agente",
+    "version",
+    "minimos",
+    "avisos",
+    "puede_avanzar",
+    "bloqueantes_confirmados",
+    "requiere_revision_humana"
+  ],
+  "properties": {
+    "agente": {
+      "const": "despliegue_minimos"
+    },
+    "version": {
+      "const": 1
+    },
+    "repositorio": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "commit": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{7,40}$"
+    },
+    "minimos": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/minimo_login_msal"
+        },
+        {
+          "$ref": "#/$defs/minimo_perfil"
+        },
+        {
+          "$ref": "#/$defs/minimo_puerto_salud"
+        },
+        {
+          "$ref": "#/$defs/minimo_ci_verde"
+        },
+        {
+          "$ref": "#/$defs/minimo_manifiesto_datos"
+        }
+      ],
+      "items": false
+    },
+    "avisos": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/aviso"
+      }
+    },
+    "puede_avanzar": {
+      "type": "boolean"
+    },
+    "bloqueantes_confirmados": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "requiere_revision_humana": {
+      "type": "boolean"
+    },
+    "resumen": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "$defs": {
+    "estado": {
+      "enum": [
+        "cumple",
+        "falta",
+        "no_verificable",
+        "no_aplica"
+      ]
+    },
+    "aviso": {
+      "type": "object",
+      "required": [
+        "id",
+        "detalle"
+      ],
+      "properties": {
+        "id": {
+          "enum": [
+            "expediente",
+            "notas_despliegue",
+            "nombre_repo",
+            "governance",
+            "dev_publish",
+            "runtime_secretos",
+            "pantalla_sin_acceso",
+            "roles"
+          ]
+        },
+        "detalle": {
+          "type": "string",
+          "minLength": 1
+        },
+        "guia": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "minimo_login_msal": {
+      "type": "object",
+      "required": [
+        "id",
+        "estado"
+      ],
+      "properties": {
+        "id": {
+          "const": "login_msal"
+        },
+        "estado": {
+          "enum": [
+            "cumple",
+            "falta",
+            "no_verificable"
+          ]
+        },
+        "evidencia": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "detalle": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "guia": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "estado": {
+                "enum": [
+                  "falta",
+                  "no_verificable"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "detalle",
+              "guia"
+            ],
+            "properties": {
+              "detalle": {
+                "type": "string",
+                "minLength": 1
+              },
+              "guia": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "estado": {
+                "const": "cumple"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "evidencia"
+            ],
+            "properties": {
+              "evidencia": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "minimo_perfil": {
+      "type": "object",
+      "required": [
+        "id",
+        "estado"
+      ],
+      "properties": {
+        "id": {
+          "const": "perfil"
+        },
+        "estado": {
+          "enum": [
+            "cumple",
+            "falta",
+            "no_verificable"
+          ]
+        },
+        "evidencia": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "detalle": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "guia": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "estado": {
+                "enum": [
+                  "falta",
+                  "no_verificable"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "detalle",
+              "guia"
+            ],
+            "properties": {
+              "detalle": {
+                "type": "string",
+                "minLength": 1
+              },
+              "guia": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "estado": {
+                "const": "cumple"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "evidencia"
+            ],
+            "properties": {
+              "evidencia": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "minimo_puerto_salud": {
+      "type": "object",
+      "required": [
+        "id",
+        "estado"
+      ],
+      "properties": {
+        "id": {
+          "const": "puerto_salud"
+        },
+        "estado": {
+          "enum": [
+            "cumple",
+            "falta",
+            "no_verificable"
+          ]
+        },
+        "evidencia": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "detalle": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "guia": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "estado": {
+                "enum": [
+                  "falta",
+                  "no_verificable"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "detalle",
+              "guia"
+            ],
+            "properties": {
+              "detalle": {
+                "type": "string",
+                "minLength": 1
+              },
+              "guia": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "estado": {
+                "const": "cumple"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "evidencia"
+            ],
+            "properties": {
+              "evidencia": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "minimo_ci_verde": {
+      "type": "object",
+      "required": [
+        "id",
+        "estado"
+      ],
+      "properties": {
+        "id": {
+          "const": "ci_verde"
+        },
+        "estado": {
+          "enum": [
+            "cumple",
+            "falta",
+            "no_verificable"
+          ]
+        },
+        "evidencia": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "detalle": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "guia": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "estado": {
+                "enum": [
+                  "falta",
+                  "no_verificable"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "detalle",
+              "guia"
+            ],
+            "properties": {
+              "detalle": {
+                "type": "string",
+                "minLength": 1
+              },
+              "guia": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "estado": {
+                "const": "cumple"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "evidencia"
+            ],
+            "properties": {
+              "evidencia": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "minimo_manifiesto_datos": {
+      "type": "object",
+      "required": [
+        "id",
+        "estado"
+      ],
+      "properties": {
+        "id": {
+          "const": "manifiesto_datos"
+        },
+        "estado": {
+          "$ref": "#/$defs/estado"
+        },
+        "evidencia": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "detalle": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "guia": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "estado": {
+                "enum": [
+                  "falta",
+                  "no_verificable"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "detalle",
+              "guia"
+            ],
+            "properties": {
+              "detalle": {
+                "type": "string",
+                "minLength": 1
+              },
+              "guia": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "estado": {
+                "const": "cumple"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "evidencia"
+            ],
+            "properties": {
+              "evidencia": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,208 @@
+{
+  "$comment": "Fuente única de «dónde mirar» y «cómo corregir» cada punto del Agente de Despliegue de mínimos. La usan el prompt (prompt-agente-despliegue-minimos.md) y la Mesa para decirle a la persona de dónde tomar la guía de cada pendiente.",
+  "version": 1,
+  "minimos": {
+    "login_msal": {
+      "titulo": "Login MSAL declarado",
+      "queSePide": "`.agp/entra.yaml` válido con `login: required`, `redirectUriPath: /auth/redirect` y de uno a cinco administradores con correo @agpglass.com.",
+      "comoSeCorrige": "Copia el paquete `templates/auth-estandar/`, declara `.agp/entra.yaml` y deja `redirectUriPath` igual a `RUTA_RETORNO_MSAL` de `src/config/msal.js`.",
+      "guias": [
+        {
+          "titulo": "Cómo integrar el login MSAL (MSAL 5 con página puente)",
+          "ruta": "INTEGRAR-MSAL.md"
+        },
+        {
+          "titulo": "Paquete de referencia del login",
+          "ruta": "templates/auth-estandar/README.md"
+        },
+        {
+          "titulo": "Acceso y roles del desarrollo",
+          "ruta": "ACCESO-Y-ROLES-DEL-DESARROLLO.md"
+        }
+      ],
+      "comprobar": [
+        "python -m agpctl login check --repo ."
+      ]
+    },
+    "perfil": {
+      "titulo": "Perfil de despliegue",
+      "queSePide": "`.agp/profile.yaml` válido contra `schemas/profile-v1.schema.json`, con el Dockerfile dentro del contexto de build.",
+      "comoSeCorrige": "Crea `.agp/profile.yaml` con `id` (`python-api`, `node-api` o `react-static`), `build.context`, `build.dockerfile`, `runtime.port`, `runtime.healthPath` y `deploy.target`.",
+      "guias": [
+        {
+          "titulo": "Esquema del perfil",
+          "ruta": "schemas/profile-v1.schema.json"
+        },
+        {
+          "titulo": "Ejemplo válido de perfil",
+          "ruta": "examples/profile-container.valid.yaml"
+        },
+        {
+          "titulo": "Arquitectura de despliegue",
+          "ruta": "ARQUITECTURA-DESPLIEGUE.md"
+        }
+      ],
+      "comprobar": [
+        "python -m agpctl validate --repo . --environment dev"
+      ]
+    },
+    "puerto_salud": {
+      "titulo": "Puerto y salud",
+      "queSePide": "`.github/agp-deploy.json` con `port` (1 a 65535) y `health` (empieza por «/»), iguales a los del perfil y del Dockerfile.",
+      "comoSeCorrige": "Crea `.github/agp-deploy.json` con el puerto y la ruta de salud REALES; que coincidan con `runtime` del perfil, con el `EXPOSE` y con el `HEALTHCHECK` del Dockerfile.",
+      "guias": [
+        {
+          "titulo": "Esquema del contrato de despliegue",
+          "ruta": "schemas/agp-deploy-v2.schema.json"
+        },
+        {
+          "titulo": "Ejemplo válido",
+          "ruta": "examples/agp-deploy-v2.valid.json"
+        },
+        {
+          "titulo": "Cómo se despliega a main",
+          "ruta": "DESPLIEGUE-A-MAIN.md"
+        }
+      ],
+      "comprobar": []
+    },
+    "ci_verde": {
+      "titulo": "CI verde sobre el commit",
+      "queSePide": "`.github/workflows/ci.yml` que corre en `push` a `main` y tiene una corrida en verde sobre el commit actual de `main`.",
+      "comoSeCorrige": "Crea o corrige `ci.yml` con el bloque estándar de la norma, corre en local lo mismo que el CI y sube todo en un solo PR.",
+      "guias": [
+        {
+          "titulo": "Norma de GitHub Actions",
+          "ruta": "NORMA-GITHUB-ACTIONS.md"
+        }
+      ],
+      "comprobar": [
+        "gh run list --workflow ci.yml --branch main --limit 1 --json conclusion,headSha,status"
+      ]
+    },
+    "manifiesto_datos": {
+      "titulo": "Manifiesto de datos si usa SQL",
+      "queSePide": "`ai/outputs/data-access-manifest.json` válido contra el esquema del kit cuando el desarrollo toca SQL; `no_aplica` si no lo usa.",
+      "comoSeCorrige": "Declara las tablas con `operaciones_permitidas` reales; las propias con `crear_en_despliegue: true`, `tipo` por columna y `autoincremental: true` en claves enteras; las preexistentes sin esquemas `app_*` y sin DELETE.",
+      "guias": [
+        {
+          "titulo": "Nomenclatura de datos",
+          "ruta": "NOMENCLATURA-DATOS.md"
+        },
+        {
+          "titulo": "Esquema del mapa de acceso a datos",
+          "ruta": "schemas/data-access-manifest.schema.json"
+        },
+        {
+          "titulo": "Ejemplo de manifiesto",
+          "ruta": "templates/data-access-manifest.example.json"
+        },
+        {
+          "titulo": "Ejemplo de manifiesto que crea tablas",
+          "ruta": "templates/data-access-manifest.crear-tablas.example.json"
+        },
+        {
+          "titulo": "Permisos y secretos del worker",
+          "ruta": "PERMISOS-Y-SECRETOS-DEL-WORKER.md"
+        },
+        {
+          "titulo": "Norma de cuentas SQL",
+          "ruta": "NORMA-CUENTAS-SQL.md"
+        }
+      ],
+      "comprobar": [
+        "python -m agpctl datos check --repo ."
+      ]
+    }
+  },
+  "avisos": {
+    "expediente": {
+      "titulo": "Expediente completo",
+      "queSePide": "`project-card.md` y `specs/001` a `010`.",
+      "guias": [
+        {
+          "titulo": "Obligatorios del desarrollo",
+          "ruta": "OBLIGATORIOS-DEL-DESARROLLO.md"
+        }
+      ]
+    },
+    "notas_despliegue": {
+      "titulo": "Notas de despliegue",
+      "queSePide": "`specs/007-deployment-notes.md` completo.",
+      "guias": [
+        {
+          "titulo": "Cómo se despliega a main",
+          "ruta": "DESPLIEGUE-A-MAIN.md"
+        }
+      ]
+    },
+    "nombre_repo": {
+      "titulo": "Nombre del repositorio",
+      "queSePide": "El nombre del repositorio cumple la norma.",
+      "guias": [
+        {
+          "titulo": "Obligatorios del desarrollo",
+          "ruta": "OBLIGATORIOS-DEL-DESARROLLO.md"
+        }
+      ]
+    },
+    "governance": {
+      "titulo": "Kit fijado",
+      "queSePide": "`.agp/governance.yaml` con el pin del kit.",
+      "guias": [
+        {
+          "titulo": "Esquema del manifiesto de gobierno",
+          "ruta": "schemas/governance-manifest.schema.json"
+        },
+        {
+          "titulo": "Ejemplo válido",
+          "ruta": "examples/governance.valid.yaml"
+        }
+      ]
+    },
+    "dev_publish": {
+      "titulo": "Workflow de publicación",
+      "queSePide": "`dev-publish.yml` solo `workflow_dispatch` con `run_id` y `expected_sha`, repite pruebas y `az acr build` igual al perfil.",
+      "guias": [
+        {
+          "titulo": "Cómo se despliega a main",
+          "ruta": "DESPLIEGUE-A-MAIN.md"
+        },
+        {
+          "titulo": "Norma de GitHub Actions",
+          "ruta": "NORMA-GITHUB-ACTIONS.md"
+        }
+      ]
+    },
+    "runtime_secretos": {
+      "titulo": "Secretos declarados",
+      "queSePide": "`.agp/runtime.yaml` declara todo secreto que lee el código; los `-db-*` los crea la Mesa.",
+      "guias": [
+        {
+          "titulo": "Permisos y secretos del worker",
+          "ruta": "PERMISOS-Y-SECRETOS-DEL-WORKER.md"
+        }
+      ]
+    },
+    "pantalla_sin_acceso": {
+      "titulo": "Pantalla sin acceso",
+      "queSePide": "La pantalla estándar sin acceso está integrada.",
+      "guias": [
+        {
+          "titulo": "Pantalla estándar sin acceso",
+          "ruta": "templates/auth-estandar/src/screens/SinAcceso.jsx"
+        }
+      ]
+    },
+    "roles": {
+      "titulo": "Roles del desarrollo",
+      "queSePide": "Los roles viven en tablas del propio desarrollo, no en la Mesa.",
+      "guias": [
+        {
+          "titulo": "Acceso y roles del desarrollo",
+          "ruta": "ACCESO-Y-ROLES-DEL-DESARROLLO.md"
+        }
+      ]
+    }
+  }
+}
