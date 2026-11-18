@@ -4,15 +4,25 @@
 
 **Por qué.** Del 3 al 5 de noviembre de 2026 la organización gastó los 2.000 minutos del mes. Cuando el presupuesto se agota, Actions se bloquea en **toda** la organización y nadie despliega. Casi todo ese gasto fueron corridas que no aportaban: pruebas repetidas en cada push de un PR y jobs de segundos cobrados como minutos completos.
 
-## Reglas para las personas
+## Regla para las personas
 
-1. **Abre el PR en borrador** mientras trabajas. En borrador no corren pruebas.
-2. **Todos tus cambios en un solo PR.** Sube todos tus commits al mismo PR y márcalo «listo para revisión» una sola vez, cuando termines.
-3. **Prueba en local antes de empujar.** No empujes commits de uno en uno «para ver si pasa».
+Las personas no usan GitHub: le piden a su Claude «sube los cambios». Su única regla:
+
+**Pídele a Claude que suba los cambios cuando termines la tarea, no después de cada ajuste.** Cada subida son varias revisiones automáticas.
+
+## Reglas para Claude al subir cambios
+
+Van en el `CLAUDE.md` de cada repositorio (sección «Al subir cambios a GitHub»), para que Claude las aplique sin que se lo pidan:
+
+1. Antes de subir, corre las pruebas del proyecto en local. Si fallan, corrige; no sube «para ver si pasa».
+2. Si ya hay un PR abierto de la tarea, sube los commits ahí; no abre otro.
+3. Fusiona solo cuando la revisión del PR esté en verde.
+4. Si la persona pide subir después de cada ajuste pequeño, le sugiere juntar los cambios y subirlos al terminar.
+5. Si cambia algo en `.github/workflows/`, cumple las reglas de abajo.
 
 ## Reglas para los workflows
 
-Las trae la plantilla y las aplica el agente que escriba o modifique un workflow, sin que se lo pidan.
+Las trae la plantilla y las aplica Claude cuando escribe o modifica un workflow.
 
 | # | Regla | Por qué |
 |---|---|---|
