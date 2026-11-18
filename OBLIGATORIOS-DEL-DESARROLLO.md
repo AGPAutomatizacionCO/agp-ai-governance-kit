@@ -88,8 +88,8 @@ profile: python-api
 
 ## 4. CI y publicación
 
-**Regla.** `.github/workflows/ci.yml` con trigger en `main` (verde sobre el commit que se despliega) y `.github/workflows/dev-publish.yml` solo con `workflow_dispatch` (entradas `run_id` y `expected_sha`), que repite las
-pruebas antes de construir y usa acciones de terceros fijadas por SHA. Todo workflow cumple `NORMA-GITHUB-ACTIONS.md` (`timeout-minutes` en cada job, `concurrency` por PR o por SHA, sin pruebas en PR en borrador, pocos jobs, `schedule` máximo una vez por hora). El `--file` del `az acr build` es exactamente `build.dockerfile` y el último argumento exactamente `build.context`.
+**Regla.** `.github/workflows/ci.yml` con trigger en `main` (verde sobre el commit que se despliega) y `.github/workflows/dev-publish.yml` solo con `workflow_dispatch` (entradas `run_id` y `expected_sha`), según la plantilla de la Mesa (construye la imagen del commit exacto con caché, no la reconstruye si ya existe y no repite
+las pruebas del CI) y con acciones de terceros fijadas por SHA. Todo workflow cumple `NORMA-GITHUB-ACTIONS.md` (`timeout-minutes` en cada job, `concurrency` por PR o por SHA, sin pruebas en PR en borrador, pocos jobs, `schedule` máximo una vez por hora). El Dockerfile del build (`file` de `docker/build-push-action`, o `--file` de `az acr build`) es exactamente `build.dockerfile` y el contexto exactamente `build.context`.
 **Incorrecto.** Un `dev-publish.yml` con `push:`; un publicador propio que despliega por su cuenta (el único camino de publicación es el que dispara la Mesa). **Se comprueba:** agente `ci` (el estado verde solo lo ve la Mesa: `no_verificable` sin evidencia) y `publicacion`.
 
 ## 5. Dockerfile

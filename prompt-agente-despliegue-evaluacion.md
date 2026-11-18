@@ -254,11 +254,12 @@ publicacion         existe .github/workflows/dev-publish.yml con
                     acciones de terceros fijadas por SHA de commit.
                     Contrato de rutas: build.context y build.dockerfile del
                     perfil son SIEMPRE rutas desde la raíz del repositorio,
-                    y `az acr build --file` se resuelve desde esa raíz (no
-                    desde el contexto). El `--file` del workflow debe ser
-                    exactamente build.dockerfile y el último argumento
-                    exactamente build.context, con el Dockerfile dentro del
-                    contexto. Ej.: context RPC, dockerfile
+                    y el Dockerfile del build (`file` de
+                    docker/build-push-action o `--file` de az acr build) se
+                    resuelve desde esa raíz (no desde el contexto). Debe ser
+                    exactamente build.dockerfile y el contexto (`context`, o
+                    el último argumento de az acr build) exactamente
+                    build.context, con el Dockerfile dentro del contexto. Ej.: context RPC, dockerfile
                     RPC/docker/Dockerfile.prod →
                     `az acr build ... --file RPC/docker/Dockerfile.prod RPC`.
                     Si no coincide, repórtalo `falla` con la ruta esperada y
