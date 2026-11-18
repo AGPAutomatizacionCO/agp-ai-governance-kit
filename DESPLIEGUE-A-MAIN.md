@@ -64,7 +64,7 @@ No ve el correo de quien aprobó la política ni identificadores internos. Cambi
 4. **No mezcles sin avisar** un cambio de contrato con código que depende de él. Si el contrato se queda esperando a IT, el código tampoco sale.
 5. **No reintentes con commits vacíos** cuando el contador muestre tope alcanzado o «pendiente de IT»: no cambia nada. Espera el reinicio del cupo o pide a IT «Publicar ahora».
 6. Registra el cambio en el historial del desarrollo con quién lo autorizó, como cualquier otro.
-7. **Cumple `NORMA-GITHUB-ACTIONS.md`:** todos tus cambios en un solo PR, en borrador mientras trabajas, y workflows con `timeout-minutes`, `concurrency` y filtros. El presupuesto de Actions es de toda la organización: si se agota, nadie despliega.
+7. **Cumple `NORMA-GITHUB-ACTIONS.md`:** todos tus cambios en un solo PR, en borrador mientras trabajas, y prueba en local antes de empujar. El presupuesto de Actions es de toda la organización: si se agota, nadie despliega.
 
 ## 7. Operación (IT)
 
