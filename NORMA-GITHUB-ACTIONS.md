@@ -8,7 +8,7 @@
 
 Las personas no usan GitHub: le piden a su Claude «sube los cambios». Su única regla:
 
-**Pídale a Claude que suba los cambios cuando termine la tarea, no después de cada ajuste.** Cada subida son varias revisiones automáticas.
+**Pídele a Claude que suba los cambios cuando termines la tarea, no después de cada ajuste.** Cada subida son varias revisiones automáticas.
 
 ## Reglas para Claude al subir cambios
 
