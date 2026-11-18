@@ -25,7 +25,7 @@ NORMAS = (
     "templates/auth-estandar/README.md",
 )
 # Archivos que cita la norma pero que viven en el repositorio de cada desarrollo, no en el kit.
-_DEL_DESARROLLO = {"ROLES.md"}
+_DEL_DESARROLLO = {"ROLES.md", "CLAUDE.md"}
 _RUTA_DEL_KIT = re.compile(
     r"^(?:(?:templates|schemas|examples|agpctl|scripts)/[A-Za-z0-9_./-]+\.[A-Za-z0-9]+|[A-Z][A-Z0-9-]+\.md|agent-[a-z-]+\.md|prompt-[a-z-]+\.md)$"
 )
