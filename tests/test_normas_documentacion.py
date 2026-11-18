@@ -21,6 +21,7 @@ NORMAS = (
     "PERMISOS-Y-SECRETOS-DEL-WORKER.md",
     "agent-despliegue.md",
     "prompt-agente-despliegue-evaluacion.md",
+    "prompt-agente-despliegue-minimos.md",
     "templates/auth-estandar/README.md",
 )
 # Archivos que cita la norma pero que viven en el repositorio de cada desarrollo, no en el kit.

@@ -15,6 +15,7 @@ difieren, manda el código de la Mesa y se corrige la norma.
 | Quién | Qué hace | Cuándo |
 |---|---|---|
 | **El desarrollador / su agente** | Construye siguiendo la norma y ejecuta `python -m agpctl …` | Antes de pedir el despliegue |
+| **Agente de Despliegue (mínimos, manual)** | Es la etapa «Despliegue» de la Evaluación integral: la persona corre `prompt-agente-despliegue-minimos.md` y pega el JSON en la Mesa. **Bloquea el envío a IT** solo si falta uno de los cinco mínimos: login MSAL, perfil, puerto y salud, CI verde y manifiesto de datos si usa SQL. El resto es aviso. Guías por pendiente: `schemas/despliegue-minimos-guias.json` | Antes de enviar a IT |
 | **Agente de Despliegue** | Lee el repositorio y reporta cada requisito como `ok`, `falta`, `no_aplica` o `no_verificable` (informativo: no califica ni bloquea) | Cuando se le pide, en cualquier estado del desarrollo |
 | **`agpctl`** | Comprobaciones locales, de solo lectura, con las mismas reglas de la Mesa (`agpctl/README.md`) | Antes de pedir el despliegue |
 | **La Mesa** | Preflight al aprobar el plan: **bloquea** (no hay despliegue) o **avisa** (se ve en el plan que aprueba IT) | Al generar y aprobar el plan |

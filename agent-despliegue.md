@@ -21,6 +21,13 @@ audita y no emite juicio sobre si son correctos o suficientes.
 
 ---
 
+### Dos modos de trabajo
+
+- **Extracción** (`prompt-agente-despliegue-evaluacion.md`): extrae datos técnicos del repositorio para el registro de «Datos técnicos». Nunca califica ni bloquea.
+- **Mínimos de entrega** (`prompt-agente-despliegue-minimos.md`, evaluación manual): es la etapa «Despliegue» de la Evaluación integral. Funciona como los demás agentes: la persona copia el prompt, lo corre con su asistente en la carpeta del repositorio y pega el JSON en la Mesa. **Sí evalúa**, pero solo los cinco mínimos que bloquean el envío a IT (`login_msal`, `perfil`, `puerto_salud`, `ci_verde` y `manifiesto_datos`); todo lo demás es un aviso que no bloquea. El contrato de su respuesta es `schemas/agent-despliegue-minimos-v1.schema.json` y las guías de cada pendiente están en `schemas/despliegue-minimos-guias.json`.
+
+---
+
 ## 2. Principio rector del agente
 
 ```text
