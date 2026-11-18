@@ -12,7 +12,7 @@
           "schema": "app_ejemplo_demo",
           "tablas": [
             {
-              "table": "App_Ejemplo_Demo_acceso_personas",
+              "table": "App_Ejemplo_Demo_sistema_roles_personas",
               "origen": "propia_del_desarrollo",
               "crear_en_despliegue": true,
               "sensibilidad": "baja",
@@ -25,29 +25,49 @@
               ],
               "columnas": [
                 {
-                  "name": "Id",
+                  "name": "id",
                   "sensible": false,
                   "tipo": "int",
                   "clave_primaria": true,
                   "autoincremental": true
                 },
                 {
-                  "name": "Correo",
+                  "name": "correo",
                   "sensible": true,
-                  "tipo": "nvarchar(256)",
+                  "tipo": "nvarchar(254)",
                   "nulable": false,
                   "unico": true
                 },
                 {
-                  "name": "Perfil",
+                  "name": "perfil",
                   "sensible": false,
-                  "tipo": "nvarchar(64)",
+                  "tipo": "nvarchar(40)",
                   "nulable": false
+                },
+                {
+                  "name": "asignado_por",
+                  "sensible": true,
+                  "tipo": "nvarchar(254)",
+                  "nulable": false
+                },
+                {
+                  "name": "created_at",
+                  "sensible": false,
+                  "tipo": "datetime2",
+                  "nulable": false,
+                  "valor_por_defecto": "SYSUTCDATETIME()"
+                },
+                {
+                  "name": "updated_at",
+                  "sensible": false,
+                  "tipo": "datetime2",
+                  "nulable": false,
+                  "valor_por_defecto": "SYSUTCDATETIME()"
                 }
               ]
             },
             {
-              "table": "App_Ejemplo_Demo_acceso_auditoria",
+              "table": "App_Ejemplo_Demo_sistema_roles_auditoria",
               "origen": "propia_del_desarrollo",
               "crear_en_despliegue": true,
               "sensibilidad": "baja",
@@ -58,47 +78,59 @@
               ],
               "columnas": [
                 {
-                  "name": "Id",
+                  "name": "id",
                   "sensible": false,
                   "tipo": "int",
                   "clave_primaria": true,
                   "autoincremental": true
                 },
                 {
-                  "name": "Fecha",
+                  "name": "fecha",
                   "sensible": false,
                   "tipo": "datetime2",
                   "nulable": false,
                   "valor_por_defecto": "SYSUTCDATETIME()"
                 },
                 {
-                  "name": "Actor",
+                  "name": "actor",
                   "sensible": true,
-                  "tipo": "nvarchar(256)",
+                  "tipo": "nvarchar(254)",
                   "nulable": false
                 },
                 {
-                  "name": "Destinatario",
-                  "sensible": true,
-                  "tipo": "nvarchar(256)",
+                  "name": "accion",
+                  "sensible": false,
+                  "tipo": "nvarchar(40)",
                   "nulable": false
                 },
                 {
-                  "name": "PerfilAnterior",
+                  "name": "correo",
+                  "sensible": true,
+                  "tipo": "nvarchar(254)",
+                  "nulable": false
+                },
+                {
+                  "name": "perfil_anterior",
                   "sensible": false,
-                  "tipo": "nvarchar(64)",
+                  "tipo": "nvarchar(40)",
                   "nulable": true
                 },
                 {
-                  "name": "PerfilNuevo",
+                  "name": "perfil_nuevo",
                   "sensible": false,
-                  "tipo": "nvarchar(64)",
+                  "tipo": "nvarchar(40)",
                   "nulable": true
                 },
                 {
-                  "name": "Resultado",
+                  "name": "motivo",
                   "sensible": false,
-                  "tipo": "nvarchar(32)",
+                  "tipo": "nvarchar(300)",
+                  "nulable": true
+                },
+                {
+                  "name": "resultado",
+                  "sensible": false,
+                  "tipo": "nvarchar(40)",
                   "nulable": false
                 }
               ]

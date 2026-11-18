@@ -23,6 +23,7 @@ NORMAS = (
     "prompt-agente-despliegue-evaluacion.md",
     "prompt-agente-despliegue-minimos.md",
     "templates/auth-estandar/README.md",
+    "ROLES-PROPIOS-EN-TABLAS-DEL-DESARROLLO.md",
 )
 # Archivos que cita la norma pero que viven en el repositorio de cada desarrollo, no en el kit.
 _DEL_DESARROLLO = {"ROLES.md"}

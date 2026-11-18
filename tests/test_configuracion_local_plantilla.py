@@ -13,8 +13,8 @@ from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 BACKEND = ROOT / "templates" / "auth-estandar" / "backend"
-ENTORNO = {"ROLES_PROPIOS_ESQUEMA": "app_ejemplo_demo", "ROLES_PROPIOS_TABLA_PERSONAS": "App_Ejemplo_Demo_acceso_personas",
-           "ROLES_PROPIOS_TABLA_AUDITORIA": "App_Ejemplo_Demo_acceso_auditoria", "CONFIG_ADMINISTRADORES_INICIALES": "inicial@agpglass.com",
+ENTORNO = {"ROLES_PROPIOS_ESQUEMA": "app_ejemplo_demo", "ROLES_PROPIOS_TABLA_PERSONAS": "App_Ejemplo_Demo_sistema_roles_personas",
+           "ROLES_PROPIOS_TABLA_AUDITORIA": "App_Ejemplo_Demo_sistema_roles_auditoria", "CONFIG_ADMINISTRADORES_INICIALES": "inicial@agpglass.com",
            "CONFIG_SECRETOS_PERMITIDOS": "demo-clave-externa, demo-otra-clave", "CONFIG_KEY_VAULT_URL": "https://vault-de-prueba.invalid"}
 
 
@@ -190,7 +190,7 @@ class FakeCon:
 
     def fetchone(self):
         sql, params = self._ultimo
-        if "SELECT Perfil" in sql:
+        if "SELECT perfil" in sql:
             return (self.filas[params[0]],) if params[0] in self.filas else None
         return None
 
@@ -223,14 +223,14 @@ class RepoSqlTests(Base):
         repo.aplicar("admin@agpglass.com", "nueva@agpglass.com", "consulta", lambda a, p: None)
         self.assertEqual((con.commits, con.rollbacks, con.cerrada), (1, 0, True))
         instrucciones = [s for s, _ in con.sql]
-        self.assertTrue(any(s.startswith("INSERT INTO [app_ejemplo_demo].[App_Ejemplo_Demo_acceso_personas]") for s in instrucciones))
-        self.assertTrue(any(s.startswith("INSERT INTO [app_ejemplo_demo].[App_Ejemplo_Demo_acceso_auditoria]") for s in instrucciones))
+        self.assertTrue(any(s.startswith("INSERT INTO [app_ejemplo_demo].[App_Ejemplo_Demo_sistema_roles_personas]") for s in instrucciones))
+        self.assertTrue(any(s.startswith("INSERT INTO [app_ejemplo_demo].[App_Ejemplo_Demo_sistema_roles_auditoria]") for s in instrucciones))
         for _, params in con.sql:
             self.assertNotIn("nueva@agpglass.com", "".join(s for s, _ in con.sql))   # los valores nunca se escriben en el SQL
         self.assertIn("nueva@agpglass.com", [p for _, ps in con.sql for p in ps])
 
     def test_si_falla_la_auditoria_se_revierte_y_no_se_confirma(self):
-        con = FakeCon(falla_en="acceso_auditoria")
+        con = FakeCon(falla_en="sistema_roles_auditoria")
         repo = rp.RepoSql(abrir=lambda: con)
         with self.assertRaises(RuntimeError):
             repo.aplicar("admin@agpglass.com", "nueva@agpglass.com", "consulta", lambda a, p: None)
@@ -399,7 +399,7 @@ secrets:
             self.assertTrue(t["crear_en_despliegue"])
             pk = [c for c in t["columnas"] if c.get("clave_primaria")]
             self.assertTrue(pk and pk[0].get("autoincremental"), t["table"])   # sin esto la tabla se crea sin IDENTITY
-        self.assertEqual(tablas["App_Ejemplo_Demo_acceso_auditoria"]["operaciones_permitidas"], ["SELECT", "INSERT"])   # la auditoría no se edita ni se borra
+        self.assertEqual(tablas["App_Ejemplo_Demo_sistema_roles_auditoria"]["operaciones_permitidas"], ["SELECT", "INSERT"])   # la auditoría no se edita ni se borra
         vista = tablas["vw_UsuariosCorporacion"]
         self.assertEqual((vista["origen"], vista["operaciones_permitidas"]), ("preexistente", ["SELECT"]))
         self.assertFalse(any(n.endswith(("_Roles", "_RolesDatos", "_RolesPersonas")) for n in tablas))   # nombres reservados del modo heredado
@@ -409,6 +409,35 @@ secrets:
             (Path(d) / "ai" / "outputs" / "data-access-manifest.json").write_text(ruta.read_text(encoding="utf-8"), encoding="utf-8")
             (Path(d) / ".agp" / "runtime.yaml").write_text(self.RUNTIME, encoding="utf-8")
             self.assertEqual(check(Path(d)), {"valid": True, "issues": []})
+
+
+class NormaDeTablasDeRolesTests(unittest.TestCase):
+    MD = "ROLES-PROPIOS-EN-TABLAS-DEL-DESARROLLO.md"
+
+    def test_el_md_existe_y_cubre_lo_que_debe(self):
+        texto = (ROOT / self.MD).read_text(encoding="utf-8")
+        for pedazo in ("IF OBJECT_ID", "nunca hace `ALTER` ni `DROP`", "migración propia", "SELECT`, `INSERT`, `UPDATE`, `DELETE`", "Sin `UPDATE` ni `DELETE`", "autoincremental: true",
+                       "plantilla: roles", "_RolesPersonas", "AGP_RRHH", "app_people_agpts", "0021_roles_propios.py", "data-access-manifest.roles-propios.valid.json"):
+            self.assertIn(pedazo, texto, pedazo)
+
+    def test_lo_enlazan_los_puntos_de_entrada_y_los_prompts_maestros(self):
+        for archivo in ("START-HERE.md", "AGENTS.md", "OBLIGATORIOS-DEL-DESARROLLO.md", "ACCESO-Y-ROLES-DEL-DESARROLLO.md", "CONFIGURACION-LOCAL-ROLES-Y-SECRETOS.md",
+                        "templates/auth-estandar/README.md", "prompt-master-development.md", "promt-master.md"):
+            self.assertIn(self.MD, (ROOT / archivo).read_text(encoding="utf-8"), archivo)
+
+    def test_el_ejemplo_valida_contra_el_esquema_y_sigue_el_patron(self):
+        import json
+
+        from jsonschema import Draft202012Validator
+
+        esquema = json.loads((ROOT / "schemas" / "data-access-manifest.schema.json").read_text(encoding="utf-8"))
+        ejemplo = json.loads((ROOT / "examples" / "data-access-manifest.roles-propios.valid.json").read_text(encoding="utf-8"))
+        self.assertEqual(list(Draft202012Validator(esquema).iter_errors(ejemplo)), [])
+        propias = {t["table"]: t for f in ejemplo["fuentes_datos"] for e in f["esquemas"] for t in e["tablas"] if t["origen"] == "propia_del_desarrollo"}
+        self.assertEqual(sorted(propias), ["App_Ejemplo_Demo_sistema_roles_auditoria", "App_Ejemplo_Demo_sistema_roles_personas"])
+        self.assertEqual(propias["App_Ejemplo_Demo_sistema_roles_personas"]["operaciones_permitidas"], ["SELECT", "INSERT", "UPDATE", "DELETE"])
+        self.assertEqual(propias["App_Ejemplo_Demo_sistema_roles_auditoria"]["operaciones_permitidas"], ["SELECT", "INSERT"])
+        self.assertTrue((ROOT / self.MD).read_text(encoding="utf-8").count("examples/data-access-manifest.roles-propios.valid.json") >= 1)
 
 
 if __name__ == "__main__":

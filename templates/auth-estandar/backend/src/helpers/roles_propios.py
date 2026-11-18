@@ -11,8 +11,9 @@ Qué decide y qué NO decide
   · Falla cerrada: si la base no responde, la persona queda en «general» (vista general, sin permisos de administración), nunca con más de lo que dice la tabla.
 
 Tablas (se declaran en `ai/outputs/data-access-manifest.json`, ver `examples/data-access-manifest.roles-propios.valid.json`; la plantilla de nombres está en NOMENCLATURA-DATOS.md):
-    <esquema>.<tabla de personas>    Id (int, identidad) · Correo (único, minúsculas) · Perfil
-    <esquema>.<tabla de auditoría>   Id (int, identidad) · Fecha · Actor · Destinatario · PerfilAnterior · PerfilNuevo · Resultado
+    <esquema>.<tabla de personas>    id (int, identidad) · correo (único, minúsculas) · perfil · asignado_por · created_at · updated_at
+    <esquema>.<tabla de auditoría>   id (int, identidad) · fecha · actor · accion · correo · perfil_anterior · perfil_nuevo · motivo · resultado
+  Es la forma de AGPTS (`..._sistema_roles_personas` y `..._sistema_roles_auditoria`); guía: ROLES-PROPIOS-EN-TABLAS-DEL-DESARROLLO.md.
   Permisos mínimos: personas SELECT/INSERT/UPDATE/DELETE y auditoría SELECT/INSERT (la auditoría nunca se edita ni se borra). Los nombres vienen de variables de entorno
   (no son secretos; se declaran en `env` de `.agp/runtime.yaml`):
     ROLES_PROPIOS_ESQUEMA   ROLES_PROPIOS_TABLA_PERSONAS   ROLES_PROPIOS_TABLA_AUDITORIA   CONFIG_ADMINISTRADORES_INICIALES
@@ -110,7 +111,7 @@ class RepoSql:
     def perfil_de(self, correo):
         con = self._abrir()
         try:
-            fila = con.cursor().execute(f"SELECT Perfil FROM {self._personas} WHERE Correo = ?", correo).fetchone()
+            fila = con.cursor().execute(f"SELECT perfil FROM {self._personas} WHERE correo = ?", correo).fetchone()
             return fila[0] if fila else None
         finally:
             con.close()
@@ -118,7 +119,7 @@ class RepoSql:
     def personas(self):
         con = self._abrir()
         try:
-            return [(f[0], f[1]) for f in con.cursor().execute(f"SELECT Correo, Perfil FROM {self._personas} ORDER BY Correo").fetchall()]
+            return [(f[0], f[1]) for f in con.cursor().execute(f"SELECT correo, perfil FROM {self._personas} ORDER BY correo").fetchall()]
         finally:
             con.close()
 
@@ -126,8 +127,8 @@ class RepoSql:
         con = self._abrir()
         try:
             filas = con.cursor().execute(
-                f"SELECT TOP (?) Fecha, Actor, Destinatario, PerfilAnterior, PerfilNuevo, Resultado FROM {self._auditoria} ORDER BY Id DESC", int(limite)).fetchall()
-            return [{"fecha": str(f[0]), "actor": f[1], "destinatario": f[2], "perfilAnterior": f[3], "perfilNuevo": f[4], "resultado": f[5]} for f in filas]
+                f"SELECT TOP (?) fecha, actor, accion, correo, perfil_anterior, perfil_nuevo, resultado FROM {self._auditoria} ORDER BY id DESC", int(limite)).fetchall()
+            return [{"fecha": str(f[0]), "actor": f[1], "accion": f[2], "destinatario": f[3], "perfilAnterior": f[4], "perfilNuevo": f[5], "resultado": f[6]} for f in filas]
         finally:
             con.close()
 
@@ -135,7 +136,7 @@ class RepoSql:
         """Una línea de auditoría que no cambia perfiles (cargar un secreto, un intento rechazado). Nunca lleva valores."""
         con = self._abrir()
         try:
-            con.cursor().execute(f"INSERT INTO {self._auditoria} (Fecha, Actor, Destinatario, PerfilAnterior, PerfilNuevo, Resultado) VALUES (SYSUTCDATETIME(), ?, ?, NULL, NULL, ?)",
+            con.cursor().execute(f"INSERT INTO {self._auditoria} (fecha, actor, accion, correo, perfil_anterior, perfil_nuevo, motivo, resultado) VALUES (SYSUTCDATETIME(), ?, 'secreto', ?, NULL, NULL, NULL, ?)",
                                  actor, destinatario, resultado)
             con.commit()
         except Exception:
@@ -166,18 +167,20 @@ class RepoSql:
         con = self._abrir()
         try:
             cur = con.cursor()
-            anterior = cur.execute(f"SELECT Perfil FROM {self._personas} WHERE Correo = ?", destinatario).fetchone()
+            anterior = cur.execute(f"SELECT perfil FROM {self._personas} WHERE correo = ?", destinatario).fetchone()
             anterior = anterior[0] if anterior else None
-            personas = [(f[0], f[1]) for f in cur.execute(f"SELECT Correo, Perfil FROM {self._personas}").fetchall()]
+            personas = [(f[0], f[1]) for f in cur.execute(f"SELECT correo, perfil FROM {self._personas}").fetchall()]
             validar(anterior, personas)
             if perfil_nuevo is None:
-                cur.execute(f"DELETE FROM {self._personas} WHERE Correo = ?", destinatario)
+                cur.execute(f"DELETE FROM {self._personas} WHERE correo = ?", destinatario)
             elif anterior is None:
-                cur.execute(f"INSERT INTO {self._personas} (Correo, Perfil) VALUES (?, ?)", destinatario, perfil_nuevo)
+                cur.execute(f"INSERT INTO {self._personas} (correo, perfil, asignado_por, created_at, updated_at) VALUES (?, ?, ?, SYSUTCDATETIME(), SYSUTCDATETIME())",
+                            destinatario, perfil_nuevo, actor)
             else:
-                cur.execute(f"UPDATE {self._personas} SET Perfil = ? WHERE Correo = ?", perfil_nuevo, destinatario)
-            cur.execute(f"INSERT INTO {self._auditoria} (Fecha, Actor, Destinatario, PerfilAnterior, PerfilNuevo, Resultado) VALUES (SYSUTCDATETIME(), ?, ?, ?, ?, ?)",
-                        actor, destinatario, anterior, perfil_nuevo, "aplicado")
+                cur.execute(f"UPDATE {self._personas} SET perfil = ?, asignado_por = ?, updated_at = SYSUTCDATETIME() WHERE correo = ?", perfil_nuevo, actor, destinatario)
+            accion = "quitar" if perfil_nuevo is None else ("asignar" if anterior is None else "cambiar")
+            cur.execute(f"INSERT INTO {self._auditoria} (fecha, actor, accion, correo, perfil_anterior, perfil_nuevo, motivo, resultado) VALUES (SYSUTCDATETIME(), ?, ?, ?, ?, ?, NULL, ?)",
+                        actor, accion, destinatario, anterior, perfil_nuevo, "aplicado")
             con.commit()
             return anterior
         except Exception:

@@ -321,6 +321,7 @@ harness-policy.md              → Controles operativos y checklists
 ARQUITECTURA-DESPLIEGUE.md   → Norma de arquitectura de entrega: monolito desplegable (un contenedor, un recurso)
 PERMISOS-Y-SECRETOS-DEL-WORKER.md → Cómo funciona el worker con permisos y secretos: qué declarar en el manifiesto y en runtime.yaml
 ACCESO-Y-ROLES-DEL-DESARROLLO.md → Quién entra y con qué rol: `acceso` en .agp/entra.yaml (organización o asignado), ROLES.md y qué documenta cada agente
+ROLES-PROPIOS-EN-TABLAS-DEL-DESARROLLO.md → Cómo crear las tablas de roles de todo desarrollo nuevo (patrón de dos tablas, permisos del worker, nombres, RRHH/People) con AGPTS como referencia
 OBLIGATORIOS-DEL-DESARROLLO.md → Todo lo obligatorio de un desarrollo (regla, ejemplo correcto e incorrecto, quién lo comprueba): la lista que sigue el Agente de Despliegue
 COMO-DEJARLO-FUNCIONAL.md    → Pasos cortos para dejar funcional el acceso, los roles y los secretos, y la lista de comprobación previa a pedir el despliegue
 CONTRATO-TUNEL-ROLES.md      → (RETIRADO, heredado) API `/api/roles-app` del túnel de la Mesa; la configuración vigente es CONFIGURACION-LOCAL-ROLES-Y-SECRETOS.md

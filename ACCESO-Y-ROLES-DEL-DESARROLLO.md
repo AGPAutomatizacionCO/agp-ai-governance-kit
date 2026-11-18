@@ -16,6 +16,8 @@ Los administradores iniciales ya aprobados pueden conservarse para iniciar la ge
 
 Seguir [Configuración local de roles y secretos](CONFIGURACION-LOCAL-ROLES-Y-SECRETOS.md): contiene cómo mostrar y proteger la vista, asignar los perfiles a personas, auditar en tablas propias y escribir secretos permitidos mediante la identidad administrada propia en Key Vault. Incluye archivos de referencia en SmartBending y Portal SAC y pruebas de aceptación/rechazo.
 
+Para crear las tablas de roles de un desarrollo nuevo (patrón de dos tablas propias, permisos que concede el worker, nombres que no chocan con el túnel, RRHH/People en AGP_RRHH y AGPTS como referencia) seguir [Roles propios en tablas del desarrollo](ROLES-PROPIOS-EN-TABLAS-DEL-DESARROLLO.md).
+
 Si existe `ROLES.md`, documenta perfiles y capacidades reales, vista general, administradores iniciales y correspondencia con la matriz de autorización y el manifiesto de datos. No crear dominios o áreas ficticias para satisfacer una plantilla. Las asignaciones propias se declaran y aprovisionan con su contrato de datos, dentro del esquema normativo de cada desarrollo. No usar tablas de la Mesa para resolver el acceso. Los roles no tienen vigencia: una asignación dura hasta que un administrador la cambie o retire; la expiración de la sesión no elimina la asignación.
 
 La pantalla Configuración es una única entrada administrativa; mostrarla solo a quien tenga capacidad y comprobar el mismo permiso vigente en TODOS los endpoints. Las sesiones antiguas o una caché de respaldo no deben permitir administrar después de revocar el acceso. No basta con ocultar un botón. Sin permiso, devolver 403 y mostrar la vista sin acceso correspondiente.

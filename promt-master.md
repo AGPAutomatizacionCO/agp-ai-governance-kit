@@ -29,6 +29,7 @@ Antes de responder, debes aplicar obligatoriamente los siguientes documentos de 
 10. specs/007-deployment-notes.md
 11. specs/008-monitoring-notes.md
 12. specs/009-change-log.md
+13. ROLES-PROPIOS-EN-TABLAS-DEL-DESARROLLO.md del kit (si el desarrollo tiene roles, accesos o pantalla de configuración: cómo crear las tablas de roles)
 
 Principio rector:
 

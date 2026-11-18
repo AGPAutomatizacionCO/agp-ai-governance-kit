@@ -183,7 +183,7 @@ perfilesIniciales:
 
 ## 10. Pantalla «Configuración de roles y secretos»
 
-**Configuración propia (sin la Mesa en ejecución).** `/configuracion` monta `ConfiguracionDesarrollo` (pestañas Usuarios, Secretos y Actividad) contra la **API propia** del desarrollo (`bp_configuracion.py`); **no se arma otra**. Las asignaciones y la auditoría viven en dos tablas del esquema del desarrollo. Qué ve cada persona está en `ACCESO-Y-ROLES-DEL-DESARROLLO.md` y cómo se implementa en `CONFIGURACION-LOCAL-ROLES-Y-SECRETOS.md`.
+**Configuración propia (sin la Mesa en ejecución).** `/configuracion` monta `ConfiguracionDesarrollo` (pestañas Usuarios, Secretos y Actividad) contra la **API propia** del desarrollo (`bp_configuracion.py`); **no se arma otra**. Las asignaciones y la auditoría viven en dos tablas del esquema del desarrollo. Qué ve cada persona está en `ACCESO-Y-ROLES-DEL-DESARROLLO.md`, cómo se implementa en `CONFIGURACION-LOCAL-ROLES-Y-SECRETOS.md` y **cómo se crean las dos tablas de roles (patrón, permisos del worker, nombres) en `ROLES-PROPIOS-EN-TABLAS-DEL-DESARROLLO.md`**, con AGPTS como referencia.
 
 | Marca | Qué es |
 |---|---|
