@@ -20,6 +20,8 @@ Si existe `ROLES.md`, documenta perfiles y capacidades reales, vista general, ad
 
 La pantalla Configuración es una única entrada administrativa; mostrarla solo a quien tenga capacidad y comprobar el mismo permiso vigente en TODOS los endpoints. Las sesiones antiguas o una caché de respaldo no deben permitir administrar después de revocar el acceso. No basta con ocultar un botón. Sin permiso, devolver 403 y mostrar la vista sin acceso correspondiente.
 
+**Cuándo se muestra `SinAcceso` y cuándo la vista general.** Con `acceso: organizacion` (la norma) quien inicia sesión y no tiene fila en la tabla de personas, o tiene un perfil que ya no existe, ve la **vista general** (solo lectura, sin datos sensibles): `roles_propios.resolver` lo devuelve como nivel `general`. `SinAcceso` (sin texto libre, con el contacto del desarrollador funcional) se monta cuando el desarrollo no tiene vista general que mostrar o con `acceso: asignado` y la persona no está asignada. Si la base no responde, la persona queda en `general` (falla cerrada), nunca con más permisos. Plantillas: `templates/auth-estandar/` (`roles_propios.py`, `bp_configuracion.py`, `ConfiguracionDesarrollo.jsx`, `SinAcceso.jsx`); el ejemplo de manifiesto de las dos tablas y de la vista de usuarios está en `examples/data-access-manifest.roles-propios.valid.json`.
+
 Los secretos se declaran por referencia en `.agp/runtime.yaml`; sus valores se cargan en Key Vault y no aparecen en documentos, código, `.env.example`, manifiestos, respuesta ni auditoría. No sobrescribir las credenciales SQL aprovisionadas desde una pantalla de secretos manuales.
 
 ## Integración heredada

@@ -35,28 +35,25 @@ En el mismo `runtime.yaml` declara `desarrollo: <nombre>` y cada secreto como `<
 El valor lo carga el administrador principal desde la pestaña **Secretos** de «Configuración» (o el responsable, antes del primer despliegue, en la ruta «Prepara tu solicitud a IT»). Regla y ejemplos: `ACCESO-Y-ROLES-DEL-DESARROLLO.md` §6.
 Comprueba con `python -m agpctl runtime check --repo .`.
 
-### 5. El backend lee el rol por el túnel
+### 5. El backend autoriza con las tablas del desarrollo
 
-Copia `templates/auth-estandar/backend/src/helpers/roles_mesa.py` (junto a `auth.py`) y úsalo después de validar el token:
+Copia `templates/auth-estandar/backend/src/helpers/roles_propios.py` y `backend/src/flask_config/bp_configuracion.py` (junto a `auth.py`), edita `PERFILES` con la matriz real, registra el blueprint y úsalo después de validar el token:
 
 ```python
-from flask import request
-from src.helpers import roles_mesa
+from src.helpers import roles_propios
 
-id_token = request.headers.get("Authorization", "").removeprefix("Bearer ")   # el mismo token que valida require_auth
-alcance = roles_mesa.resolver(g.user_email, id_token)
+alcance = roles_propios.resolver(g.user_email)   # el correo sale del token validado por require_auth
 if not alcance.administra:   # nivel global o admin
     return jsonify({"message": "Solo administradores"}), 403
 ```
 
-Pregunta `GET /api/roles-app/<id>/mios` con el mismo `id_token`, guarda la respuesta 60 s y **falla cerrada** (vista general) si la Mesa no responde. Contrato: `CONTRATO-TUNEL-ROLES.md`.
-El frontend usa el cliente `src/services/rolesMesa.js`, el menú `UserMenu` (con «Configuración» directo a `/configuracion`) y la pantalla `ConfiguracionDesarrollo`, todos del paquete.
+Lee la tabla de personas del esquema del desarrollo (caché de 30 s), **falla cerrada** (vista general) si la base no responde y nunca llama a la Mesa. Los endpoints administrativos releen el permiso en cada llamada. Guía: `CONFIGURACION-LOCAL-ROLES-Y-SECRETOS.md`. El frontend usa `src/services/configuracionLocal.js`, el menú `UserMenu` (con «Configuración» directo a `/configuracion`) y la pantalla `ConfiguracionDesarrollo`, todos del paquete.
 
-### 6. La app SOLO usa el túnel: no crea ni escribe tablas de roles
+### 6. Las dos tablas de acceso son del desarrollo y se declaran
 
-- La Mesa guarda los roles de un desarrollo **nuevo** en tres tablas de su propio esquema (`App_<Área>_<Desarrollo>_Roles`, `…_RolesDatos`, `…_RolesPersonas`, sin vigencia), que **crea y valida el worker en el despliegue**; SAC y los desarrollos que ya tenían roles siguen en las tablas centrales de la Mesa hasta su migración.
-- **Tu app no cambia en ningún caso:** lee el rol **por el túnel** (`/mios`) y solo la Mesa escribe. **No crea, no escribe, no lee directamente y no declara** tablas de roles (si las declaras en `ai/outputs/data-access-manifest.json`, el plan las bloquea como «nombre reservado»), y no tiene una tabla de usuarios propia. No llames a Graph para roles.
-- Los roles son de gestión continua: **sin vigencia** ni fecha de vencimiento.
+- Declara en `ai/outputs/data-access-manifest.json` la tabla de personas (`SELECT`/`INSERT`/`UPDATE`/`DELETE`) y la de auditoría (`SELECT`/`INSERT`), propias del desarrollo (`crear_en_despliegue`, PK entera con `autoincremental: true`), y la vista `corporacion.vw_UsuariosCorporacion` como `preexistente` solo `SELECT`. Ejemplo: `examples/data-access-manifest.roles-propios.valid.json`.
+- Los nombres `_Roles`, `_RolesDatos` y `_RolesPersonas` están reservados para el modo heredado: no los uses. Los roles son de gestión continua: **sin vigencia** ni fecha de vencimiento.
+- El túnel `/api/roles-app` está retirado: `templates/auth-estandar-tunel-heredado/` es solo referencia para migrar.
 
 ### 7. En local (sin la Mesa)
 
@@ -77,8 +74,8 @@ Cada punto es verificable en el repositorio (el Agente de Despliegue lo reporta 
 - [ ] Login con MSAL 5: `redirectUri` y `postLogoutRedirectUri` de `src/config/msal.js` = `${origin}/auth/redirect`; existen `auth/redirect.html` y `src/auth/redirect.js`; la compilación genera `dist/auth/redirect.html` y el servidor lo sirve en `GET /auth/redirect` (nunca `index.html`).
 - [ ] `ROLES.md` v2 con `permisos` y `perfilesIniciales`, sin `sinAcceso.mensaje`.
 - [ ] `.agp/runtime.yaml`: `ROLES_DESDE_MESA`, `MESA_API_URL` (https) y `MESA_ID_PROYECTO` en `env`; `desarrollo:` y todo secreto como `<desarrollo>-<dato>`; sin valores secretos; `python -m agpctl runtime check` sin `issues` ni `avisos`.
-- [ ] Backend: lee el rol por `GET /api/roles-app/<id>/mios` con el `id_token` (helper `roles_mesa.py` o equivalente) y falla cerrada.
-- [ ] Frontend: `UserMenu` con las marcas `data-agp-menu` y «Configuración» directo a `/configuracion`; `ConfiguracionDesarrollo` montada (`data-agp-configuracion="estandar"`); cliente `rolesMesa.js`.
+- [ ] Backend: autoriza con `roles_propios.resolver(g.user_email)` (tablas propias declaradas en el manifiesto), falla cerrada y relee el permiso en cada endpoint administrativo.
+- [ ] Frontend: `UserMenu` con las marcas `data-agp-menu` y «Configuración» directo a `/configuracion`; `ConfiguracionDesarrollo` montada (`data-agp-configuracion="estandar"`); cliente `configuracionLocal.js`.
 - [ ] Pantalla `SinAcceso` estándar (sin texto libre) y `GET /api/config` con `contactoNombre` y `contactoCorreo`.
 - [ ] Ninguna tabla de usuarios o de roles propia, ningún `CREATE TABLE`/`INSERT`/`UPDATE` sobre tablas de roles, ninguna ruta propia de administración de usuarios o roles; el manifiesto de datos no declara las tres tablas de roles.
 - [ ] Sin `.env` real en el repositorio; `DISABLE_AUTH` solo en local.

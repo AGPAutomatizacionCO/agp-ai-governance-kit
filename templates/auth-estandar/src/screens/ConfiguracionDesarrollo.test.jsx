@@ -2,75 +2,63 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("../contexts/AuthContext", () => ({ useAuth: () => ({ getAuthToken: async () => "token" }) }));
-vi.mock("../config/msal", () => ({ appInfo: { roles: null } }));
+vi.mock("../contexts/AuthContext", () => ({ useAuth: () => ({ getAuthToken: async () => "tok" }) }));
+vi.mock("../hooks/useIdiomaAgp", () => ({ default: () => ({ idioma: "es" }) }));
 vi.mock("../styles/configuracion-estandar.css", () => ({}));
 
-import ConfiguracionDesarrollo, { capacidades, filtrarPersonas, ordenarPermisos, origenDe, perfilParaGuardar, resumenDeRol } from "./ConfiguracionDesarrollo";
+import ConfiguracionDesarrollo, { ModalAsignar, PanelActividad, PanelSecretos, PanelUsuarios, mensajeDe, nombreDePerfil, PESTANAS } from "./ConfiguracionDesarrollo";
 
-const CATALOGO = [
-    { modulo: "pedidos", nombre: "Pedidos", funciones: [{ id: "crear", nombre: "Crear" }, { id: "exportar", nombre: "Exportar" }] },
-    { modulo: "alarmas", nombre: "Alarmas", funciones: [{ id: "editar", nombre: "Editar" }] },
-];
+const T = new Proxy({}, { get: (_, k) => String(k) });   // los textos se comprueban por clave, no por traducción
+const PERFILES = [{ id: "administrador", nombre: "Administrador", administra: true }, { id: "consulta", nombre: "Consulta", administra: false }];
+const ESTADO = { puedeConfigurar: true, perfiles: PERFILES, personas: [{ correo: "ana@agpglass.com", perfil: "consulta" }], administradoresIniciales: ["ini@agpglass.com"] };
 
-describe("pantalla estándar de configuración de roles y secretos", () => {
-    it("cumple el contrato que verifica la Mesa: raíz con data-agp-configuracion y título", () => {
-        const html = renderToStaticMarkup(<ConfiguracionDesarrollo />);
-        expect(html).toContain('data-agp-configuracion="estandar"');
-        expect(html).toContain("Configuración de roles y secretos");
-    });
+describe("pantalla estándar de configuración (local)", () => {
+  it("la raíz lleva la marca que verifica la Mesa y, mientras carga, no muestra pestañas ni datos", () => {
+    const html = renderToStaticMarkup(<ConfiguracionDesarrollo api={{ estado: () => new Promise(() => {}) }} />);
+    expect(html).toContain('data-agp-configuracion="estandar"');
+    expect(html).not.toContain("data-agp-pestana");
+  });
 
-    it("sin conexión con la Mesa lo dice y no inventa datos", () => {
-        const html = renderToStaticMarkup(<ConfiguracionDesarrollo />);
-        expect(html).toContain("ROLES_DESDE_MESA");
-        expect(html).not.toContain('role="tablist"');
-    });
+  it("las pestañas del contrato son usuarios, secretos y actividad", () => {
+    expect(PESTANAS).toEqual(["usuarios", "secretos", "actividad"]);
+  });
 
-    it("quien mira solo puede lo que la Mesa le responde (el servidor igual lo rechaza)", () => {
-        expect(capacidades({ yo: { esAdmin: true, adminGlobal: true, asignarPersonas: true, editarPerfiles: true } }, { puedeCargar: true }))
-            .toEqual({ esAdmin: true, asignar: true, editarRoles: true, principal: true, cargarSecretos: true });
-        // administrador secundario: ve todo y edita roles, pero no asigna ni carga secretos
-        expect(capacidades({ yo: { esAdmin: true, adminGlobal: false, asignarPersonas: false, editarPerfiles: true } }, { puedeCargar: false }))
-            .toEqual({ esAdmin: true, asignar: false, editarRoles: true, principal: false, cargarSecretos: false });
-        expect(capacidades(null, null).esAdmin).toBe(false);
-    });
+  it("usuarios: lista personas con su perfil, el administrador inicial y las acciones", () => {
+    const html = renderToStaticMarkup(<PanelUsuarios estado={ESTADO} t={T} ocupado={false} onAsignar={() => {}} onCambiar={() => {}} onQuitar={() => {}} />);
+    for (const texto of ["ana@agpglass.com", "Consulta", "ini@agpglass.com", "inicial", "asignar", "quitar", "cambiar"]) expect(html).toContain(texto);
+  });
 
-    it("los permisos se guardan en el orden del catálogo: módulo y luego sus funciones", () => {
-        expect(ordenarPermisos(CATALOGO, new Set(["alarmas.editar", "pedidos.exportar", "pedidos", "alarmas"]))).toEqual(["pedidos", "pedidos.exportar", "alarmas", "alarmas.editar"]);
-        expect(ordenarPermisos(CATALOGO, ["pedidos.crear"])).toEqual(["pedidos.crear"]);
-        expect(ordenarPermisos(null, null)).toEqual([]);
-    });
+  it("el modal de asignar cumple role=dialog y aria-modal y ofrece los perfiles del servidor", () => {
+    const html = renderToStaticMarkup(<ModalAsignar t={T} perfiles={PERFILES} api={null} persona={{ correo: "ana@agpglass.com", perfil: "consulta" }} onCerrar={() => {}} onConfirmar={() => {}} />);
+    expect(html).toContain('role="dialog"');
+    expect(html).toContain('aria-modal="true"');
+    expect(html).toContain("Administrador");
+    expect(html).toContain("ana@agpglass.com");
+  });
 
-    it("el resumen de un rol cuenta vistas, acciones y datos", () => {
-        expect(resumenDeRol({ permisos: ["pedidos", "pedidos.crear", "alarmas"], areas: ["a", "b"] })).toEqual({ vistas: 2, acciones: 1, datos: 2 });
-        expect(resumenDeRol(undefined)).toEqual({ vistas: 0, acciones: 0, datos: 0 });
-    });
+  it("secretos: solo nombres, sin valores; el campo de valor es de contraseña y solo existe al editar", () => {
+    const html = renderToStaticMarkup(<PanelSecretos secretos={{ nombres: ["demo-clave-externa"] }} t={T} ocupado={false} onGuardar={async () => true} />);
+    expect(html).toContain("demo-clave-externa");
+    expect(html).not.toContain('type="password"');
+    expect(renderToStaticMarkup(<PanelSecretos secretos={{ nombres: [] }} t={T} ocupado={false} onGuardar={async () => true} />)).toContain("sinSecretos");
+  });
 
-    it("el rol que se pide guardar lleva el nombre limpio, permisos ordenados y su id solo si ya existe", () => {
-        const nuevo = perfilParaGuardar({ id: null, nombre: "  Consulta   de pedidos ", permisos: new Set(["pedidos.exportar", "pedidos"]), areas: new Set(["x"]) }, CATALOGO);
-        expect(nuevo).toEqual({ nombre: "Consulta de pedidos", permisos: ["pedidos", "pedidos.exportar"], areas: ["x"] });
-        expect(perfilParaGuardar({ id: "p1", nombre: "A b", permisos: [], areas: [] }, CATALOGO).id).toBe("p1");
-    });
+  it("actividad: tabla de la auditoría o mensaje vacío", () => {
+    const filas = [{ fecha: "2026-11-18 10:00", actor: "admin@agpglass.com", destinatario: "ana@agpglass.com", perfilAnterior: null, perfilNuevo: "consulta", resultado: "aplicado" }];
+    expect(renderToStaticMarkup(<PanelActividad filas={filas} t={T} />)).toContain("admin@agpglass.com");
+    expect(renderToStaticMarkup(<PanelActividad filas={[]} t={T} />)).toContain("sinActividad");
+  });
 
-    const PERSONAS = [
-        { correo: "ana@agpglass.com", nombre: "Ana Pérez", perfil: "alarmas", nivel: "usuario" },
-        { correo: "luis@agpglass.com", nombre: "Luis Gómez", nivel: "admin" },
-        { correo: "marta@agpglass.com", nombre: "Marta Rojas", perfil: "consulta", porArea: "Finance" },
-        { correo: "paola@agpglass.com", nombre: "Paola Ruiz", vistaGeneral: true },
-    ];
+  it("ayudantes: mensaje sin detalle técnico y nombre de perfil con respaldo", () => {
+    expect(mensajeDe(new Error("No tienes permiso"))).toBe("No tienes permiso");
+    expect(mensajeDe(null)).toContain("No se pudo");
+    expect(nombreDePerfil(PERFILES, "consulta")).toBe("Consulta");
+    expect(nombreDePerfil(PERFILES, "otro")).toBe("otro");
+  });
 
-    it("cada usuario tiene un origen: asignado, regla de área o vista general", () => {
-        expect(PERSONAS.map(origenDe)).toEqual(["asignado", "asignado", "regla", "general"]);
-    });
-
-    it("los filtros combinan texto, rol y origen", () => {
-        expect(filtrarPersonas(PERSONAS, {})).toHaveLength(4);
-        expect(filtrarPersonas(PERSONAS, { texto: "MARTA" }).map((p) => p.correo)).toEqual(["marta@agpglass.com"]);
-        expect(filtrarPersonas(PERSONAS, { texto: "agpglass.com", rol: "alarmas" }).map((p) => p.nombre)).toEqual(["Ana Pérez"]);
-        expect(filtrarPersonas(PERSONAS, { rol: "@admin" }).map((p) => p.nombre)).toEqual(["Luis Gómez"]);
-        expect(filtrarPersonas(PERSONAS, { origen: "regla" }).map((p) => p.nombre)).toEqual(["Marta Rojas"]);
-        expect(filtrarPersonas(PERSONAS, { origen: "general" }).map((p) => p.nombre)).toEqual(["Paola Ruiz"]);
-        expect(filtrarPersonas(PERSONAS, { texto: "zzz" })).toEqual([]);
-        expect(filtrarPersonas(null, {})).toEqual([]);
-    });
+  it("no depende del túnel de la Mesa", async () => {
+    const fuente = (await import("node:fs")).readFileSync(new URL("./ConfiguracionDesarrollo.jsx", import.meta.url), "utf8");
+    expect(fuente).not.toContain("rolesMesa");
+    expect(fuente).not.toContain("roles-app");
+  });
 });

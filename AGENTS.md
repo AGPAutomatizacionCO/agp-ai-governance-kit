@@ -323,7 +323,7 @@ PERMISOS-Y-SECRETOS-DEL-WORKER.md → Cómo funciona el worker con permisos y se
 ACCESO-Y-ROLES-DEL-DESARROLLO.md → Quién entra y con qué rol: `acceso` en .agp/entra.yaml (organización o asignado), ROLES.md y qué documenta cada agente
 OBLIGATORIOS-DEL-DESARROLLO.md → Todo lo obligatorio de un desarrollo (regla, ejemplo correcto e incorrecto, quién lo comprueba): la lista que sigue el Agente de Despliegue
 COMO-DEJARLO-FUNCIONAL.md    → Pasos cortos para dejar funcional el acceso, los roles y los secretos, y la lista de comprobación previa a pedir el despliegue
-CONTRATO-TUNEL-ROLES.md      → API `/api/roles-app` con la que habla la pantalla de configuración de roles y secretos: rutas, autenticación con el id_token, cuerpos y errores
+CONTRATO-TUNEL-ROLES.md      → (RETIRADO, heredado) API `/api/roles-app` del túnel de la Mesa; la configuración vigente es CONFIGURACION-LOCAL-ROLES-Y-SECRETOS.md
 DESPLIEGUE-A-MAIN.md         → Quién decide cómo se publica `main`: IT, con la política de CD por desarrollo (apagado, automático o limitado); qué publica el CD y qué nunca
 NORMA-GITHUB-ACTIONS.md      → Reglas obligatorias para no gastar minutos de Actions: 3 para las personas (borrador, un solo PR, probar en local) y 5 para los workflows
 agent-context-package.md       → Cómo entregar contexto a los agentes
